@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>QXAV8R Tools</title>
+<style>
+:root { --bg:#f3f5f7; --panel:#fff; --ink:#18212b; --muted:#5b6875; --line:#d6dde4; --hero:#0f1e3a; --gold:#f5b841; --accent:#0b6e8a; }
+@media (prefers-color-scheme: dark) { :root { --bg:#0f151b; --panel:#161e26; --ink:#e3e9ef; --muted:#93a1ae; --line:#2a3540; --hero:#0b1628; --accent:#4fb3cf; } }
+body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.5 -apple-system,BlinkMacSystemFont,system-ui,sans-serif; }
+.wrap { max-width:720px; margin:0 auto; padding:24px 16px 48px; display:grid; gap:16px; }
+header { background:var(--hero); color:#fff; border-radius:12px; padding:20px 24px; }
+h1 { margin:0; color:var(--gold); font-size:2rem; }
+header p { margin:4px 0 0; color:#c9d6ec; }
+a.tool { display:block; background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:16px 18px; text-decoration:none; color:var(--ink); }
+a.tool:hover { border-color:var(--accent); }
+a.tool strong { color:var(--accent); font-size:1.15rem; }
+a.tool span { display:block; color:var(--muted); font-size:.95rem; }
+footer { color:var(--muted); font-size:.85rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>QXAV8R</h1>
+    <p>Logbook tools for pilots</p>
+  </header>
+  <a class="tool" href="floggy-go-lbk/">
+    <strong>Floggy Go Lbk</strong>
+    <span>eCrew Pilot Logbook CSV → LogTen</span>
+  </a>
+  <a class="tool" href="floggy-go-skd/">
+    <strong>Floggy Go Skd</strong>
+    <span>eCrew Crew Schedule CSV → LogTen</span>
+  </a>
+  <footer>Your files are read on your own device and never uploaded. Not affiliated with any airline.</footer>
+</div>
+</body>
+</html>
