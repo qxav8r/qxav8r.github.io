@@ -102,7 +102,7 @@ button.btn:disabled, a.btn[aria-disabled="true"] { opacity:.45; pointer-events:n
     <h2 id="rhead">Legs</h2>
     <label class="opt"><input type="checkbox" id="sched"> Include scheduled times (STD/STA)</label>
     <div id="legs"></div>
-    <p class="msg">Leave STD/STA off to keep your eCrew / contract scheduled times in LogTen.</p>
+    <p class="msg">Leave STD/STA off: eCrew has your IBT contract times, and Alaska shows its public ORA times. <a href="../help/#flifo">Why?</a></p>
     <div class="btns">
       <a class="btn" id="send" href="#" aria-disabled="true">Send to LogTen</a>
       <button class="btn ghost" id="copyUrl" type="button" disabled>Copy LogTen URL</button>
@@ -122,7 +122,9 @@ button.btn:disabled, a.btn[aria-disabled="true"] { opacity:.45; pointer-events:n
         <tr><td>Same route twice (return to gate)</td><td>Nothing: enter it by hand</td></tr>
       </tbody>
     </table>
-    <p><strong>ATA (In):</strong> Alaska's arrival time is the <em>On</em> (touchdown) time, so the box starts with that. Change it to your block-in time, e.g. 16:12 or 1612.</p>
+    <p><strong>ATA (In):</strong> Alaska only reports the <em>On</em> (touchdown) time, not block-in. The box starts with Alaska's On time; change it to your block-in time, e.g. 16:12 or 1612.</p>
+    <p><strong>STD/STA:</strong> off by default so your IBT contract scheduled times in LogTen stay put. Alaska's are the public ORA times.</p>
+    <p>Full details: <a href="../help/#flifo">Floggy-Go Help → Flifo</a>.</p>
     <p>LogTen updates the matching flight (date + flight number + route) or adds a new one. Times are station local, like eCrew.</p>
   </section>
 

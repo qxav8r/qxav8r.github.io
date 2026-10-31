@@ -89,6 +89,7 @@ code { font:.85rem var(--f-data); }
     <a href="#switches">Switches</a>
     <a href="#table">Leg table</a>
     <a href="#send">Sending</a>
+    <a href="#flifo">Flifo</a>
     <a href="#tips">If something's off</a>
   </nav>
 
@@ -99,6 +100,7 @@ code { font:.85rem var(--f-data); }
       <li><strong><a href="../schedule/">Floggy-Go Schedule</a></strong> for the <em>Personal Crew Schedule Report</em>, one bid month at a time, with crew, scheduled times and duty times.</li>
       <li><strong><a href="../logbook/">Floggy-Go Logbook</a></strong> for the <em>Pilot Logbook</em> report: flown legs with actual times, tail, landings, P1/P2 and Part 121/91.</li>
     </ul>
+    <p>On the road, <strong><a href="../flifo/">Floggy-Go Flifo</a></strong> fills in actual out/in times and tail from Alaska's flight status. See <a href="#flifo">Flifo</a> below.</p>
     <ol>
       <li>Save the report from eCrew as a CSV file.</li>
       <li>Open the matching Floggy-Go page and tap <span class="btn">Choose … CSV</span>.</li>
@@ -221,6 +223,47 @@ code { font:.85rem var(--f-data); }
       <li>You can send the same report again at any time, for example after flying the trip. Flights are updated, not duplicated.</li>
       <li>Flights you've <strong>locked</strong> in LogTen are skipped without any message.</li>
       <li>Nothing reaches LogTen until you tap Send.</li>
+    </ul>
+  </section>
+
+  <section id="flifo">
+    <h2>Floggy-Go Flifo</h2>
+    <p><strong><a href="../flifo/">Floggy-Go Flifo</a></strong> looks up a flight on Alaska's public flight status and sends the <strong>actual out time, in time and tail number</strong> to LogTen. Use it on the road to fill in a trip as you fly it, after importing your schedule.</p>
+    <ol>
+      <li>Type the flight number. The date starts at today; change it for a flight on another day. Alaska keeps about 3 days either side of today.</li>
+      <li>Tap <span class="btn">Get Status</span>. Each leg of that flight number appears, with its status, tail and times.</li>
+      <li>Fix the <strong>ATA (In)</strong> time on arrived legs (see below), uncheck any leg that isn't yours, and tap <span class="btn">Send to LogTen</span>.</li>
+    </ol>
+
+    <h3>Alaska shows On, not In</h3>
+    <p>Alaska's flight status gives the <strong>actual departure (Out)</strong> but its arrival time is the <strong>On</strong> (touchdown) time, not block-in. Your logbook needs block-in, so for every arrived leg Flifo shows an <strong>ATA (In)</strong> box prefilled with Alaska's On time. <strong>Change it to your actual block-in time</strong> before sending, e.g. <code>16:12</code> or <code>1612</code> (24-hour, station local). If you send it unchanged, LogTen gets the touchdown time and your block time comes out a few minutes short. Past midnight is handled for you.</p>
+
+    <h3>IBT vs ORA scheduled times</h3>
+    <p>The scheduled times in eCrew are the <strong>IBT contract times</strong>. They don't always match the <strong>ORA</strong> times Alaska publishes to the public, and that difference is on purpose: the contract times are the ones that count for rig and pay.</p>
+    <ul>
+      <li><strong>Include scheduled times (STD/STA)</strong> is <strong>off</strong> by default, so Flifo never touches the scheduled times already in LogTen from Floggy-Go Schedule or Floggy.</li>
+      <li>Turn it on only for a flight that has no eCrew times in LogTen, for example an Alaska or Horizon flight you rode that isn't in your eCrew schedule. It sends Alaska's public (ORA) times, not IBT times.</li>
+    </ul>
+
+    <h3>What gets sent</h3>
+    <div class="tablewrap"><table class="stack">
+      <thead><tr><th>Flight status</th><th>Sent to LogTen</th></tr></thead>
+      <tbody>
+        <tr><td>Not departed yet</td><td>Planned tail only (times are still estimates)</td></tr>
+        <tr><td>Departed / in flight</td><td>Actual Out + actual tail</td></tr>
+        <tr><td>Arrived</td><td>Actual Out + your ATA (In) + actual tail</td></tr>
+        <tr><td>Cancelled, returned or diverted</td><td>Nothing: enter it by hand</td></tr>
+        <tr><td>Same route twice (return to gate)</td><td>Nothing: enter it by hand</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Good to know</h3>
+    <ul>
+      <li><strong>Matching:</strong> LogTen updates the flight with the same date, flight number and route, the same way Floggy-Go Schedule and Floggy build them, so Flifo fills in the flights you already imported. Anything without a match is added as a new flight.</li>
+      <li><strong>Overwrites:</strong> Out, In and tail replace what LogTen has for that flight. Crew, P1/P2, duty times and everything else are left alone.</li>
+      <li><strong>Swapped aircraft:</strong> if the tail changed after you sent a planned tail, run Flifo again after departure; the actual tail replaces the planned one.</li>
+      <li><strong>Check the date</strong> late at night or away from base: it defaults to your device's date.</li>
+      <li>Flifo reads Alaska's public flight status page. If Alaska changes that page, Flifo may stop working until it's updated.</li>
     </ul>
   </section>
 
