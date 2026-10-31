@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Floggy Gatekeeper Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@400;500;600&family=IBM+Plex+Sans:wght@400;600&display=swap">
+<style>
+:root {
+  --bg:#f3f5f7; --panel:#fff; --ink:#18212b; --muted:#5b6875; --line:#d6dde4;
+  --accent:#0b6e8a; --accent-ink:#fff; --amber:#a8620a; --amber-bg:#fdf1e0;
+  --hero:#0f1e3a; --gold:#f5b841;
+  --f-brand:"Fredoka","Arial Rounded MT Bold",system-ui,sans-serif;
+  --f-ui:"IBM Plex Sans Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,sans-serif;
+  --f-data:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark) { :root {
+  --bg:#0f151b; --panel:#161e26; --ink:#e3e9ef; --muted:#93a1ae; --line:#2a3540; --hero:#0b1628;
+  --accent:#4fb3cf; --accent-ink:#06222b; --amber:#f0ad4e; --amber-bg:#33260f; color-scheme:dark } }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.55 var(--f-body); }
+.wrap { max-width:900px; margin:0 auto; padding:20px max(16px,env(safe-area-inset-right)) 56px max(16px,env(safe-area-inset-left)); display:grid; gap:18px; }
+.homelink { justify-self:start; font:600 .95rem var(--f-ui); color:var(--accent); text-decoration:none; }
+.hero { background:var(--hero); color:#fff; border-radius:12px; padding:20px 24px; display:flex; align-items:center; justify-content:space-between; gap:8px 20px; flex-wrap:wrap; overflow:hidden; }
+.hero h1 { font-family:var(--f-brand); font-weight:700; font-size:clamp(2rem,6vw,3rem); line-height:1; margin:0; color:var(--gold); }
+.hero h1 .sub { color:#fff; font-size:.55em; font-weight:600; }
+.hero p { margin:4px 0 0; font-family:var(--f-brand); font-weight:600; font-size:1.1rem; }
+.hero .ver { font:.8rem var(--f-data); color:#c9d6ec; }
+.plane { width:min(100%,320px); height:auto; filter:drop-shadow(0 10px 14px rgba(0,0,0,.35)); }
+section { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:16px 20px; }
+h2 { font-family:var(--f-brand); font-weight:600; font-size:1.4rem; margin:0 0 8px; color:var(--accent); }
+h3 { font:600 1.05rem var(--f-ui); margin:16px 0 6px; }
+p { margin:6px 0; max-width:75ch; } ol, ul { margin:6px 0; padding-left:1.4em; max-width:75ch; } li { margin:4px 0; }
+a { color:var(--accent); }
+.btn { display:inline-block; font:600 1rem var(--f-ui); background:var(--accent); color:var(--accent-ink); border-radius:8px; padding:.65rem 1.1rem; text-decoration:none; }
+.btn.ghost { background:transparent; color:var(--accent); border:1px solid var(--accent); }
+.btns { display:flex; flex-wrap:wrap; gap:10px; margin:10px 0; }
+.btn small { display:block; font-weight:400; font-size:.8rem; opacity:.85; }
+.tip { border-left:4px solid var(--gold); background:var(--bg); padding:8px 12px; border-radius:0 6px 6px 0; }
+table { border-collapse:collapse; width:100%; font-size:.95rem; }
+th, td { text-align:left; vertical-align:top; padding:8px 10px; border-bottom:1px solid var(--line); }
+th { font:600 .72rem var(--f-ui); text-transform:uppercase; letter-spacing:.06em; color:var(--muted); }
+code { font:.85rem var(--f-data); background:var(--bg); border:1px solid var(--line); border-radius:4px; padding:1px 5px; overflow-wrap:anywhere; }
+figure { margin:10px 0; } figure img { max-width:min(100%,420px); height:auto; border:1px solid var(--line); border-radius:8px; display:block; }
+figcaption { font-size:.85rem; color:var(--muted); margin-top:4px; }
+.foot { color:var(--muted); font-size:.85rem; }
+.cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:10px; }
+.card { display:block; border:1px solid var(--line); border-radius:8px; padding:12px 14px; text-decoration:none; color:var(--ink); }
+.card strong { color:var(--accent); display:block; } .card span { color:var(--muted); font-size:.92rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="homelink" href="../">‹ Floggy</a>
+  <header class="hero">
+    <div>
+      <h1>Floggy <span class="sub">Gatekeeper</span></h1>
+      <p>Getting Floggy open the first time</p>
+    </div>
+    <img class="plane" src="../../img/plane-orange.webp" alt="Smiling E175 in Floggy livery">
+  </header>
+
+  <section>
+    <h2>Why macOS blocks Floggy</h2>
+    <p>Floggy is a free tool built by a line pilot. It isn't registered with Apple's paid developer program, so macOS can't verify who made it. The first time you open it, macOS stops it with a message such as "Floggy Not Opened" or "Apple could not verify Floggy is free of malware."</p>
+    <p>That's expected. You approve Floggy once in System Settings, and after that it opens normally. You may need to do it again when you install a new version.</p>
+    <p class="tip"><strong>What Floggy does and doesn't do:</strong> it reads only the files you save from eCrew yourself, and it never signs in to eCrew. The only website it contacts is Alaska's public flight status page, and only when you press Flifo.</p>
+  </section>
+
+  <section>
+    <h2>1. Download the right build</h2>
+    <p>Apple menu → <strong>About This Mac</strong>, and look at the Chip or Processor line:</p>
+    <table>
+      <thead><tr><th>Your Mac shows</th><th>Download</th></tr></thead>
+      <tbody>
+        <tr><td>Chip: Apple M1, M2, M3 or newer</td><td><a href="https://github.com/QXAV8R/floggy/releases/latest/download/Floggy-Arm.zip">Floggy for Apple Silicon</a></td></tr>
+        <tr><td>Processor: Intel</td><td><a href="https://github.com/QXAV8R/floggy/releases/latest/download/Floggy-Intel.zip">Floggy for Intel</a></td></tr>
+      </tbody>
+    </table>
+    <ol>
+      <li>Double-click the downloaded .zip to unzip it.</li>
+      <li>Drag Floggy into your Applications folder (any folder works, but Applications is easiest to find).</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>2. Open Floggy the first time</h2>
+    <p>macOS walks you through a few screens. The pictures show an earlier version's name; yours shows the version you downloaded.</p>
+    <ol>
+      <li>Double-click Floggy. macOS says it was <strong>Not Opened</strong>. Click <strong>Done</strong> (not Move to Trash).
+        <figure><img src="not-opened.jpg" alt="Floggy Not Opened dialog with Move to Trash and Done buttons" loading="lazy"><figcaption>Click Done</figcaption></figure>
+        <p class="tip">You must close this first message before the Open Anyway button shows up in System Settings.</p></li>
+      <li>Open Apple menu → <strong>System Settings → Privacy &amp; Security</strong> and scroll down to the <strong>Security</strong> section.</li>
+      <li>Next to "Floggy … was blocked to protect your Mac," click <strong>Open Anyway</strong>.
+        <figure><img src="open-anyway-settings.jpg" alt="Privacy and Security settings showing Floggy was blocked, with an Open Anyway button" loading="lazy"><figcaption>Privacy &amp; Security, Security section</figcaption></figure></li>
+      <li>macOS asks for an administrator's Touch ID or password. Touch the sensor, or click <strong>Use Password…</strong> and type your Mac login password.
+        <figure><img src="touch-id.jpg" alt="Touch ID prompt asking to allow the app" loading="lazy"><figcaption>Approve with Touch ID or your password</figcaption></figure></li>
+      <li>One last check: click <strong>Open Anyway</strong>.
+        <figure><img src="open-anyway-confirm.jpg" alt="Final dialog with an Open Anyway button" loading="lazy"><figcaption>Click Open Anyway</figcaption></figure></li>
+    </ol>
+    <p>Floggy now opens, and from then on it opens with a normal double-click.</p>
+    <p class="tip">The Open Anyway button in System Settings only appears for about an hour after you try to open Floggy. If you don't see it, double-click Floggy again, click Done, then go back to Privacy &amp; Security.</p>
+  </section>
+
+  <section>
+    <h2>3. Allow Floggy's permissions</h2>
+    <p>The first time Floggy uses certain features, macOS asks for permission. Click <strong>Allow</strong> or <strong>OK</strong> for each one:</p>
+    <table>
+      <thead><tr><th>Prompt</th><th>Why Floggy needs it</th></tr></thead>
+      <tbody>
+        <tr><td>Files and Folders (Documents, Desktop, Downloads)</td><td>Reading the eCrew files you save, and filing them in Documents</td></tr>
+        <tr><td>Automation (Calendar, LogTen Pro)</td><td>Add Calendar in Cal - APS, and sending flights to LogTen Pro</td></tr>
+        <tr><td>Calendars</td><td>Writing events to Apple Calendar</td></tr>
+      </tbody>
+    </table>
+    <p><strong>Clicked Don't Allow by mistake?</strong> Open System Settings → Privacy &amp; Security, choose the category (Files and Folders, Automation or Calendars) and turn Floggy back on.</p>
+    <p class="tip">If you deny a folder permission, Floggy can't save to that folder. Floggy 2.6 shows a Save Failed notice when that happens; if saves seem to go missing, check Files and Folders first.</p>
+  </section>
+
+  <section>
+    <h2>4. Troubleshooting</h2>
+    <h3>"Floggy is damaged and can't be opened"</h3>
+    <p>This usually means macOS added a download flag that Open Anyway won't clear. Open <strong>Terminal</strong> (Applications → Utilities), type the line below with a space at the end, drag Floggy into the Terminal window, then press Return:</p>
+    <p><code>xattr -dr com.apple.quarantine </code></p>
+    <p>Then open Floggy normally.</p>
+    <h3>macOS asks to install Rosetta</h3>
+    <p>You're running the Intel build on an Apple Silicon Mac. Either click Install, or download the Apple Silicon build instead.</p>
+    <h3>No Quit in the menu</h3>
+    <p>On the very first launch of a new copy, Quit may be dimmed. Close the main window with the red button instead; that quits Floggy cleanly, and Quit works normally after that.</p>
+    <h3>Still stuck?</h3>
+    <p>Post in the <a href="https://www.facebook.com/groups/1642284914087763">Floggy Facebook group</a> with your macOS version (Apple menu → About This Mac), your Mac type (Apple Silicon or Intel) and the exact wording of the message you see. A screenshot helps.</p>
+  </section>
+
+  <p class="foot"><a href="../">Floggy</a> · <a href="../../">QXAV8R tools</a> · Not affiliated with or endorsed by Alaska Airlines, Horizon Air or LogTen Pro.</p>
+</div>
+</body>
+</html>

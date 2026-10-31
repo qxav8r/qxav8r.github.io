@@ -1,0 +1,614 @@
+<!doctype html><html><head><meta charset=utf8><title>Floggy-Go Logbook</title><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Floggy-Go Logbook"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@400;500;600&family=IBM+Plex+Sans:wght@400;600&display=swap">
+<style>
+/* Layout: one working column — flight strip header, controls bar, leg table that scrolls sideways on its own */
+:root {
+  --bg: #f3f5f7; --panel: #ffffff; --ink: #18212b; --muted: #5b6875; --line: #d6dde4;
+  --accent: #0b6e8a; --accent-ink: #ffffff; --amber: #a8620a; --amber-bg: #fdf1e0;
+  --ok: #1f7a4a; --ok-bg: #e4f3ea; --dh: #6a4fa3; --dh-bg: #efeafa; --sel: #e6f2f6;
+  --hero: #0f1e3a; --hero-ink: #ffffff; --hero-muted: #c9d6ec; --gold: #f5b841;
+  --f-brand: "Fredoka", "Arial Rounded MT Bold", system-ui, sans-serif;
+  --f-ui: "IBM Plex Sans Condensed", "Arial Narrow", system-ui, sans-serif;
+  --f-body: "IBM Plex Sans", system-ui, sans-serif;
+  --f-data: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f151b; --panel: #161e26; --ink: #e3e9ef; --muted: #93a1ae; --line: #2a3540;
+  --hero: #0b1628; --accent: #4fb3cf; --accent-ink: #06222b; --amber: #f0ad4e; --amber-bg: #33260f;
+  --ok: #5fc98f; --ok-bg: #12301f; --dh: #b49cf0; --dh-bg: #251d3a; --sel: #13303b; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0f151b; --panel: #161e26; --ink: #e3e9ef; --muted: #93a1ae; --line: #2a3540;
+  --hero: #0b1628; --accent: #4fb3cf; --accent-ink: #06222b; --amber: #f0ad4e; --amber-bg: #33260f;
+  --ok: #5fc98f; --ok-bg: #12301f; --dh: #b49cf0; --dh-bg: #251d3a; --sel: #13303b; color-scheme: dark }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 15px; line-height: 1.45; }
+.wrap { max-width: 1280px; margin: 0 auto; padding-block: 20px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 16px; }
+.hero { background: var(--hero); color: var(--hero-ink); border-radius: 12px; padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; gap: 8px 20px; flex-wrap: wrap; overflow: hidden; }
+.hero-text { display: grid; gap: 2px; min-width: 0; }
+.hero h1 { font-family: var(--f-brand); font-weight: 700; font-size: clamp(2.2rem, 6vw, 3.4rem); line-height: 1; margin: 0; color: var(--gold); letter-spacing: -.01em; }
+.hero h1 .sub { color: var(--hero-ink); font-size: .55em; font-weight: 600; letter-spacing: .02em; }
+.hero .tag { margin: 0; font-family: var(--f-brand); font-weight: 600; font-size: 1.15rem; }
+.hero .ver { color: var(--hero-muted); }
+.plane { width: min(100%, 380px); height: auto; filter: drop-shadow(0 10px 14px rgba(0,0,0,.35)); }
+.top { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; }
+.pick { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.btn { font: 600 .9rem var(--f-ui); letter-spacing: .02em; border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink);
+  border-radius: 6px; padding: .5rem .9rem; cursor: pointer; }
+.btn.ghost { background: transparent; color: var(--accent); }
+.btn:focus-visible, .seg button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+input[type=file] { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.banner { border: 1px solid var(--line); background: var(--panel); border-radius: 8px; padding: 12px 14px; display: grid; gap: 6px; }
+.banner.example { border-color: var(--amber); background: var(--amber-bg); }
+.banner.error { border-color: var(--amber); background: var(--amber-bg); }
+.banner p { margin: 0; max-width: 75ch; }
+.strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1px; background: var(--line);
+  border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.strip > div { background: var(--panel); padding: 10px 12px; min-width: 0; }
+.lbl { font: 500 .7rem var(--f-ui); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.val { font: 500 1rem var(--f-data); overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+.val select { font: inherit; background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 4px; padding: 2px 4px; max-width: 100%; }
+.bar { display: flex; flex-wrap: wrap; gap: 10px 20px; align-items: center; }
+.bar .grp { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.seg button { font: 500 .85rem var(--f-ui); background: var(--panel); color: var(--ink); border: 0; padding: .4rem .75rem; cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.count { font: .85rem var(--f-ui); color: var(--muted); }
+.tablebox { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); }
+table { border-collapse: collapse; width: 100%; font: .85rem var(--f-ui); font-variant-numeric: tabular-nums; }
+th, td { padding: 6px 8px; border-bottom: 1px solid var(--line); text-align: left; white-space: nowrap; vertical-align: top; }
+th { position: sticky; top: 0; background: var(--panel); font-weight: 600; font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+tbody tr:hover { background: var(--sel); }
+td.mono { font-family: var(--f-data); font-size: .8rem; }
+td.dim { color: var(--muted); }
+td.warn { white-space: normal; min-width: 14rem; color: var(--amber); font-size: .8rem; }
+.chip { display: inline-block; font: 600 .7rem var(--f-ui); letter-spacing: .05em; text-transform: uppercase; padding: 1px 6px; border-radius: 4px; }
+.chip.act { background: var(--ok-bg); color: var(--ok); }
+.chip.skd { background: var(--sel); color: var(--accent); }
+.chip.dh { background: var(--dh-bg); color: var(--dh); }
+.chip.sim { background: var(--amber-bg); color: var(--amber); }
+.sendbar { display: grid; gap: 8px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; }
+.sendrow { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+a.btn { text-decoration: none; display: inline-block; }
+a.btn.send { font-size: 1rem; padding: .6rem 1.1rem; }
+a.btn[aria-disabled="true"] { opacity: .45; pointer-events: none; }
+.sendbar .note { margin: 0; font-size: .82rem; color: var(--muted); max-width: 80ch; }
+.ver { font: .75rem var(--f-data); color: var(--muted); }
+.nd { color: var(--amber); font-size: .7rem; vertical-align: super; }
+details.pkg { border: 1px solid var(--line); border-radius: 8px; background: var(--panel); }
+details.pkg summary { cursor: pointer; padding: 10px 14px; font: 600 .9rem var(--f-ui); }
+details.pkg .inner { padding: 0 14px 14px; display: grid; gap: 8px; }
+pre { margin: 0; max-height: 420px; overflow: auto; background: var(--bg); border: 1px solid var(--line); border-radius: 6px;
+  padding: 10px; font: .75rem/1.4 var(--f-data); white-space: pre; }
+.foot { font-size: .8rem; color: var(--muted); max-width: 80ch; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+.homelink { justify-self:start; font:600 .95rem var(--f-ui); color:var(--accent); text-decoration:none; padding:.2rem 0; }
+.homelink:hover { text-decoration:underline; }
+</style>
+
+<div class="wrap">
+  <a class="homelink" href="../../">‹ All Tools / Home</a>
+  <header class="hero">
+    <div class="hero-text">
+      <h1>Floggy-Go <span class="sub">Logbook</span></h1>
+      <p class="tag">eCrew Pilot Logbook → LogTen</p>
+      <span class="ver">v0.9.2 · 10/31/26</span>
+    </div>
+    <img class="plane" alt="Smiling E175 in Floggy livery" src="../../img/plane-blue.webp">
+  </header>
+  <div class="top">
+    <div class="pick">
+      <label class="btn" for="file">Choose logbook CSV</label>
+      <input id="file" type="file" accept=".csv,text/csv,text/plain">
+      <span id="fname" class="count"></span>
+    </div>
+  </div>
+
+  <div id="notice" class="banner example">
+    <p><strong>Example file loaded.</strong> These rows are made up to show how each rule works. Choose your own eCrew Pilot Logbook CSV to preview it. The file stays on this device.</p>
+  </div>
+
+  <div id="baseNote" class="banner">
+    <p id="baseText"></p>
+  </div>
+
+  <div class="strip" id="strip"></div>
+
+  <div class="bar">
+    <div class="grp"><span class="lbl">Aircraft type</span>
+      <div class="seg" role="group" aria-label="Aircraft type">
+        <button type="button" id="ty-none" data-ty="none" aria-pressed="true">Not sent</button>
+        <button type="button" id="ty-raw" data-ty="raw" aria-pressed="false">As reported</button>
+        <button type="button" id="ty-E170" data-ty="E170" aria-pressed="false">E170</button>
+      </div>
+    </div>
+    <div class="grp"><span class="lbl">Flight number</span>
+      <div class="seg" role="group" aria-label="Airline code before the flight number">
+        <button type="button" id="px-none" data-px="" aria-pressed="true">No code</button>
+        <button type="button" id="px-qx" data-px="QX" aria-pressed="false">QX</button>
+        <button type="button" id="px-as" data-px="AS" aria-pressed="false">AS</button>
+      </div>
+    </div>
+    <div class="grp"><span class="lbl">Show</span>
+      <div class="seg" role="group" aria-label="Show">
+        <button type="button" id="sh-all" data-sh="all" aria-pressed="true">All legs</button>
+        <button type="button" id="sh-warn" data-sh="warn" aria-pressed="false">Warnings only</button>
+      </div>
+    </div>
+    <span class="count" id="selCount"></span>
+  </div>
+
+  <div class="tablebox">
+    <table>
+      <thead><tr>
+        <th><input type="checkbox" id="all" aria-label="Select all legs" checked></th>
+        <th>Date</th><th>Flight</th><th>Route</th><th>Out–In base</th><th>Out–In UTC</th><th>Times</th>
+        <th>Type</th><th>Tail</th><th>PIC</th><th>Cap</th><th>Ldg</th><th>Instr</th><th>Part</th><th>Flt type</th><th>flight_key</th><th>Notes</th>
+      </tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+
+  <div class="sendbar">
+    <div class="sendrow">
+      <a class="btn send" id="send" href="#" aria-disabled="true">Send to LogTen</a>
+      <button type="button" class="btn ghost" id="copyUrl">Copy LogTen URL</button>
+      <span class="count" id="sendMsg"></span>
+    </div>
+    <p class="note">LogTen adds new flights and updates ones it already has, matched by flight_key. Flights you have locked in LogTen are skipped without any message. If LogTen doesn't open, tap Copy LogTen URL, paste it into Safari's address bar and tap Go.</p>
+  </div>
+
+  <details class="pkg" id="pkgBox">
+    <summary>LogTen package for the checked legs (what Send passes)</summary>
+    <div class="inner">
+      <div class="pick"><button type="button" class="btn ghost" id="copy">Copy JSON</button><span class="count" id="copyMsg"></span></div>
+      <pre id="pkg"></pre>
+    </div>
+  </details>
+
+  <p class="foot">Nothing reaches LogTen until you tap Send. Rules match Floggy 2.6 Parse LogBook and Log10 Export. The airline code, when chosen, goes on the flight number only; flight_key stays the bare number so imports match Floggy. Times are read in the pilot's base time and sent to LogTen in UTC. <span class="nd">+1</span> marks a time that falls on the day after the logbook date (in base time or in UTC).</p>
+</div>
+
+<script>
+// Floggy-Go core — eCrew Pilot Logbook CSV -> LogTen Pro entities.
+// Rules mirror Floggy 2.6: btn "Parse LogBook" (rows, deadhead, sim, capacity,
+// actual vs scheduled), cleanfltdata (type map, flight type, Dead Head remark,
+// A/B/C/D suffix) and btn "Log10 Export" (flight_key, JSON shape).
+// Differences by design (see the spec): times go to LogTen in UTC
+// (timesAreZulu true) instead of station local.
+(function (root) {
+  'use strict';
+
+  // Base -> IANA zone. A base not listed is picked by the user.
+  const BASE_ZONES = {
+    PDX: 'America/Los_Angeles', SEA: 'America/Los_Angeles', PAE: 'America/Los_Angeles',
+    GEG: 'America/Los_Angeles', MFR: 'America/Los_Angeles', LAS: 'America/Los_Angeles',
+    BOI: 'America/Boise', ANC: 'America/Anchorage'
+  };
+
+  const pad = n => String(n).padStart(2, '0');
+  const trim = s => (s == null ? '' : String(s).trim());
+
+  // Offset (minutes, local - UTC) of zone tz at UTC instant ms.
+  function zoneOffset(ms, tz) {
+    const f = new Intl.DateTimeFormat('en-US', {
+      timeZone: tz, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit'
+    });
+    const p = {};
+    for (const x of f.formatToParts(new Date(ms))) p[x.type] = x.value;
+    const asUTC = Date.UTC(+p.year, +p.month - 1, +p.day, +p.hour % 24, +p.minute);
+    return Math.round((asUTC - ms) / 60000);
+  }
+
+  // Wall-clock time in zone tz -> UTC ms (DST-aware).
+  function wallToUTC(y, mo, d, hh, mm, tz) {
+    const guess = Date.UTC(y, mo - 1, d, hh, mm);
+    let ms = guess - zoneOffset(guess, tz) * 60000;
+    ms = guess - zoneOffset(ms, tz) * 60000;
+    return ms;
+  }
+
+  function fmtUTC(ms) {
+    const t = new Date(ms);
+    return pad(t.getUTCMonth() + 1) + '/' + pad(t.getUTCDate()) + '/' + t.getUTCFullYear() +
+      ' ' + pad(t.getUTCHours()) + ':' + pad(t.getUTCMinutes());
+  }
+
+  function hmToMins(s) {
+    s = trim(s);
+    let m = s.match(/^(\d{1,2}):(\d{2})$/) || s.match(/^(\d{1,2})(\d{2})$/);
+    return m ? (+m[1]) * 60 + (+m[2]) : null;
+  }
+
+  function splitCSV(line) {
+    const out = []; let cur = ''; let q = false;
+    for (let i = 0; i < line.length; i++) {
+      const c = line[i];
+      if (q) { if (c === '"') { if (line[i + 1] === '"') { cur += '"'; i++; } else q = false; } else cur += c; }
+      else if (c === '"') q = true;
+      else if (c === ',') { out.push(cur); cur = ''; }
+      else cur += c;
+    }
+    out.push(cur);
+    return out;
+  }
+
+  const MONTHS = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+
+  // Parse the header only (for the base notice before anything else).
+  function readHeader(text) {
+    const lines = text.replace(/\r\n?/g, '\n').split('\n');
+    const h = { ok: false, errors: [] };
+    if (!lines[0] || lines[0].indexOf('Pilot Logbook') < 0) {
+      h.errors.push('This is not an eCrew Pilot Logbook file (line 1 has no "Pilot Logbook").');
+      return h;
+    }
+    const pm = (lines[1] || '').match(/(\d{2}\/\d{2}\/\d{4})\s*-\s*(\d{2}\/\d{2}\/\d{4})/);
+    h.period = pm ? { start: pm[1], end: pm[2] } : null;
+    const crew = trim(splitCSV(lines[4] || '')[0]);
+    const cm = crew.match(/^(\S+)\s+(.+?)\s*\(([^)]*)\)/);
+    if (!cm) { h.errors.push('Could not read the crew line (line 5): ' + crew); return h; }
+    const parts = cm[3].split('-');
+    h.crewId = cm[1]; h.name = cm[2].trim();
+    h.base = trim(parts[0]); h.equip = trim(parts[1]); h.seat = trim(parts[2]).toUpperCase();
+    h.zone = BASE_ZONES[h.base] || null;
+    h.totalsLine = lines.findIndex(l => /^Totals\s*:/.test(l));
+    if (h.totalsLine < 0) { h.errors.push('No "Totals :" line found.'); return h; }
+    h.generated = null;
+    for (const l of lines) {
+      const g = l.match(/Generated on\s+([A-Za-z]{3})[A-Za-z]*\.?\s+(\d{1,2}),?\s+(\d{4})\s+(\d{1,2}):(\d{2})/);
+      if (g) {
+        const mo = MONTHS.indexOf(g[1].toUpperCase()) + 1;
+        if (mo > 0) h.generated = { y: +g[3], mo, d: +g[2], hh: +g[4], mm: +g[5],
+          text: g[1] + ' ' + g[2] + ', ' + g[3] + ' ' + g[4] + ':' + g[5] };
+      }
+    }
+    h.lines = lines;
+    h.ok = true;
+    return h;
+  }
+
+  function mapType(raw, mode) {
+    if (mode === 'none') return '';
+    if (mode === 'raw') return raw;
+    if (raw === 'E75') return 'E170';
+    if (raw === 'DH4') return 'DH8D';
+    return raw;
+  }
+
+  // Full parse. opts: { zone, typeMode: 'E170' | 'raw' | 'none', prefix: '' | 'QX' | 'AS' }
+  function parse(text, opts) {
+    opts = opts || {};
+    const h = readHeader(text);
+    if (!h.ok) return { header: h, legs: [], notes: h.errors.slice() };
+    const zone = opts.zone || h.zone;
+    if (!zone) return { header: h, legs: [], notes: ['Base ' + h.base + ' has no time zone yet. Pick one.'] };
+    const typeMode = opts.typeMode || 'E170';
+    const prefix = opts.prefix || '';
+    const notes = [];
+    let genMs = null;
+    if (h.generated) {
+      const g = h.generated;
+      genMs = wallToUTC(g.y, g.mo, g.d, g.hh, g.mm, zone);
+    } else notes.push('"Generated on" line not found: tail alone decides actual vs scheduled.');
+
+    const legs = [];
+    for (let i = 5; i < h.totalsLine; i++) {
+      const raw = h.lines[i];
+      if (!trim(raw)) continue;
+      const c = splitCSV(raw).map(trim);
+      const dm = (c[0] || '').match(/^(\d{2})\/(\d{2})\/(\d{2})$/);
+      if (!dm) { notes.push('Line ' + (i + 1) + ' skipped (no date): ' + raw); continue; }
+      const L = { line: i + 1, warnings: [] };
+      L.mo = +dm[1]; L.d = +dm[2]; L.y = 2000 + (+dm[3]);
+      L.date = dm[1] + '/' + dm[2] + '/' + L.y;
+      L.flt = c[1]; L.dep = c[2]; L.arv = c[4];
+      L.stdBase = c[3]; L.staBase = c[5];
+      L.typeRaw = c[6]; L.tail = c[7]; L.block = c[8];
+      L.picRaw = c[9];
+      L.tkf = !!(c[10] || c[11]); L.lnd = !!(c[12] || c[13]);
+      L.picTime = c[14]; L.sicTime = c[15]; L.instr = !!c[16];
+      L.synthTime = c[17]; L.synthType = c[18]; L.pt91Time = c[19];
+
+      // PIC name: whole name, "(..." dropped, Self -> pilot
+      let pic = L.picRaw;
+      const po = pic.indexOf('(');
+      if (po >= 0) pic = pic.slice(0, po).trim();
+      if (pic === 'Self') pic = h.name;
+      if (/^No PIC found$/i.test(pic)) { pic = ''; L.warnings.push('eCrew had no PIC for this leg: PIC left blank.'); }
+      L.pic = pic;
+      L.incomplete = !L.dep || !L.arv;
+      if (L.incomplete) L.warnings.push('Departure or arrival airport missing in the report: left unchecked.');
+
+      // Flight type
+      if (L.synthTime) {
+        L.ftype = 3; L.flt = L.synthType; L.block = L.synthTime; L.lnd = false;
+        L.warnings.push('Simulator leg: check the station and crew in LogTen.');
+      } else if (!L.block && !L.picTime && !L.sicTime) {
+        L.ftype = 1; L.tkf = false; L.lnd = false;
+      } else L.ftype = 0;
+
+      // Part 91 / 121
+      L.pt91 = !!L.pt91Time && L.ftype !== 3;
+      L.pt121 = !L.pt91Time && L.ftype !== 3;
+
+      // Capacity: logbook PIC / co-pilot time; Floggy also sets P1 when the
+      // PIC name is the pilot (not on a deadhead). Part 91 legs with neither
+      // time take the seat from the crew line (CA = P1, FO = P2).
+      L.p1 = !!L.picTime || (L.pic === h.name && L.ftype !== 1);
+      L.p2 = !!L.sicTime;
+      if (L.pt91Time && !L.picTime && !L.sicTime) {
+        if (h.seat === 'CA') { L.p1 = true; L.p2 = false; }
+        else if (h.seat === 'FO') { L.p1 = false; L.p2 = true; }
+      }
+
+      L.remarks = L.ftype === 1 ? 'Dead Head' : L.ftype === 3 ? 'Simulator' : '';
+      L.type = mapType(L.typeRaw, typeMode);
+
+      // Times: base wall clock -> UTC
+      const sm = hmToMins(L.stdBase), am = hmToMins(L.staBase);
+      if (sm == null || am == null) {
+        if (L.stdBase || L.staBase) L.warnings.push('Times not readable: ' + L.stdBase + ' / ' + L.staBase);
+        L.actual = false;
+      } else {
+        L.nextDay = am < sm;
+        L.outMs = wallToUTC(L.y, L.mo, L.d, Math.floor(sm / 60), sm % 60, zone);
+        let inMs = wallToUTC(L.y, L.mo, L.d, Math.floor(am / 60), am % 60, zone);
+        if (L.nextDay) inMs = wallToUTC(L.y, L.mo, L.d + 1, Math.floor(am / 60), am % 60, zone);
+        L.inMs = inMs;
+        L.actual = !!L.tail && (genMs == null || L.inMs <= genMs);
+        L.utcOut = fmtUTC(L.outMs); L.utcIn = fmtUTC(L.inMs);
+        if (L.actual) {
+          const blk = hmToMins(L.block);
+          const span = Math.round((L.inMs - L.outMs) / 60000);
+          if (blk != null && blk !== span)
+            L.warnings.push('Block ' + L.block + ' differs from out–in ' + Math.floor(span / 60) + ':' + pad(span % 60));
+        }
+        L.sortMins = sm; // base time of day, used for the duplicate-leg sort
+      }
+      legs.push(L);
+    }
+
+    // A/B/C/D suffix (cleanfltdata): sort date desc, then STD desc, then ATD
+    // desc (stable), and letter adjacent runs of the same date/flt/dep/arv.
+    const order = legs.slice();
+    const tStd = L => (L.actual || L.sortMins == null) ? -1 : L.sortMins;
+    const tAtd = L => (!L.actual || L.sortMins == null) ? -1 : L.sortMins;
+    const dnum = L => L.y * 10000 + L.mo * 100 + L.d;
+    order.sort((a, b) => tAtd(b) - tAtd(a));
+    order.sort((a, b) => tStd(b) - tStd(a));
+    order.sort((a, b) => dnum(b) - dnum(a));
+    const k4 = L => L.date + '|' + L.flt + '|' + L.dep + '|' + L.arv;
+    let run = 1;
+    const keys = order.map(k4);
+    for (let j = 0; j < order.length; j++) {
+      run = (j > 0 && keys[j] === keys[j - 1]) ? run + 1 : 1;
+      const dup = (j > 0 && keys[j] === keys[j - 1]) || (j < order.length - 1 && keys[j] === keys[j + 1]);
+      order[j].suffix = (dup && run <= 4) ? 'ABCD'[run - 1] : '';
+    }
+    for (const L of legs) {
+      L.fltOut = L.flt + L.suffix;
+      L.key = L.date.replace(/\//g, '') + L.fltOut + L.dep + L.arv;  // key stays bare
+      L.fltSend = (prefix && L.ftype !== 3 && /^\d/.test(L.fltOut)) ? prefix + L.fltOut : L.fltOut;
+      if (L.suffix) L.warnings.push('Same date, flight and route as another leg: sent as ' + L.fltOut + '.');
+    }
+    return { header: h, zone, legs, notes };
+  }
+
+  // LogTen entity for one leg (fields left out when empty, as Floggy does).
+  function entity(L) {
+    const e = { entity_name: 'Flight' };
+    const put = (k, v) => { if (v !== '' && v != null && v !== false) e[k] = String(v); };
+    put('flight_flightDate', L.date);
+    put('flight_flightNumber', L.fltSend || L.fltOut);
+    put('flight_from', L.dep);
+    put('flight_to', L.arv);
+    if (L.utcOut) {
+      if (L.actual) { put('flight_actualDepartureTime', L.utcOut); put('flight_actualArrivalTime', L.utcIn); }
+      else {
+        put('flight_scheduledDepartureTime', L.utcOut); put('flight_scheduledArrivalTime', L.utcIn);
+        // cleanfltdata backfills a deadhead's or sim's actual times from scheduled
+        if (L.ftype === 1 || L.ftype === 3) { put('flight_actualDepartureTime', L.utcOut); put('flight_actualArrivalTime', L.utcIn); }
+      }
+    }
+    put('flight_selectedAircraftType', L.type);
+    put('flight_selectedAircraftID', L.tail);
+    put('flight_selectedCrewPIC', L.pic);
+    if (L.p1) put('flight_picCapacity', '1');
+    if (L.p2) put('flight_sicCapacity', '1');
+    if (L.lnd) put('flight_pilotFlyingCapacity', '1');
+    if (L.instr) put('flight_customCapacity1', '1');
+    put('flight_remarks', L.remarks);
+    put('flight_key', L.key);
+    put('flight_type', '0000000' + L.ftype);
+    if (L.pt121) put('flight_faaPart121', '1');
+    if (L.pt91) put('flight_faaPart91', '1');
+    return e;
+  }
+
+  function buildPackage(legs) {
+    return {
+      metadata: {
+        dateAndTimeFormat: 'MM/dd/yyyy HH:mm', timesAreZulu: true, application: 'Floggy-Go',
+        dateFormat: 'MM/dd/yyyy', shouldApplyAutoFillTimes: true, version: '1.0'
+      },
+      entities: legs.map(entity)
+    };
+  }
+
+  const api = { BASE_ZONES, readHeader, parse, entity, buildPackage, wallToUTC, zoneOffset, fmtUTC };
+  if (typeof module !== 'undefined' && module.exports) module.exports = api;
+  else root.FloggyGo = api;
+})(this);
+
+</script>
+<script>
+(function () {
+  const G = window.FloggyGo;
+  const SAMPLE = [
+    'Horizon Air,,,,,Pilot Logbook,,,,,,,,,,,',
+    ',,,,,10/01/2026 - 11/30/2026,,,,,,,,,,,',
+    ',,DEPARTURE,,ARRIVAL,,AIRCRAFT,,,,TOFF,,LND,,OPERATED AS,,,SYNTH. DEVICES,,',
+    'Date,Flight,Airport,Time,Airport,Time,Type,Reg.,Flt time,Name PIC,Day,Night,Day,Night,PIC,Co-Plt,Instr,Time,Type,PT91',
+    '1234 WILCO Roger (PDX-E75-CA)',
+    '10/03/26,2402,PDX ,07:29,RNO ,09:00,E75,N600QX      ,,HOLDSHORT Hal (To,,,,,,,,,,',
+    '10/03/26,2179,RNO ,17:08,RNO ,17:41,E75,N601QX      ,00:33,Self,,,,,00:33,,,,,',
+    '10/03/26,2179,RNO ,18:26,RNO ,18:46,E75,N601QX      ,00:20,Self,,,,,00:20,,,,,',
+    '10/03/26,2179,RNO ,20:10,SEA ,22:08,E75,N602QX      ,01:58,Self,1,,1,,01:58,,01:58,,,',
+    '10/04/26,2137,BOI ,20:02,GEG ,21:06,E75,N603QX      ,01:04,THROTTLE Rudy       ,1,,1,,,01:04,,,,',
+    '10/09/26,2023,SFO ,22:31,PDX ,00:17,E75,N604QX      ,01:46,Self,,,,,01:46,,,,,',
+    '10/12/26,9986,HLN ,06:34,SEA ,08:19,E75,N605QX      ,01:45,Self,1,,1,,,,,,,01:45',
+    '10/20/26,2241,PDX ,17:30,SEA ,18:29,E75,N606QX      ,00:59,CROSSWIND Kelly (Ke,1,,1,,,00:59,00:59,,,',
+    '10/25/26,,SEA ,10:30,SEA ,14:30,E75,,,,,,,,,,,04:00,SM  ,',
+    '11/05/26,2108,PDX ,14:30,PSC ,15:23,E75,            ,00:53,Self,,,,,00:53,,,,,',
+    '11/06/26,2109,PSC ,16:00,PDX ,16:52,E75,            ,00:52,FLAPS Freddie       ,,,,,,00:52,,,,',
+    'Totals :,,,,,,,,09:10,,4,,4,,05:20,02:55,02:57,04:00,,01:45',
+    '',
+    '"Generated on  Oct 29, 2026 14:17",,,,,,,,,,Page 1 of 1'
+  ].join('\n');
+
+  const ZONES = ['America/Los_Angeles','America/Boise','America/Denver','America/Phoenix','America/Anchorage','America/Chicago','America/New_York','Pacific/Honolulu','America/Vancouver'];
+  const st = { initOff: true, text: SAMPLE, name: '', example: true, zone: null, typeMode: 'none', prefix: '', show: 'all', off: new Set(), result: null };
+  try { const z = localStorage.getItem('fgo-zone-override'); if (z) st.savedZones = JSON.parse(z); } catch (e) { }
+  st.savedZones = st.savedZones || {};
+
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const hm = s => (s || '').slice(11);
+
+  function run() {
+    const h = G.readHeader(st.text);
+    let zone = st.zone;
+    if (h.ok && !zone) zone = st.savedZones[h.base] || h.zone;
+    st.result = h.ok && zone ? G.parse(st.text, { zone, typeMode: st.typeMode, prefix: st.prefix }) : { header: h, legs: [], notes: h.errors || [] };
+    st.result.zone = zone;
+    if (st.initOff && st.result.legs.length) { st.result.legs.forEach((L, i) => { if (L.incomplete) st.off.add(i); }); st.initOff = false; }
+    render();
+  }
+
+  function render() {
+    const r = st.result, h = r.header;
+    $('notice').hidden = !st.example;
+    $('fname').textContent = st.name;
+    const err = $('baseNote');
+    if (!h.ok) {
+      err.className = 'banner error';
+      $('baseText').innerHTML = '<strong>Can’t read this file.</strong> ' + esc(h.errors.join(' ')) + ' In eCrew, run the Pilot Logbook report and save it as CSV.';
+      $('strip').innerHTML = ''; $('rows').innerHTML = ''; $('pkg').textContent = ''; $('selCount').textContent = '';
+      st.url = ''; $('send').setAttribute('aria-disabled', 'true'); $('send').href = '#'; $('copyUrl').disabled = true;
+      return;
+    }
+    err.className = 'banner';
+    const per = h.period ? h.period.start + ' – ' + h.period.end : 'period not found';
+    $('baseText').innerHTML = 'Times in this report are in <strong>base time</strong> and are converted using base <strong>' + esc(h.base) +
+      '</strong> (' + esc(per) + '). If you changed bases during this period, pull a separate report for the dates at each base.' +
+      (r.zone ? '' : ' <strong>Pick the time zone for base ' + esc(h.base) + ' below to continue.</strong>');
+
+    const legs = r.legs;
+    const n = k => legs.filter(k).length;
+    const warnN = n(L => L.warnings.length);
+    const zoneSel = '<select id="zone" aria-label="Base time zone">' + (r.zone ? '' : '<option value="">Pick a zone…</option>') +
+      ZONES.concat(r.zone && ZONES.indexOf(r.zone) < 0 ? [r.zone] : []).map(z => '<option' + (z === r.zone ? ' selected' : '') + '>' + z + '</option>').join('') + '</select>';
+    const cells = [
+      ['Pilot', esc(h.name) + ' · ' + esc(h.crewId)],
+      ['Base · seat', esc(h.base) + ' · ' + esc(h.equip) + ' ' + esc(h.seat)],
+      ['Base time zone', zoneSel],
+      ['Generated (base)', h.generated ? esc(h.generated.text) : 'not found'],
+      ['Legs', legs.length + ' <span class="count">' + n(L => L.actual) + ' actual · ' + n(L => !L.actual) + ' scheduled</span>'],
+      ['Deadheads · sims', n(L => L.ftype === 1) + ' · ' + n(L => L.ftype === 3)],
+      ['Warnings', String(warnN)]
+    ];
+    $('strip').innerHTML = cells.map(c => '<div><div class="lbl">' + c[0] + '</div><div class="val">' + c[1] + '</div></div>').join('');
+    $('zone').addEventListener('change', e => {
+      st.zone = e.target.value || null;
+      if (st.zone) { st.savedZones[h.base] = st.zone; try { localStorage.setItem('fgo-zone-override', JSON.stringify(st.savedZones)); } catch (x) { } }
+      run();
+    });
+
+    const shown = legs.filter(L => st.show === 'all' || L.warnings.length);
+    $('rows').innerHTML = shown.map(L => {
+      const i = legs.indexOf(L);
+      const chip = L.ftype === 1 ? '<span class="chip dh">Deadhead</span>' : L.ftype === 3 ? '<span class="chip sim">Sim</span>' : '';
+      const times = L.utcOut ? (L.actual ? '<span class="chip act">Actual</span>' : '<span class="chip skd">Scheduled</span>') : '<span class="chip sim">None</span>';
+      const cap = [L.p1 ? 'P1' : '', L.p2 ? 'P2' : ''].filter(Boolean).join(' ') || '–';
+      const part = L.pt91 ? '91' : L.pt121 ? '121' : '–';
+      return '<tr><td><input type="checkbox" data-i="' + i + '"' + (st.off.has(i) ? '' : ' checked') + ' aria-label="Include ' + esc(L.date + ' ' + L.fltOut) + '"></td>' +
+        '<td class="mono">' + esc(L.date) + '</td><td class="mono">' + esc(L.fltSend) + '</td><td class="mono">' + esc(L.dep + '–' + L.arv) + '</td>' +
+        '<td class="mono">' + esc(L.stdBase + '–' + L.staBase) + (L.nextDay ? '<span class="nd"> +1</span>' : '') + '</td>' +
+        '<td class="mono">' + (L.utcOut ? esc(hm(L.utcOut) + '–' + hm(L.utcIn)) + (L.utcIn.slice(0, 10) !== L.date ? '<span class="nd" title="' + esc(L.utcIn.slice(0, 10)) + '"> +1</span>' : '') : '–') + '</td>' +
+        '<td>' + times + '</td><td class="mono">' + esc(L.type || '–') + '</td><td class="mono">' + esc(L.tail || '–') + '</td>' +
+        '<td>' + esc(L.pic) + '</td><td>' + cap + '</td><td>' + (L.lnd ? '1' : '') + '</td><td>' + (L.instr ? 'Instr' : '') + '</td>' +
+        '<td>' + part + '</td><td>' + L.ftype + ' ' + chip + '</td><td class="mono dim">' + esc(L.key) + '</td>' +
+        '<td class="warn">' + esc(L.warnings.join(' ')) + '</td></tr>';
+    }).join('') + (r.notes.length ? '<tr><td colspan="17" class="warn">' + esc(r.notes.join(' ')) + '</td></tr>' : '');
+
+    const sel = legs.filter((L, i) => !st.off.has(i));
+    $('selCount').textContent = sel.length + ' of ' + legs.length + ' legs checked';
+    $('all').checked = sel.length === legs.length && legs.length > 0;
+    const pkg = G.buildPackage(sel);
+    $('pkg').textContent = JSON.stringify(pkg, null, 2);
+    st.url = sel.length ? 'logten://v2/addEntities?package=' + encodeURIComponent(JSON.stringify(pkg)) : '';
+    const send = $('send');
+    if (st.example) {
+      send.textContent = 'Choose your logbook to send'; send.setAttribute('aria-disabled', 'true'); send.href = '#';
+    } else if (!sel.length) {
+      send.textContent = 'No legs checked'; send.setAttribute('aria-disabled', 'true'); send.href = '#';
+    } else {
+      send.textContent = 'Send ' + sel.length + (sel.length === 1 ? ' flight' : ' flights') + ' to LogTen';
+      send.setAttribute('aria-disabled', 'false'); send.href = st.url;
+    }
+    $('copyUrl').disabled = st.example || !sel.length;
+  }
+
+  $('rows').addEventListener('change', e => {
+    const i = e.target.dataset.i; if (i == null) return;
+    e.target.checked ? st.off.delete(+i) : st.off.add(+i); render();
+  });
+  $('all').addEventListener('change', e => {
+    st.off = new Set(); if (!e.target.checked) st.result.legs.forEach((L, i) => st.off.add(i)); render();
+  });
+  document.querySelectorAll('[data-ty]').forEach(b => b.addEventListener('click', () => {
+    st.typeMode = b.dataset.ty; document.querySelectorAll('[data-ty]').forEach(x => x.setAttribute('aria-pressed', x === b)); run();
+  }));
+  document.querySelectorAll('[data-px]').forEach(b => b.addEventListener('click', () => {
+    st.prefix = b.dataset.px; document.querySelectorAll('[data-px]').forEach(x => x.setAttribute('aria-pressed', x === b)); run();
+  }));
+  document.querySelectorAll('[data-sh]').forEach(b => b.addEventListener('click', () => {
+    st.show = b.dataset.sh; document.querySelectorAll('[data-sh]').forEach(x => x.setAttribute('aria-pressed', x === b)); render();
+  }));
+  $('file').addEventListener('change', e => {
+    const f = e.target.files[0]; if (!f) return;
+    const rd = new FileReader();
+    rd.onload = () => { st.text = String(rd.result); st.name = f.name; st.example = false; st.zone = null; st.off = new Set(); st.initOff = true; run(); };
+    rd.readAsText(f);
+  });
+  $('send').addEventListener('click', e => {
+    if ($('send').getAttribute('aria-disabled') === 'true') { e.preventDefault(); return; }
+    $('sendMsg').textContent = 'Opening LogTen…';
+    setTimeout(() => { $('sendMsg').textContent = 'If LogTen didn’t open, use Copy LogTen URL.'; }, 2500);
+  });
+  $('copyUrl').addEventListener('click', () => {
+    if (!st.url) return;
+    navigator.clipboard.writeText(st.url).then(() => { $('sendMsg').textContent = 'URL copied. Paste it into Safari’s address bar.'; }, () => {
+      const ta = document.createElement('textarea'); ta.value = st.url; ta.readOnly = true; ta.style.width = '100%'; ta.rows = 2; ta.id = 'urlFallback';
+      const old = document.getElementById('urlFallback'); if (old) old.remove();
+      $('sendMsg').after(ta); ta.focus(); ta.select();
+      $('sendMsg').textContent = 'Selected. Use Copy, then paste into Safari.';
+    });
+  });
+  $('copy').addEventListener('click', () => {
+    const t = $('pkg').textContent;
+    navigator.clipboard.writeText(t).then(() => { $('copyMsg').textContent = 'Copied'; }, () => {
+      const r = document.createRange(); r.selectNodeContents($('pkg')); const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+      $('copyMsg').textContent = 'Selected — press Copy';
+    });
+  });
+  run();
+})();
+</script>
+
+</body></html>

@@ -1,47 +1,66 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Flifo Loader Test</title>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Floggy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=IBM+Plex+Sans:wght@400;600&display=swap">
 <style>
-:root{--bg:#f3f5f7;--panel:#fff;--ink:#18212b;--muted:#5b6875;--line:#d6dde4;--accent:#0b6e8a}
-@media (prefers-color-scheme:dark){:root{--bg:#0f151b;--panel:#161e26;--ink:#e3e9ef;--muted:#93a1ae;--line:#2a3540;--accent:#4fb3cf}}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 -apple-system,system-ui,sans-serif}
-main{max-width:720px;margin:0 auto;padding:20px 16px 48px;display:grid;gap:14px}
-section{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 18px}
-h1{margin:0;color:#f5b841;font-size:2rem}
-.hero{background:#0f1e3a;color:#fff;border-radius:12px;padding:18px 22px;display:flex;align-items:center;justify-content:space-between;gap:8px 20px;flex-wrap:wrap;overflow:hidden}
-.hero img{width:min(100%,300px);height:auto;filter:drop-shadow(0 10px 14px rgba(0,0,0,.35))}
-.hero p{margin:4px 0 0;color:#c9d6ec} h2{margin:0 0 6px;font-size:1.15rem}
-.bml{display:inline-block;background:var(--accent);color:#fff;font-weight:700;padding:10px 18px;border-radius:8px;text-decoration:none}
-textarea{width:100%;height:90px;font:12px ui-monospace,Menlo,monospace;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:8px;box-sizing:border-box}
-button{font:inherit;font-weight:600;background:var(--accent);color:#fff;border:0;border-radius:8px;padding:8px 16px;margin-top:6px}
-a.home{color:var(--accent);font-weight:600;text-decoration:none}
-.muted{color:var(--muted)}
-</style></head><body><main>
-<a class="home" href="../">‹ All Tools / Home</a>
-<header class="hero"><div><h1>Flifo</h1><p>Loader test · v1.4</p></div><img src="../img/plane-teal.webp" alt="Smiling E175 in Floggy livery"></header>
-<p class="muted">Test page, not linked from the home page. The bookmark below is a short loader: each time you tap it, it fetches the current Flifo code (v1.4) from this site. If Alaska's page blocks it, you'll get an alert saying so.</p>
-<section><h2>Alaska flight status</h2>
-<p>Open Alaska's flight status page, look up your flight, then tap the Flifo bookmark on that page.</p>
-<p><a class="bml" href="https://www.alaskaair.com/status" target="_blank" rel="noopener">Open Alaska Flight Status</a></p>
-</section>
-<section><h2>Install</h2>
-<p><b>Try it right here:</b> tap the button and the Flifo form opens on this page. <b>To install on a Mac:</b> drag the button to the Favorites Bar instead.</p>
-<a class="bml" href="javascript:(function(){var s=document.createElement(&#x27;script&#x27;);s.src=&#x27;https://qxav8r.github.io/flifo-test/flifo.js?t=&#x27;+Date.now();s.onerror=function(){alert(&#x27;Flifo: could not load from qxav8r.github.io. This page may block it, or you are offline.&#x27;)};(document.head||document.documentElement).appendChild(s)})();">Flifo Test</a>
-<p><b>iPad:</b> copy the code and paste it into a bookmark's address, same as before.</p>
-<textarea id="code" readonly>javascript:(function(){var s=document.createElement(&#x27;script&#x27;);s.src=&#x27;https://qxav8r.github.io/flifo-test/flifo.js?t=&#x27;+Date.now();s.onerror=function(){alert(&#x27;Flifo: could not load from qxav8r.github.io. This page may block it, or you are offline.&#x27;)};(document.head||document.documentElement).appendChild(s)})();</textarea>
-<button id="copy" type="button">Copy code</button> <span id="msg" class="muted"></span>
-</section>
-<section><h2>What to test</h2>
-<ol>
-<li>On a <b>blank page</b> (or this one): tap Flifo Test. The flight form should appear, titled <b>Flifo → LogTen v1.4</b>.</li>
-<li>Enter a flight and date, Get Status. When Alaska's status page loads, tap Flifo Test <b>again</b>. This is the real test: does the leg picker appear on Alaska's page, or the "could not load" alert?</li>
-<li>Send one leg to LogTen.</li>
-</ol>
-<p class="muted">Do it on both Mac Safari and iPad.</p>
-</section>
-</main>
-<script>
-document.getElementById('copy').onclick=function(){var t=document.getElementById('code').value,m=document.getElementById('msg');
-function ok(){m.textContent='Copied.'} function fb(){var b=document.getElementById('code');b.focus();b.select();b.setSelectionRange(0,t.length);try{document.execCommand('copy');ok()}catch(e){m.textContent='Select and copy by hand.'}}
-navigator.clipboard&&navigator.clipboard.writeText?navigator.clipboard.writeText(t).then(ok,fb):fb()};
-</script></body></html>
+:root { --bg:#f3f5f7; --panel:#fff; --ink:#18212b; --muted:#5b6875; --line:#d6dde4; --hero:#0f1e3a; --gold:#f5b841; --accent:#0b6e8a;
+  --f-brand:"Fredoka","Arial Rounded MT Bold",system-ui,sans-serif; --f-body:"IBM Plex Sans",-apple-system,system-ui,sans-serif; }
+@media (prefers-color-scheme: dark) { :root { --bg:#0f151b; --panel:#161e26; --ink:#e3e9ef; --muted:#93a1ae; --line:#2a3540; --hero:#0b1628; --accent:#4fb3cf; } }
+body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.5 var(--f-body); }
+.wrap { max-width:760px; margin:0 auto; padding:24px 16px 48px; display:grid; gap:14px; }
+header { background:var(--hero); color:#fff; border-radius:12px; padding:20px 24px; display:flex; align-items:center; justify-content:space-between; gap:8px 20px; flex-wrap:wrap; overflow:hidden; }
+header img { width:min(100%,320px); height:auto; filter:drop-shadow(0 10px 14px rgba(0,0,0,.35)); }
+h1 { margin:0; font:700 clamp(2.4rem,7vw,3.2rem)/1 var(--f-brand); color:var(--gold); }
+header p { margin:6px 0 0; font:600 1.15rem var(--f-brand); }
+h2 { margin:14px 0 0; font:600 1.05rem var(--f-brand); color:var(--muted); }
+a.tool { display:block; background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px 18px; text-decoration:none; color:var(--ink); }
+a.tool:hover { border-color:var(--accent); }
+a.tool strong { color:var(--accent); font-size:1.15rem; }
+a.tool small { font-size:.8rem; color:var(--muted); font-weight:600; }
+a.tool span { display:block; color:var(--muted); font-size:.95rem; }
+footer { color:var(--muted); font-size:.85rem; margin-top:8px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Floggy</h1>
+      <p>eCrew to logbook. No retyping.</p>
+    </div>
+    <img src="img/plane-green.webp" alt="Smiling E175 in Floggy livery">
+  </header>
+
+  <h2>Floggy-Go · in your browser (iPad, iPhone, Mac)</h2>
+  <a class="tool" href="go/schedule/">
+    <strong>Floggy-Go Schedule</strong>
+    <span>eCrew Crew Schedule CSV → LogTen</span>
+  </a>
+  <a class="tool" href="go/logbook/">
+    <strong>Floggy-Go Logbook</strong>
+    <span>eCrew Pilot Logbook CSV → LogTen</span>
+  </a>
+  <a class="tool" href="go/flifo/">
+    <strong>Floggy-Go Flifo</strong> <small>beta</small>
+    <span>Look up a flight: actual out/in times and tail from Alaska flight status → LogTen</span>
+  </a>
+  <a class="tool" href="go/help/">
+    <strong>Floggy-Go Help</strong>
+    <span>Quick start and what every switch means</span>
+  </a>
+
+  <h2>Floggy · the Mac app</h2>
+  <a class="tool" href="floggy/">
+    <strong>Floggy</strong>
+    <span>Downloads, User Guide and Gatekeeper help</span>
+  </a>
+
+  <footer>Your files are read on your own device and never uploaded. Unofficial tools, not affiliated with any airline or with LogTen. · qxav8r.github.io</footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Floggy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@400;500;600&family=IBM+Plex+Sans:wght@400;600&display=swap">
+<style>
+:root {
+  --bg:#f3f5f7; --panel:#fff; --ink:#18212b; --muted:#5b6875; --line:#d6dde4;
+  --accent:#0b6e8a; --accent-ink:#fff; --amber:#a8620a; --amber-bg:#fdf1e0;
+  --hero:#0f1e3a; --gold:#f5b841;
+  --f-brand:"Fredoka","Arial Rounded MT Bold",system-ui,sans-serif;
+  --f-ui:"IBM Plex Sans Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,sans-serif;
+  --f-data:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark) { :root {
+  --bg:#0f151b; --panel:#161e26; --ink:#e3e9ef; --muted:#93a1ae; --line:#2a3540; --hero:#0b1628;
+  --accent:#4fb3cf; --accent-ink:#06222b; --amber:#f0ad4e; --amber-bg:#33260f; color-scheme:dark } }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.55 var(--f-body); }
+.wrap { max-width:900px; margin:0 auto; padding:20px max(16px,env(safe-area-inset-right)) 56px max(16px,env(safe-area-inset-left)); display:grid; gap:18px; }
+.homelink { justify-self:start; font:600 .95rem var(--f-ui); color:var(--accent); text-decoration:none; }
+.hero { background:var(--hero); color:#fff; border-radius:12px; padding:20px 24px; display:flex; align-items:center; justify-content:space-between; gap:8px 20px; flex-wrap:wrap; overflow:hidden; }
+.hero h1 { font-family:var(--f-brand); font-weight:700; font-size:clamp(2rem,6vw,3rem); line-height:1; margin:0; color:var(--gold); }
+.hero h1 .sub { color:#fff; font-size:.55em; font-weight:600; }
+.hero p { margin:4px 0 0; font-family:var(--f-brand); font-weight:600; font-size:1.1rem; }
+.hero .ver { font:.8rem var(--f-data); color:#c9d6ec; }
+.plane { width:min(100%,320px); height:auto; filter:drop-shadow(0 10px 14px rgba(0,0,0,.35)); }
+section { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:16px 20px; }
+h2 { font-family:var(--f-brand); font-weight:600; font-size:1.4rem; margin:0 0 8px; color:var(--accent); }
+h3 { font:600 1.05rem var(--f-ui); margin:16px 0 6px; }
+p { margin:6px 0; max-width:75ch; } ol, ul { margin:6px 0; padding-left:1.4em; max-width:75ch; } li { margin:4px 0; }
+a { color:var(--accent); }
+.btn { display:inline-block; font:600 1rem var(--f-ui); background:var(--accent); color:var(--accent-ink); border-radius:8px; padding:.65rem 1.1rem; text-decoration:none; }
+.btn.ghost { background:transparent; color:var(--accent); border:1px solid var(--accent); }
+.btns { display:flex; flex-wrap:wrap; gap:10px; margin:10px 0; }
+.btn small { display:block; font-weight:400; font-size:.8rem; opacity:.85; }
+.tip { border-left:4px solid var(--gold); background:var(--bg); padding:8px 12px; border-radius:0 6px 6px 0; }
+table { border-collapse:collapse; width:100%; font-size:.95rem; }
+th, td { text-align:left; vertical-align:top; padding:8px 10px; border-bottom:1px solid var(--line); }
+th { font:600 .72rem var(--f-ui); text-transform:uppercase; letter-spacing:.06em; color:var(--muted); }
+code { font:.85rem var(--f-data); background:var(--bg); border:1px solid var(--line); border-radius:4px; padding:1px 5px; overflow-wrap:anywhere; }
+figure { margin:10px 0; } figure img { max-width:min(100%,420px); height:auto; border:1px solid var(--line); border-radius:8px; display:block; }
+figcaption { font-size:.85rem; color:var(--muted); margin-top:4px; }
+.foot { color:var(--muted); font-size:.85rem; }
+.cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:10px; }
+.card { display:block; border:1px solid var(--line); border-radius:8px; padding:12px 14px; text-decoration:none; color:var(--ink); }
+.card strong { color:var(--accent); display:block; } .card span { color:var(--muted); font-size:.92rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="homelink" href="../">‹ All Tools / Home</a>
+  <header class="hero">
+    <div>
+      <h1>Floggy</h1>
+      <p>eCrew to logbook. No retyping.</p>
+      <span class="ver">Mac app · v2.6</span>
+    </div>
+    <img class="plane" src="../img/plane-orange.webp" alt="Smiling E175 in Floggy livery">
+  </header>
+
+  <section>
+    <h2>What it does</h2>
+    <p>Floggy is a free Mac app, built by a line pilot, that turns the files you save from eCrew into clean flight records.</p>
+    <ul>
+      <li>Reads the eCrew schedule, Pilot Logbook report and pairing pages, plus Flighty exports.</li>
+      <li>Imports flights and crew into <strong>LogTen Pro</strong>.</li>
+      <li>Puts trips, duty days or flights on <strong>Apple Calendar</strong> or any calendar that takes an .ics file.</li>
+      <li>Exports CSV, and works out rig (TAFB, duty, CBLK, MDCR) for a pairing.</li>
+      <li>Converts times correctly across every station's time zone and daylight saving time.</li>
+    </ul>
+    <p>On an iPad, or just want a quick LogTen import? Try <a href="../go/schedule/">Floggy-Go</a> in your browser instead.</p>
+  </section>
+
+  <section id="download">
+    <h2>Download</h2>
+    <p>Pick the build for your Mac. Not sure which? Apple menu → <strong>About This Mac</strong>: <em>Chip: Apple M1, M2…</em> means Apple Silicon; <em>Processor: Intel</em> means Intel.</p>
+    <div class="btns">
+      <a class="btn" href="https://github.com/QXAV8R/floggy/releases/latest/download/Floggy-Arm.zip">Apple Silicon<small>M1, M2, M3 and newer</small></a>
+      <a class="btn" href="https://github.com/QXAV8R/floggy/releases/latest/download/Floggy-Intel.zip">Intel<small>Older Intel Macs</small></a>
+    </div>
+    <ol>
+      <li>Double-click the downloaded .zip to unzip it.</li>
+      <li>Drag Floggy into your <strong>Applications</strong> folder.</li>
+      <li>The first time, macOS will block it because it isn't from the App Store. That's expected: follow the <a href="gatekeeper/">Gatekeeper guide</a> once and it opens normally after that.</li>
+    </ol>
+    <p>Older versions and release notes: <a href="https://github.com/QXAV8R/floggy/releases">all Floggy releases</a>.</p>
+  </section>
+
+  <section>
+    <h2>Guides</h2>
+    <div class="cards">
+      <a class="card" href="help/"><strong>User Guide</strong><span>Every workspace and button, workflows, glossary, and what's new in 2.6</span></a>
+      <a class="card" href="Floggy_Interface_Guide.pdf"><strong>Interface Guide (PDF)</strong><span>Screenshots of each screen, showing where things are (2.5 screens)</span></a>
+      <a class="card" href="gatekeeper/"><strong>Gatekeeper Guide</strong><span>Getting Floggy open the first time, and macOS permissions</span></a>
+    </div>
+  </section>
+
+  <section>
+    <h2>Questions and feedback</h2>
+    <p>Discussion, bug reports and ideas live in the <a href="https://www.facebook.com/groups/1642284914087763">Floggy Facebook group</a> (Horizon pilots).</p>
+  </section>
+
+  <p class="foot">Floggy · <a href="../">QXAV8R tools</a> · An unofficial personal tool. Not affiliated with or endorsed by Alaska Airlines, Horizon Air or LogTen Pro.</p>
+</div>
+</body>
+</html>

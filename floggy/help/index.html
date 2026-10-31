@@ -1,0 +1,1935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Floggy User Guide</title>
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --surface: #ffffff;
+    --surface2: #edf0f4;
+    --border: #d7dbe3;
+    --accent: #2b6cb0;
+    --accent2: #2f8552;
+    --warn: #a06a10;
+    --warn-bg: #fbf1de;
+    --warn-border: #e3c184;
+    --note-bg: #eaf2fb;
+    --note-border: #b7d3ef;
+    --text: #2a2f3a;
+    --text-dim: #6b7280;
+    --text-head: #16181d;
+    --code-bg: #eef1f5;
+    --code-text: #2f6b40;
+    --link: #2b6cb0;
+    --nav-bg: #ffffff;
+    --nav-width: 260px;
+    --toc-hover: #e7ecf3;
+    --tip-bg: #eaf7ee;
+    --tip-border: #b9e0c4;
+    --toc-active-bg: rgba(43,108,176,0.08);
+  }
+
+  /* ── Auto dark mode — follows the OS/browser appearance setting ── */
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1a1d23;
+      --surface: #22262e;
+      --surface2: #2a2f3a;
+      --border: #363c4a;
+      --accent: #4a90d9;
+      --accent2: #5ba85a;
+      --warn: #e8a838;
+      --warn-bg: #2e2414;
+      --warn-border: #6b4d18;
+      --note-bg: #1a2535;
+      --note-border: #2d4a7a;
+      --text: #d4dae6;
+      --text-dim: #8892a4;
+      --text-head: #e8ecf4;
+      --code-bg: #131620;
+      --code-text: #a8d4a8;
+      --link: #6ab0f0;
+      --nav-bg: #0f1218;
+      --toc-hover: #2d3748;
+      --tip-bg: #1a2820;
+      --tip-border: #2d4a38;
+      --toc-active-bg: rgba(74,144,217,0.08);
+    }
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  /* ── Sidebar ── */
+  #sidebar {
+    width: var(--nav-width);
+    background: var(--nav-bg);
+    border-right: 1px solid var(--border);
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    overflow-y: auto;
+    z-index: 100;
+  }
+
+  #sidebar-header {
+    padding: 20px 16px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  #sidebar-header .app-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.02em;
+  }
+
+  #sidebar-header .app-sub {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  #toc {
+    padding: 10px 0 24px;
+  }
+
+  .toc-section {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 14px 16px 4px;
+  }
+
+  .toc-item {
+    display: block;
+    padding: 5px 16px 5px 16px;
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 13px;
+    line-height: 1.4;
+    transition: background 0.1s, color 0.1s;
+    border-left: 2px solid transparent;
+  }
+
+  .toc-item:hover {
+    background: var(--toc-hover);
+    color: var(--text);
+  }
+
+  .toc-item.active {
+    color: var(--accent);
+    border-left-color: var(--accent);
+    background: var(--toc-active-bg);
+  }
+
+  .toc-item.sub {
+    padding-left: 28px;
+    font-size: 12px;
+  }
+
+  /* ── Main content ── */
+  #content {
+    margin-left: var(--nav-width);
+    padding: 48px 56px 80px;
+    max-width: 860px;
+  }
+
+  /* Title block */
+  .doc-title-block {
+    margin-bottom: 48px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .doc-title-block h1 {
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--text-head);
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+
+  .doc-title-block .byline {
+    margin-top: 10px;
+    color: var(--text-dim);
+    font-size: 14px;
+  }
+
+  /* Headings */
+  h2 {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-head);
+    margin: 48px 0 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+    scroll-margin-top: 24px;
+  }
+
+  h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--accent);
+    margin: 28px 0 8px;
+    scroll-margin-top: 24px;
+  }
+
+  h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-head);
+    margin: 20px 0 6px;
+  }
+
+  h5 {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-dim);
+    margin: 14px 0 4px;
+  }
+
+  /* Body text */
+  p {
+    margin-bottom: 12px;
+  }
+
+  a {
+    color: var(--link);
+    text-decoration: none;
+  }
+
+  a:hover { text-decoration: underline; }
+
+  ul, ol {
+    margin: 8px 0 14px 24px;
+  }
+
+  li {
+    margin-bottom: 4px;
+  }
+
+  strong {
+    color: var(--text-head);
+    font-weight: 600;
+  }
+
+  em {
+    color: var(--text-dim);
+    font-style: italic;
+  }
+
+  /* Menu path */
+  .menu-path {
+    display: block;
+    font-family: "SF Mono", "Menlo", "Monaco", "Courier New", monospace;
+    font-size: 12px;
+    background: var(--code-bg);
+    color: var(--code-text);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin: 10px 0;
+    white-space: pre;
+    line-height: 1.6;
+  }
+
+  /* Inline code */
+  code {
+    font-family: "SF Mono", "Menlo", monospace;
+    font-size: 12px;
+    background: var(--code-bg);
+    color: var(--code-text);
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+  }
+
+  /* Warning box */
+  .warning {
+    background: var(--warn-bg);
+    border: 1px solid var(--warn-border);
+    border-left: 4px solid var(--warn);
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin: 16px 0;
+    font-size: 13.5px;
+  }
+
+  .warning::before {
+    content: "⚠ Warning: ";
+    font-weight: 700;
+    color: var(--warn);
+  }
+
+  /* Note box */
+  .note {
+    background: var(--note-bg);
+    border: 1px solid var(--note-border);
+    border-left: 4px solid var(--accent);
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin: 16px 0;
+    font-size: 13.5px;
+    color: var(--text-dim);
+  }
+
+  .note::before {
+    content: "Note: ";
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .tip {
+    background: var(--tip-bg);
+    border: 1px solid var(--tip-border);
+    border-left: 4px solid var(--accent2);
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin: 16px 0;
+    font-size: 13.5px;
+    color: var(--text-dim);
+  }
+
+  .tip::before {
+    content: "Tip: ";
+    font-weight: 700;
+    color: var(--accent2);
+  }
+
+  /* Comparison table */
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 13.5px;
+  }
+
+  .compare-table th {
+    background: var(--surface2);
+    color: var(--text-head);
+    font-weight: 600;
+    text-align: left;
+    padding: 9px 14px;
+    border: 1px solid var(--border);
+  }
+
+  .compare-table td {
+    padding: 8px 14px;
+    border: 1px solid var(--border);
+    vertical-align: top;
+    color: var(--text);
+  }
+
+  .compare-table tr:nth-child(even) td {
+    background: var(--surface);
+  }
+
+  /* Field key table */
+  .field-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 12.5px;
+    font-family: "SF Mono", "Menlo", monospace;
+  }
+
+  .field-table th {
+    background: var(--surface2);
+    color: var(--text-head);
+    font-weight: 600;
+    text-align: left;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  .field-table td {
+    padding: 6px 12px;
+    border: 1px solid var(--border);
+    vertical-align: top;
+  }
+
+  .field-table tr:nth-child(even) td {
+    background: var(--surface);
+  }
+
+  .field-table td:first-child {
+    color: var(--text-dim);
+    text-align: right;
+    width: 36px;
+  }
+
+  .field-table td:nth-child(2) {
+    color: var(--accent);
+    width: 70px;
+  }
+
+  .field-table td:nth-child(3) {
+    color: var(--code-text);
+    width: 220px;
+  }
+
+  .field-table td:nth-child(4) {
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 13px;
+    color: var(--text);
+  }
+
+  /* Section divider */
+  .section-divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 48px 0 0;
+  }
+
+  /* Glossary entry */
+  .gloss-term {
+    margin-top: 20px;
+  }
+
+  .gloss-term dt {
+    font-family: "SF Mono", "Menlo", monospace;
+    font-size: 14px;
+    color: var(--accent);
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .gloss-term dd {
+    color: var(--text);
+    margin-left: 0;
+  }
+
+  /* Back-to-top */
+  .back-top {
+    display: inline-block;
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+
+  /* Workspace label badge */
+  .ws-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    background: var(--surface2);
+    color: var(--accent);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2px 8px;
+    margin-bottom: 6px;
+    vertical-align: middle;
+  }
+
+  /* Nav note at section end */
+  .nav-note {
+    margin-top: 24px;
+    padding: 8px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 12.5px;
+    color: var(--text-dim);
+  }
+
+  .nav-note strong { color: var(--text-head); }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- ═══ SIDEBAR ═══ -->
+<nav id="sidebar">
+  <div id="sidebar-header">
+    <div class="app-name">Floggy</div>
+    <div class="app-sub">User Guide</div>
+  </div>
+  <div id="toc">
+    <div class="toc-section">Contents</div>
+    <a class="toc-item" href="#quickstart">Quick Start</a>
+    <a class="toc-item" href="#s1">1 &mdash; Overview</a>
+    <a class="toc-item" href="#s2">2 &mdash; Data Collection</a>
+    <a class="toc-item sub" href="#s2-primary">Primary Source &mdash; Schedule</a>
+    <a class="toc-item sub" href="#s2-secondary">Primary Source &mdash; WebArchive or HTML</a>
+    <a class="toc-item sub" href="#s2-files">Managing Saved Files</a>
+    <a class="toc-item sub" href="#s2-logbook">Legal Record &mdash; Logbook</a>
+    <a class="toc-item sub" href="#s2-flifo">Secondary Source &mdash; Flifo</a>
+    <a class="toc-item" href="#s3">3 &mdash; System Requirements</a>
+    <a class="toc-item" href="#s4">4 &mdash; Before You Start</a>
+    <a class="toc-item sub" href="#s4-gatekeeper">Gatekeeper &amp; Permissions</a>
+    <a class="toc-item" href="#s5">5 &mdash; Installation</a>
+    <a class="toc-item sub" href="#s5-storage">Data File Storage</a>
+    <a class="toc-item" href="#s6">6 &mdash; UI Overview</a>
+    <a class="toc-item" href="#s7">7 &mdash; Navigator &amp; Shortcuts</a>
+    <a class="toc-item sub" href="#s7-navpalette">Nav Tool &amp; Workspaces Palette</a>
+    <a class="toc-item" href="#s8">8 &mdash; Collect Workspace</a>
+    <a class="toc-item sub" href="#s8-compare">What Each Button Imports</a>
+    <a class="toc-item sub" href="#s8-order">Recommended Order</a>
+    <a class="toc-item sub" href="#s8-edge">Known Edge Cases</a>
+    <a class="toc-item" href="#s9">9 &mdash; Flt Data Workspace</a>
+    <a class="toc-item sub" href="#s9-flifo">Flifo &mdash; Flight Status Update</a>
+    <a class="toc-item" href="#s10">10 &mdash; Calendar</a>
+    <a class="toc-item sub" href="#s10-compare">ICS vs APS</a>
+    <a class="toc-item sub" href="#s10-ics">Cal &ndash; ICS</a>
+    <a class="toc-item sub" href="#s10-aps">Cal &ndash; APS</a>
+    <a class="toc-item" href="#s11">11 &mdash; Data Workspace</a>
+    <a class="toc-item" href="#s12">12 &mdash; Settings Workspace</a>
+    <a class="toc-item" href="#s13">13 &mdash; Common Workflows</a>
+    <a class="toc-item" href="#s1-platform">Platform &amp; Version Notes</a>
+    <a class="toc-item" href="#s14">14 &mdash; Glossary</a>
+    <a class="toc-item" href="#s15">15 &mdash; Flight Data Field Key</a>
+    <a class="toc-item sub" href="#s15">Fields 1&ndash;31</a>
+    <a class="toc-item sub" href="#s15-1">15.1 &mdash; Tips for LogTen Pro</a>
+    <a class="toc-item" href="#release-notes">Release Notes &mdash; What's New in 2.6</a>
+    <a class="toc-item sub" href="#release-notes-25">Earlier &mdash; Version 2.5</a>
+  </div>
+</nav>
+
+<!-- ═══ MAIN CONTENT ═══ -->
+<main id="content">
+
+  <div class="doc-title-block">
+    <p style="margin:0 0 8px"><a href="../" style="font-weight:600;text-decoration:none">‹ Floggy downloads</a> &nbsp;·&nbsp; <a href="../../" style="font-weight:600;text-decoration:none">All Tools / Home</a></p>
+    <h1>Floggy User Guide</h1>
+    <div class="byline">Developed by Bill Bowling &nbsp;·&nbsp; Portland, Oregon (PDX) &nbsp;·&nbsp; Version 2.6</div>
+  </div>
+
+  <!-- ─── Quick Start ─── -->
+  <h2 id="quickstart">Quick Start &mdash; Your First Month</h2>
+
+  <p>New to Floggy? This gets you from a blank data file to your first logged flights. Full detail on every step lives in the numbered sections below &mdash; come back to them as needed.</p>
+
+  <ol>
+    <li>In eCrew, pull your Crew Schedule for the month: <code>eCrew → Schedule → My Schedule → Print</code> → press the file/export icon → <strong>Save as Text (.csv)</strong>.</li>
+    <li>In Floggy's Collect workspace, press <strong>Parse Schedule</strong> and select that file.</li>
+    <li>Open the Flt Data workspace &mdash; your flights and duty events should now be listed.</li>
+    <li>For each trip, open its Pairing Details in eCrew (<code>eCrew → Crew Schedule → My Schedule → select a pairing → Pairing Details</code>) and save the page &mdash; CMD-S in Safari for a WebArchive, or the complete-page save option in Chrome/Firefox.</li>
+    <li>Back in Collect, press <strong>Parse (Archive or HTML)</strong> and select that saved file. Repeat for each pairing.</li>
+    <li>After you've flown the trips, pull your Pilot Logbook report (<code>eCrew → Reports → Pilot Logbook Report</code> → Save as Text (.csv)) and press <strong>Parse LogBook</strong> in Collect. Run it <strong>last</strong> &mdash; it is the legal record for landings, PIC/SIC capacity, instructor time and Part 121/91 (see Section 8, Recommended Order).</li>
+    <li>Select your flights in Flt Data and press <strong>LogTen Export</strong> to send them to LogTen Pro.</li>
+  </ol>
+
+  <div class="tip">Start with a single month before processing a larger date range or your full history. Once you're comfortable, see Section 13, Common Workflows, for ongoing use and building a full historical logbook.</div>
+
+  <hr class="section-divider">
+
+  <!-- ─── Section 1 ─── -->
+  <h2 id="s1">Section 1 &mdash; Overview</h2>
+
+  <p>Floggy is a macOS utility application developed by Bill Bowling, a pilot based in Portland, Oregon (PDX). Floggy collects and normalizes scheduling data from eCrew and centralizes it for export into electronic logbooks, calendars, and related flight tracking tools.</p>
+
+  <p>Think of Floggy as a translator. Your airline's scheduling system (eCrew) stores your flights one way; LogTen Pro expects them in a different format. Floggy reads the eCrew pages you save from your browser, cleans up the data, and delivers it to LogTen in a format it understands &mdash; so you are not manually typing flight numbers, times, crew names, duty periods, and related details by hand.</p>
+
+  <p>In addition to LogTen export, Floggy supports:</p>
+  <ul>
+    <li>Calendar generation using ICS files</li>
+    <li>Apple Calendar integration using AppleScript</li>
+    <li>Basic rig calculations</li>
+    <li>CSV exports for review, backup, or use in spreadsheet applications</li>
+  </ul>
+
+  <p>Floggy is intended for pilots who maintain electronic logbooks and want a lightweight, focused workflow for transforming raw scheduling and duty data into accurate logbook entries while reducing repetitive manual data entry.</p>
+
+  <div class="note">This guide is version 2.6. It is formatted as an HTML document and can be opened directly in any web browser, or via the Help button in Floggy, which saves a copy named <code>FloggyHelp.html</code> to your Desktop (replacing any earlier copy) and opens it in your default browser. Curious what changed recently? See the <a href="#release-notes">Release Notes</a> at the end of this guide.</div>
+
+  <div class="note">This documentation assumes basic familiarity with eCrew and standard macOS operations such as file saving, Finder navigation, and copy/paste.</div>
+
+  <hr class="section-divider">
+
+  <!-- ─── Section 2 ─── -->
+  <h2 id="s2">Section 2 &mdash; About Data Collection</h2>
+
+  <p>Floggy uses multiple data sources as input to improve accuracy and detail. No single source provides complete information &mdash; combining sources produces the most complete logbook entries.</p>
+
+  <h3 id="s2-primary">Primary Source &mdash; eCrew Schedule File</h3>
+
+  <p>The schedule file is one of two primary sources for Floggy. It is generated from the Print function within eCrew and saved as a <strong>.csv file</strong>. To access it:</p>
+  <pre class="menu-path">eCrew → Schedule → My Schedule → Print</pre>
+  <p>To save the schedule report:</p>
+  <ul>
+    <li>Press the file/export icon in the print window</li>
+    <li>Choose <strong>Save as Text (.csv)</strong></li>
+  </ul>
+  <p>This provides your monthly schedule structure, pairing numbers, and assignment overview.</p>
+
+  <h3 id="s2-secondary">Primary Source &mdash; Pairing Details WebArchive (or Saved HTML Page)</h3>
+
+  <p>The Pairing Details page is the other primary source and captures leg-by-leg detail that the schedule file does not include. To access the Pairing Details window:</p>
+  <pre class="menu-path">eCrew → Crew Schedule → My Schedule
+  → select a pairing
+  → press Pairing Details at the top of the trip details window</pre>
+
+  <p>Once the Pairing Details window is displayed, save it using whichever browser you have it open in. All three browsers below capture the same underlying data &mdash; leg-by-leg times, aircraft type, tail number, crew names, FDP, and duty times &mdash; and Floggy's Parse (Archive or HTML) button reads all three the same way (see Section 8 for the button itself).</p>
+
+  <div class="note">This page carries more than just the pairing you're viewing. Save it while you're working within your <em>current</em> bid month, and it also captures a plethora of background data behind the scenes &mdash; Dashboard, Crew Data, and Training Events &mdash; which Floggy extracts alongside the pairing itself. Save it for a pairing from a different bid month, though, and that background data still reflects your current month, not the pairing's &mdash; stale and mismatched, not useful. In that case, only the pairing details themselves are meaningful; turn on Bypass Dashboard (Section 8) to skip the rest.</div>
+
+  <h4>Safari &mdash; single WebArchive file</h4>
+  <p>Use CMD-S in Safari to save a WebArchive. This produces one self-contained <code>.webarchive</code> file &mdash; nothing else to keep track of.</p>
+  <div class="note">Safari's Cmd-S save panel lets you name the file and browse to any folder &mdash; save your WebArchive files to the same folder every time (Desktop works well) so they're easy to find and drag into Floggy right after saving.</div>
+
+  <h4>Chrome or Firefox &mdash; saved HTML page + companion folder</h4>
+  <p>Use CMD-S and choose the complete/full-page save option &mdash; "Webpage, Complete" in Chrome, "Web Page, complete" in Firefox. Unlike Safari, this produces <strong>two items together</strong> in the folder you save to: a main <code>.html</code> file (e.g. <code>eCrew.html</code>) and a same-named companion folder (e.g. <code>eCrew_files</code>) holding the rest of the page's pieces. Both are needed &mdash; don't move, rename, or delete one without the other.</p>
+  <pre class="menu-path">eCrew.html            ← the file you select in Floggy
+  eCrew_files/          ← its companion folder, must stay alongside it
+    CrewSchedule.html
+    Index.html
+    Main.html
+    ... (Firefox may nest these a level or two deeper &mdash;
+         Floggy finds them either way)</pre>
+  <div class="note">You only ever select the <code>.html</code> file itself in Floggy &mdash; never the companion folder. Floggy automatically locates and reads the companion folder for you, including files Firefox nests in subfolders. Just make sure the folder stays in the same location as the .html file, exactly as the browser saved it.</div>
+  <div class="tip"><strong>Why use Chrome or Firefox instead of Safari?</strong> Safari is preferred for many reasons, including that you can save the page on an iPad or iPhone and mail a copy to your desktop if needed &mdash; that's the workflow the WebArchive path was built around. The Chrome/Firefox pipeline exists for users who simply prefer another browser, and it's also a good option on older Macs, since Chrome and Firefox keep releasing updates for older hardware well after Safari itself stops being updated there. Just remember that a modern version of LogTen Pro won't run on an older OS &mdash; but if you have an older OS paired with an older version of LogTen Pro, you're in luck, because Floggy will still feed it either way. Floggy aims to be flexible.</div>
+
+  <h3 id="s2-files">Managing Saved Files</h3>
+
+  <p>Schedule files saved via the Print function will be named sequentially:</p>
+  <pre class="menu-path">ScheduleReport.csv
+ScheduleReport-1.csv
+ScheduleReport-2.csv
+... and so on</pre>
+  <p>You don't need to manage these yourself &mdash; once Parse Schedule finishes successfully, it moves the file you selected into your Documents folder and renames it with your last name, crew ID and the report's own date range (see Section 8, Parse Schedule). Parse LogBook does the same with logbook reports. That clears the plain <code>ScheduleReport.csv</code> name out of the save location each time, so your next Print/Save from eCrew should default back to that plain name rather than continuing to increment.</p>
+
+  <p>Pairing Details files (WebArchive or saved HTML) are handled differently &mdash; Parse (Archive or HTML) copies the data it extracts into a compact <code>.flog</code> archive in your Documents folder, but leaves the original file (or file-plus-folder pair) exactly where you saved it. Nothing moves or renames it for you; see Section 8, Parse (Archive or HTML), for when it's safe to delete.</p>
+
+  <p>WebArchive files saved from the Pairing Details window will default to the filename <code>eCrew.webarchive</code>. If a file with that name already exists on the Desktop, Safari will prompt you to replace it. You may allow the replacement to keep a single current file, or choose a different name to preserve multiple snapshots &mdash; for example when capturing several pairings before parsing, or when saving a copy for pay dispute reference.</p>
+  <div class="note">This overwrite prompt comes from Safari and applies only to source files you save before parsing (WebArchive, Schedule, Logbook exports). Floggy's own data file &mdash; your .flgy file &mdash; has separate overwrite protection built in; see <a href="#release-notes">Release Notes</a>, Data File Safety Improvements.</div>
+
+  <p>Chrome and Firefox saves follow the same idea but default to <code>eCrew.html</code> plus an <code>eCrew_files</code> companion folder. If a save with that name already exists in the destination folder, your browser will either prompt to replace it or append a number to the new copy's name (e.g. <code>eCrew(1).html</code> / <code>eCrew(1)_files</code>) &mdash; either way, keep each .html file paired with its own matching folder if you're preserving multiple snapshots.</p>
+
+  <p>Once Parse (Archive or HTML) has run on a file, its compact <code>.flog</code> archive (see <a href="#release-notes">Release Notes</a>, Compact Archive Files) already preserves everything needed to reconstruct that parse. The original capture &mdash; the much larger .webarchive file, or the .html file and its companion folder &mdash; is no longer needed for Floggy's own purposes at that point and can be deleted if you're managing disk space &mdash; the same keep-or-delete choice described above for schedule reports applies here too.</p>
+  <p>The .flog archive files themselves exist purely for your reuse or as a simple archive of past parses. Floggy does not manage or clean these up automatically &mdash; you're free to manually delete or move them at any time.</p>
+  <p>All of Floggy's archived files share one naming pattern, so they sort together by type and date in a Finder window:</p>
+  <pre class="menu-path">WILCO-1234_Schedule_2026-07-01_to_2026-07-31.csv
+WILCO-1234_Logbook_2026-08-01_to_2026-08-31.csv
+WILCO-1234_Pairing_2026-09-15_4150.flog
+WILCO_Flighty_2026-01-01_to_2026-12-31.csv</pre>
+  <p>That is your last name and crew ID, the file type, then the report's start and end dates (or, for a pairing, its start date and pairing number). A Flighty export carries no crew ID, so its name has none, and its dates are the calendar year you imported. If an identical file is already in Documents, Floggy skips the archive step and leaves your source file where it is. If a <em>different</em> file already has that name, Floggy asks: <strong>Cancel</strong>, <strong>Replace</strong>, or <strong>Keep Both</strong> (which saves the new one with <code>-2</code>, <code>-3</code>&hellip; added to the name).</p>
+
+  <h3 id="s2-logbook">Legal Record &mdash; Pilot Logbook Report</h3>
+
+  <p>The Pilot Logbook Report is eCrew's record of what you actually flew. It is saved as a <strong>.csv file</strong>. To access it:</p>
+  <pre class="menu-path">eCrew → Reports → Pilot Logbook Report</pre>
+  <p>To save the logbook report:</p>
+  <ul>
+    <li>Press the file/export icon in the report window</li>
+    <li>Choose <strong>Save as Text (.csv)</strong></li>
+  </ul>
+  <p>This report is the legal record of what you flew, and Floggy treats it as the final word for:</p>
+  <ul>
+    <li>Out and in times, block time and tail number for each flown leg</li>
+    <li>PIC / SIC capacity &mdash; including PIC from the right seat as an instructor, or SIC while listed as captain</li>
+    <li>Who landed each leg, and instructor time</li>
+    <li>Part 121 vs Part 91 time classification</li>
+  </ul>
+  <p>It can cover many months or years in one pull, so it is the backbone of a historical logbook. It does not include crew other than the captain, duty or FDP times, trip numbers, or non-flying duties &mdash; those come from the schedule and Pairing Details.</p>
+  <div class="note">The logbook report shows all times in your <strong>base</strong> time, while every other eCrew report uses local station time. Parse LogBook converts them for you &mdash; see Section 8, Parse LogBook. Pull one report per base: if you changed bases, request a separate report for the dates at each base.</div>
+
+  <div class="warning">Floggy parses saved snapshots exactly as captured at the time of saving. If sections of the page are collapsed, filtered, or partially loaded when saved, those sections will not be available during parsing. Always ensure the page is fully loaded and expanded before saving.</div>
+
+  <h3 id="s2-flifo">Secondary Source &mdash; Alaska Flight Status (Flifo)</h3>
+
+  <p>The <strong>Flifo</strong> button (Flt Data workspace, Section 9) is a <strong>secondary source for quick updates</strong>. It looks up the selected flights on Alaska Airlines' public flight status page and fills in actual out/in times and the tail number &mdash; handy for keeping the current trip up to date between eCrew captures.</p>
+  <ul>
+    <li><strong>Limited look-back, limited look-ahead.</strong> Alaska's flight status only reaches about 3 days back and 3 days ahead. Flights outside that window are skipped.</li>
+    <li><strong>Not a replacement for eCrew.</strong> Your eCrew schedule, Pairing Details, and Pilot Logbook remain the primary sources for complete records. Flifo only touches actual out time (ATD), actual in time (ATA), and tail number.</li>
+    <li><strong>Scheduled times are never changed.</strong> Contract (CBA) scheduled times from eCrew differ from Alaska's public schedule by design, so Flifo leaves STD and STA alone.</li>
+    <li><strong>Before the flight:</strong> only the planned tail is filled in; departure and arrival times are still estimates and are not used.</li>
+  </ul>
+  <div class="tip">Typical use: set up your trip at home from eCrew as usual, then run Flifo during or right after each day's flying to pick up actual times and aircraft swaps &mdash; and export to LogTen as you go.</div>
+
+  <hr class="section-divider">
+
+  <!-- ─── Section 3 ─── -->
+  <h2 id="s3">Section 3 &mdash; System Requirements</h2>
+
+  <h3>Operating System</h3>
+  <p>macOS compatible with the current version of LogTen Pro in use.</p>
+
+  <h3>Hardware</h3>
+  <ul>
+    <li>Intel-based Mac: supported via legacy LiveCode standalone builds</li>
+    <li>Apple Silicon (ARM64 / M-series): supported via HyperXtalk-based builds</li>
+  </ul>
+
+  <h3>Required Applications</h3>
+  <ul>
+    <li>Safari (preferred browser &mdash; see note below), or Chrome or Firefox as an alternative</li>
+  </ul>
+  <div class="note">Safari is the recommended browser and is the only one that produces a single WebArchive file. Chrome and Firefox are fully supported alternatives via a saved HTML page &mdash; see Section 8, Parse (Archive or HTML), for the full explanation and usage steps for each browser.</div>
+
+  <h3>Suggested Applications</h3>
+  <ul>
+    <li>LogTen Pro &mdash; not required to run Floggy, but nearly everything Floggy does is aimed at feeding it, so you'll want it installed before long.</li>
+  </ul>
+
+  <h3>Optional Applications</h3>
+  <ul>
+    <li>Apple Calendar (for calendar integration)</li>
+    <li>Flighty (alternate data source) &mdash; particularly useful for capturing tail number and aircraft type for deadhead legs, as eCrew does not provide this information for deadheads. Flighty also often captures more accurate actual departure and arrival times than eCrew.</li>
+  </ul>
+
+  <h3>Storage</h3>
+  <p>Floggy data files (.flgy) may be stored in any location of your choice &mdash; see Section 5, Data File Storage, for recommended locations and an important note on iCloud Drive sync latency.</p>
+
+  <h3>Runtime Requirements (Stack File Users Only)</h3>
+  <p>Running Floggy as a stack file instead of a standalone app requires a LiveCode or HyperXtalk runtime &mdash; see Section 5, Stack File (Alternative), for download links and setup.</p>
+
+  <hr class="section-divider">
+
+  <!-- ─── Section 4 ─── -->
+  <h2 id="s4">Section 4 &mdash; Before You Start</h2>
+
+  <h3>Getting Started</h3>
+  <p>A few things worth thinking about before your first launch:</p>
+  <ul>
+    <li>Floggy can live anywhere on your Mac &mdash; there's no install location requirement. The Applications folder is a natural, common-sense choice if you don't have another preference.</li>
+    <li>LogTen Pro isn't required just to run Floggy, but nearly everything Floggy does is aimed at feeding it &mdash; you'll likely want it installed before long.</li>
+    <li>Have Safari available for saving eCrew pages &mdash; recommended, but Chrome or Firefox work too (see Section 3)</li>
+    <li>Decide where your Floggy data file will be stored</li>
+    <li>Allow extra time during first launch for macOS permission dialogs</li>
+    <li>If you plan to use Add Calendar (Cal &ndash; APS), turn on Calendar's Time Zone Support and set it to your home base &mdash; see Section 10, Cal &ndash; APS, for details</li>
+  </ul>
+
+  <h3>Safari Save Location</h3>
+  <p>WebArchive files are saved via Safari's Cmd-S save panel, which lets you name the file and browse to any folder. Pick one folder &mdash; Desktop works well &mdash; and save there every time, so saved files are always easy to find and drag into Floggy right after saving.</p>
+
+  <h3>Permissions</h3>
+  <p>Because Floggy interacts with Safari, LogTen Pro, Apple Calendar, and local files, macOS will request permissions during first launch. This is normal. You may see prompts for:</p>
+  <ul>
+    <li>Automation</li>
+    <li>Files and Folders</li>
+    <li>Calendars</li>
+  </ul>
+  <p>Click <strong>Allow</strong> or <strong>OK</strong> for each prompt.</p>
+  <p>If you accidentally clicked Don't Allow, you can re-enable permissions at any time:</p>
+  <pre class="menu-path">System Settings → Privacy &amp; Security
+  → select the relevant category
+  → enable Floggy (or HyperXtalk / LiveCode if running as a stack file)</pre>
+  <p>If macOS blocks Floggy from opening:</p>
+  <pre class="menu-path">System Settings → Privacy &amp; Security → Open Anyway</pre>
+  <p>This only needs to be done once.</p>
+
+  <h3>Apple Silicon / Code Signing Note</h3>
+  <p>If you are running an older Intel-based build of Floggy on an Apple Silicon Mac, macOS may prompt you to install Rosetta. Follow the on-screen prompt to install it. This only needs to be done once.</p>
+  <p>For users who encounter persistent permission or code signing issues with the standalone build, a <strong>SignAndAuthorize</strong> AppleScript utility is available upon request. This script automates the following steps:</p>
+  <ul>
+    <li>Clears macOS quarantine attributes</li>
+    <li>Fixes application permissions</li>
+    <li>Resets system privacy (TCC) permissions for the app</li>
+    <li>Applies an ad-hoc code signature</li>
+    <li>Verifies the signature and logs the result to the Desktop</li>
+  </ul>
+  <p>Once complete, launch Floggy and approve the Calendar access dialog when it appears. That permission will persist for future launches. A signing log is saved to the Desktop for reference. To request the SignAndAuthorize utility, contact the developer.</p>
+
+  <h3>Quitting Floggy &amp; the First-Launch Quit Menu</h3>
+  <p>Closing Floggy's main window with its red close button quits the app: Floggy saves your data file, writes a backup to your Desktop (see Section 5), closes its palette windows (Workspaces, Display Flts, Display Events, Sort) and exits &mdash; no force quit needed.</p>
+  <p>The very first time you launch a freshly built standalone copy, the Quit menu item may appear dimmed. This happens only occasionally, and only on that first launch. Use the red close button instead &mdash; Quit behaves normally on every launch after that.</p>
+
+  <h3 id="s4-gatekeeper">Gatekeeper &amp; Permissions &mdash; Your Options</h3>
+  <p>macOS Gatekeeper and the privacy permission system (TCC) can present challenges when running unsigned applications like Floggy. The following options are available, from least to most friction:</p>
+
+  <h4>Option 1 &mdash; Run as a Stack File in the IDE (Recommended)</h4>
+  <p>Running Floggy as a stack file inside the LiveCode Community or HyperXtalk IDE is the smoothest long-term experience. Once the runtime is installed and macOS permissions are satisfied for the IDE itself, Gatekeeper and TCC issues are largely bypassed on an ongoing basis. See Section 5, Stack File (Alternative), for runtime download links and setup steps.</p>
+
+  <h4>Option 2 &mdash; Standalone Build + SignAndAuthorize Utility</h4>
+  <p>For users who prefer a standalone application, the SignAndAuthorize AppleScript utility is available upon request. It performs a one-time automated fix that clears quarantine attributes, resets TCC permissions, and applies an ad-hoc code signature.</p>
+
+  <h4>Option 3 &mdash; Standalone Build + Manual Open Anyway</h4>
+  <p>If Gatekeeper blocks Floggy from opening (step-by-step with pictures in the <a href="../gatekeeper/">Gatekeeper guide</a>):</p>
+  <pre class="menu-path">System Settings → Privacy &amp; Security → Open Anyway</pre>
+  <p>You may also need to manually enable permissions under:</p>
+  <pre class="menu-path">System Settings → Privacy &amp; Security → Automation
+System Settings → Privacy &amp; Security → Files and Folders
+System Settings → Privacy &amp; Security → Calendars</pre>
+
+  <div class="note">Regardless of which option you choose, once Gatekeeper and TCC permissions are satisfied, day-to-day use of Floggy is straightforward. The friction is front-loaded to first launch only.</div>
+
+  <hr class="section-divider">
+
+  <!-- ─── Section 5 ─── -->
+  <h2 id="s5">Section 5 &mdash; Installation</h2>
+
+  <h3>Standalone Application</h3>
+  <p>Download the build for your Mac from the <a href="../">Floggy page</a> (Apple Silicon or Intel), double-click the .zip to unzip it, and copy Floggy to your Applications folder or another location of your choice. Floggy does not use an installer. Floggy stores all user-generated data externally in a separate .flgy data file that you control. The application itself is read-only with respect to your source data.</p>
+  <p>On first launch, macOS may require you to explicitly allow the application to run. See Section 4 &mdash; Gatekeeper &amp; Permissions for your options.</p>
+
+  <h3>Stack File (Alternative)</h3>
+  <p>Stack files are available upon request and may be preferable for users who wish to avoid macOS Gatekeeper restrictions or prefer a more seamless data handling experience &mdash; because the stack operates directly within the runtime environment, data is handled internally and doesn't require the external .flgy file management the standalone build uses.</p>
+  <p>Stack file operation requires one of the following runtimes:</p>
+  <ul>
+    <li>LiveCode Community Edition 9.6.3 &mdash; <a href="https://archive.org/download/live-code-community-installer-mac/LiveCodeCommunity-9_6_3-Mac.dmg">archive.org download</a></li>
+    <li>HyperXtalk (Apple Silicon supported) &mdash; <a href="https://www.hyperxtalk.com/?i=2">hyperxtalk.com download</a></li>
+  </ul>
+  <p>To install:</p>
+  <ul>
+    <li>Download and install your preferred runtime</li>
+    <li>Request the Floggy stack file from the developer</li>
+    <li>Open the stack file directly in the runtime</li>
+  </ul>
+
+  <h3>First Launch &mdash; Data File Setup</h3>
+  <p>Floggy requires a data file (.flgy) to store your flights, crew records, and preferences. On first launch you will need to either create a new data file or open an existing one.</p>
+
+  <p><strong>To create a new data file:</strong></p>
+  <ul>
+    <li>In the Data workspace, press <strong>Export User Data</strong></li>
+    <li>Choose a filename and location</li>
+    <li>Press Save</li>
+  </ul>
+
+  <p><strong>To open an existing data file:</strong></p>
+  <ul>
+    <li>In the Data workspace, press <strong>Import User Data</strong></li>
+    <li>Navigate to your existing .flgy file</li>
+    <li>Press Open</li>
+  </ul>
+
+  <div class="warning">After creating a new data file, verify two critical fields in the Data workspace before relying on parsed data:
+    <br><br>
+    <strong>eCrew Name</strong> &mdash; Your name exactly as it appears in eCrew, last name first. This is populated automatically on your first parse. Verify it matches precisely &mdash; Floggy uses this for parsing logic and data management throughout the application.
+    <br><br>
+    <strong>eCrew Base</strong> &mdash; Your home base airport code (e.g., PDX). Also auto-populated on first parse. Floggy uses this for timezone calculations and calendar event placement.
+    <br><br>
+    To manually edit either field: CMD-Click to unlock, make your change, CMD-Click again to lock.</div>
+
+  <div class="warning">Incorrect or missing values in these fields will affect parsing accuracy across all data sources.</div>
+
+  <p>Floggy automatically saves data at meaningful checkpoints &mdash; after a parse (Parse Schedule, Parse (Archive or HTML), Parse LogBook, Parse Flighty); after Copy Crew Names, Delete Flights, Unlock/Lock Flights, CSV Export, or a Flifo merge; after using the File Path For User Data control; and when the application closes. Switching workspaces or changing the theme does not trigger a save on its own, since neither changes your underlying data.</p>
+  <div class="tip">If you have been working for a while without parsing anything new, it's good practice to close and reopen Floggy (or use Export User Data) before assuming your latest edits are safely on disk.</div>
+
+  <h4>Automatic Backup on Close</h4>
+  <p>Each time Floggy closes, it first writes a backup copy of your data to the Desktop, named with your first initial and last name plus the date &mdash; for example <code>rwilco_Backup_2026-10-29.flgy</code>. A second backup on the same day is saved as <code>rwilco_Backup_2026-10-29-2.flgy</code> (then <code>-3</code>, and so on), so an earlier backup is never replaced. Delete or archive old backups whenever you like; Import User Data can load any of them.</p>
+  <p>If a save or backup can't be written (a locked file, or a folder that isn't available), Floggy shows a <strong>Save Failed</strong> dialog with the reason. Your data is still loaded &mdash; fix the problem, or use Export User Data to save somewhere else.</p>
+
+  <h3 id="s5-storage">Data File Storage</h3>
+  <p>Your data file may be stored in any location. Common locations:</p>
+  <pre class="menu-path">iCloud Drive (recommended for multiple Mac users)
+  iCloud Drive / Floggy / MyData.flgy
+
+Desktop (simple single Mac setup)
+  ~/Desktop / MyData.flgy</pre>
+
+  <div class="warning">iCloud Drive sync introduces latency. During an active data-collection session &mdash; running multiple parses back to back in the Collect workspace &mdash; keep the data file on local disk rather than iCloud Drive, then move or re-save it to iCloud Drive once the session is done. Working directly against a syncing iCloud file while parsing repeatedly can lag or produce stale reads mid-session.</div>
+
+  <div class="tip">Floggy supports multiple data files. This can be useful when managing large logbooks across multiple years. For example: <code>2023 Floggy Wilco.flgy</code>, <code>2024 Floggy Wilco.flgy</code>, <code>2025 Floggy Wilco.flgy</code>. Use Import User Data and Export User Data in the Data workspace to switch between files as needed. Leading with the year (YYYY) puts your files in chronological order automatically when sorting by name in a Finder window &mdash; no need to sort by date modified.</div>
+
+  <div class="note">Performance may decrease as the flight data set grows larger. Floggy performs internal auditing on flight data, and larger datasets will increase processing time. Splitting data across multiple files by year is a practical way to maintain performance.</div>
+
+  <div class="tip">Parse (Archive or HTML), Parse Schedule and Parse LogBook all file their source material away automatically after a successful parse &mdash; a compact <code>.flog</code> record for each pairing, and a renamed copy of each schedule or logbook report (see Section 2, Managing Saved Files). All of them land in your Documents folder, independent of where your data file itself is stored.</div>
+
+  <hr class="section-divider">
+
+  <!-- ─── Section 6 ─── -->
+  <h2 id="s6">Section 6 &mdash; User Interface Overview</h2>
+
+  <p>Floggy is organized into six distinct workspaces. Each workspace is dedicated to a specific function. All workspaces share a common layout:</p>
+
+  <h3>Common Layout</h3>
+
+  <h4>Upper Panel</h4>
+  <p>The main data display area. Contents vary by workspace but generally display raw parsed data, flight records, or reference tables. You do not need to edit this panel directly in most workspaces.</p>
+
+  <h4>Lower Panel</h4>
+  <p>Displays status messages, parse results, warnings, and errors. Always check the lower panel after any operation. It confirms whether an action succeeded and flags anything that needs attention.</p>
+
+  <h4>Button Bar</h4>
+  <p>A row of action buttons along the bottom of the screen. Buttons are specific to each workspace. Many buttons operate only on selected rows in the data panel &mdash; always confirm your selection before pressing an action button.</p>
+
+  <h4>Title Bar</h4>
+  <p>The window's title bar shows the Floggy version and the workspace you're in &mdash; for example <strong>Floggy 2.6 Arm &mdash; Flt Data</strong>. Dialogs are titled with the workspace or button they belong to (Parse Schedule, Cal &ndash; APS, LogTen Export, and so on), so you can always tell where a message came from.</p>
+
+  <h4>Work Space Indicator (lower-right corner)</h4>
+  <p>Displays the name of the current workspace. Click it to open a popup menu listing all workspaces. The menu also includes <strong>Nav Tool</strong>, which opens the floating Workspaces palette for persistent one-click navigation. See Section 7 for details.</p>
+
+  <h3>Available Workspaces</h3>
+  <ul>
+    <li><strong>Collect</strong> &mdash; Import and parse source data (formerly Home / Import)</li>
+    <li><strong>Flt Data</strong> &mdash; Manage flight records and exports</li>
+    <li><strong>Cal &ndash; ICS</strong> &mdash; Generate ICS calendar files</li>
+    <li><strong>Cal &ndash; APS</strong> &mdash; Write events directly to Apple Calendar via AppleScript</li>
+    <li><strong>Data</strong> &mdash; Reference databases and user settings</li>
+    <li><strong>Settings</strong> &mdash; Font, theme, and button style preferences</li>
+  </ul>
+
+  <h3>General Tips</h3>
+  <ul>
+    <li>Many buttons operate only on selected rows. Click to select a single row, Shift-Click for a range.</li>
+    <li>CMD-Click is used throughout Floggy to unlock fields for editing and to access additional functions on certain buttons.</li>
+    <li>Always check the lower panel after every operation.</li>
+    <li>Floggy saves automatically whenever your flight data changes. Switching workspaces or changing the theme does not save on its own (see Section 5).</li>
+  </ul>
+  <div class="note">Selecting one or more rows in Flt Data (Section 9) is how you tell many buttons what to work on &mdash; and that selection carries across workspaces, not just within Flt Data. Buttons that depend on it: <strong>Copy Crew Names</strong>, <strong>Delete Flights</strong>, <strong>LogTen Export</strong>, <strong>HTML Export</strong>, <strong>CSV Export</strong>, <strong>Display Flts</strong>, and <strong>Flifo</strong> all act on whatever is currently selected in the Flt Data panel. <strong>Build ICS Data</strong> (Cal &ndash; ICS, Section 10) and <strong>Build Events</strong> (Cal &ndash; APS, Section 10) do too, even though you press them from a different workspace &mdash; make your selection in Flt Data first, then switch workspaces to build. <strong>Sort Flights</strong> and <strong>Unlock Flights</strong> are the exceptions: both work on the entire list and ignore selection.</div>
+
+  <hr class="section-divider">
+
+  <!-- ─── Section 7 ─── -->
+  <h2 id="s7">Section 7 &mdash; Navigator &amp; Keyboard Shortcuts</h2>
+
+  <h3>Work Space Indicator &amp; Popup Menu</h3>
+  <p>The Work Space indicator in the lower-right corner of every screen displays the name of the current workspace. Clicking it opens a popup menu listing all workspaces: Collect, Flt Data, Cal &ndash; ICS, Cal &ndash; APS, Data, Settings. Click any name to jump directly to that workspace. The menu also includes a <strong>Nav Tool</strong> item at the bottom.</p>
+
+  <h3 id="s7-navpalette">Nav Tool &mdash; Workspaces Palette</h3>
+  <p>Selecting <strong>Nav Tool</strong> from the Work Space popup menu opens the Workspaces palette &mdash; a small floating window listing all six workspaces. The palette stays visible while you work and can be positioned anywhere on screen. Click any workspace name to switch immediately. It is themed automatically with the active color theme.</p>
+  <p>Below a separator line, the palette also has a <strong>Display Flts</strong> button. It opens (or refreshes) the Display Flts data window &mdash; the same as the Display Flts button in Flt Data (Section 9) &mdash; <strong>without leaving the workspace you're in</strong>. It shows the flights selected in Flt Data, or all flights if none are selected.</p>
+  <div class="tip">This makes the handy Display Flts window available while you work in the <strong>Collect</strong> workspace: open it from the palette, then parse your schedule and pairings and watch the rows fill in &mdash; no trips back and forth to Flt Data.</div>
+  <div class="tip">The Workspaces palette is also useful when moving between Collect and Flt Data repeatedly during a parsing session &mdash; for example, parsing a pairing, checking results in Flt Data, then returning to Collect for the next pairing.</div>
+
+  <h3>Keyboard Shortcuts &mdash; General</h3>
+  <pre class="menu-path">CMD-S          Save As in Safari (saves the eCrew page)
+CMD-Tab        Switch between open applications
+CMD-Space      Spotlight search &mdash; locate files instantly
+CMD-,          Open Settings in most Mac applications
+CMD-Shift-F    Toggle full screen in Safari
+CMD-Click      Unlock fields for editing in Floggy
+               Access additional button functions in Floggy</pre>
+
+  <h3>Keyboard Shortcuts &mdash; macOS Workflow</h3>
+  <pre class="menu-path">CMD-S          In Safari, triggers Save As when viewing a web page
+CMD-Shift-F    Exit full screen in Safari if the menu bar is not visible
+CMD-`          Cycle between open Safari windows &mdash; useful for switching
+               between eCrew tabs without the mouse</pre>
+
+  <hr class="section-divider">
+
+  <!-- ─── Section 8 ─── -->
+  <h2 id="s8">Section 8 &mdash; Collect Workspace</h2>
+
+  <p>The Collect workspace is the starting point for all data imports. All raw eCrew data comes in through this screen before it becomes usable flight data. Floggy will open to the workspace that was active when it was last closed, so the Collect workspace may not always be the first screen displayed.</p>
+
+  <h3>Data Panel (upper panel)</h3>
+  <p>Displays the raw content of the file you just parsed &mdash; the imported data pulled directly from your saved eCrew file or WebArchive. Think of it as a staging area. You do not need to edit or interact with this panel directly. If it displays a large block of data after a parse, that is normal.</p>
+
+  <h3>Output Panel (lower panel)</h3>
+  <p>Displays status messages and results after each button press. After a successful parse you will see a summary &mdash; number of flights detected, date ranges, and any warnings. Errors also appear here.</p>
+  <div class="warning">Always check the Output panel after every parse. It tells you whether the import worked and flags anything that needs attention.</div>
+
+  <h3>Buttons</h3>
+
+  <h4>Parse (Archive or HTML)</h4>
+  <p>Imports a Pairing Details page saved from eCrew. This and Parse Schedule are the two primary data sources for Floggy &mdash; together they capture the most complete picture of your trips. The saved page contains three sections that this button reads: Pairing Details (leg-by-leg times, aircraft type, tail number, FDP, and duty times), Dashboard, and Crew Data.</p>
+  <p>This single button accepts three kinds of saved input, so you can use whichever browser you prefer:</p>
+  <ul>
+    <li><strong>Safari WebArchive (.webarchive)</strong> &mdash; a single self-contained file, saved with CMD-S in Safari.</li>
+    <li><strong>Chrome or Firefox HTML page (.html)</strong> &mdash; saved with "Save Page As" / "Save Page" using the complete/full-page option, which produces a main .html file plus a companion "..._files" folder alongside it. Select the .html file itself; Floggy automatically locates and reads the companion folder for you, including files nested in subfolders (Firefox nests its saved fragments more deeply than Chrome, but both are handled the same way).</li>
+    <li><strong>Compact archive (.flog)</strong> &mdash; a previously written compact archive (see <a href="#release-notes">Release Notes</a>, Compact Archive Files) can be selected here to re-run a pairing without needing the original capture at all.</li>
+  </ul>
+  <div class="note">Dashboard, Crew Data, and Training Events on a saved Pairing Details page always reflect your <strong>current</strong> bid month, regardless of which month's pairing you are actually viewing. If you are parsing a pairing from a bid month other than the current one, those sections captured in that file will not match the pairing &mdash; use Bypass Dashboard (below) to skip them in that situation.</div>
+  <p>Parse (Archive or HTML) is the only source for scheduled times on legs you've already flown, trip numbers, and FDP start/end times. It also handles embedded crew data, DST-aware timezone conversion, and training events from the Training Details section of the pairing &mdash; training codes are written to field 31 (TRG) of the flight record. On out-and-back turns where eCrew lists the crew only once, the return leg picks up the same crew automatically. Limo transfers are always recorded as deadheads.</p>
+  <p>Each successful parse also writes a compact <code>.flog</code> archive of the pairing to your Documents folder &mdash; see <a href="#release-notes">Release Notes</a>, Compact Archive Files. You can select a <code>.flog</code> file here in place of the original capture if you ever need to re-run a pairing and no longer have the original .webarchive or .html/"_files" capture around.</p>
+  <p>To use with Safari:</p>
+  <pre class="menu-path">eCrew → Crew Schedule → My Schedule → select a pairing
+  → press Pairing Details at the top of the trip details window
+  → save the page as a WebArchive using CMD-S in Safari
+  → in Floggy, press Parse and select the saved .webarchive file</pre>
+  <p>To use with Chrome or Firefox:</p>
+  <pre class="menu-path">eCrew → Crew Schedule → My Schedule → select a pairing
+  → press Pairing Details at the top of the trip details window
+  → save the page (CMD-S) choosing "Webpage, Complete" (Chrome) or
+  "Web Page, complete" (Firefox) &mdash; this creates a .html file and a
+  same-named "..._files" folder together in the location you choose
+  → in Floggy, press Parse and select the saved .html file
+  (leave the companion "_files" folder right where it was saved)</pre>
+  <div class="tip">Working through several pairings in one sitting? Keep the Display Flts window open as you go &mdash; open it right from Collect with the <strong>Display Flts</strong> button in the Workspaces palette (Section 7), or from the Flt Data workspace (Section 9) &mdash; you'll see each trip's missing fields fill in as you parse each pairing, which makes it easy to track which ones are done and which still need to be parsed.</div>
+  <div class="tip"><strong>Developer's note on browser choice:</strong> Safari is preferred for many reasons, including that you can save the page on an iPad or iPhone and mail a copy to your desktop if needed. The other pipelines are there for users who prefer another browser &mdash; that's fine too. For users on older machines, the Chrome/Firefox path flows quite well, since those browsers stay current on older hardware long after Safari itself stops being updated there. Just remember that a modern version of LogTen Pro won't run on an older OS &mdash; but if you have an older OS paired with an older version of LogTen Pro, you're in luck, because Floggy will still feed it. Floggy aims to be flexible.</div>
+
+  <h4>Parse Schedule</h4>
+  <p>Imports your Crew Schedule &mdash; the monthly overview of your assignments. Provides schedule structure, pairing numbers, duty assignments, and calendar grid data used to anchor duty dates. This and Parse (Archive or HTML) are the two primary data sources &mdash; Parse Schedule establishes the framework for the month, and Parse (Archive or HTML) fills in the leg-by-leg detail.</p>
+  <p>The schedule report is saved as a <strong>.csv file</strong>. It is the only parser that records every duty for the month &mdash; line building, limos, deadheads on other airlines &mdash; along with crew names, duty start/end times and training codes.</p>
+  <ul>
+    <li><strong>Times:</strong> a leg shows either its scheduled or its actual times. Times eCrew marks as <em>estimated</em> are ignored, so they never replace a real scheduled time already in your data.</li>
+    <li><strong>PIC / SIC capacity:</strong> Parse Schedule guesses your capacity from your seat on the crew list. It only fills legs that don't have a capacity yet &mdash; once Parse LogBook has set it, Parse Schedule leaves it alone.</li>
+    <li><strong>Not included:</strong> tail numbers, block time and landings (use Parse (Archive or HTML) and Parse LogBook).</li>
+  </ul>
+  <p>To use:</p>
+  <pre class="menu-path">eCrew → Schedule → My Schedule → Print
+  → press the file/export icon → choose Save as Text (.csv)
+  → in Floggy, press Parse Schedule and select the saved file</pre>
+  <p>Schedule files saved via the Print function will be named sequentially:</p>
+  <pre class="menu-path">ScheduleReport.csv
+ScheduleReport-1.csv
+ScheduleReport-2.csv
+... and so on</pre>
+  <p>After a successful parse, Floggy moves the file you selected into your Documents folder and renames it with your last name, crew ID and the report's own date range &mdash; for example <code>WILCO-1234_Schedule_2026-07-01_to_2026-07-31.csv</code>. eCrew's default period and custom 2&ndash;35 day pulls are named the same way, using whatever dates the report covers.</p>
+  <p>See Section 2, Managing Saved Files, for what happens at the original save location after the move.</p>
+
+  <h4>Parse LogBook</h4>
+  <p>Imports your eCrew Pilot Logbook report &mdash; the legal record of what you flew. It fills in out/in times, tail number, block time, PIC/SIC capacity, landings, instructor time and Part 121 vs Part 91 for every leg in the report, and it can cover any date range in one pull. The logbook report is saved as a <strong>.csv file</strong>.</p>
+  <h5>Base Time Conversion</h5>
+  <p>The logbook report lists every time in your <strong>base</strong> time; every other eCrew report uses the local time at each station. Parse LogBook converts each leg from base time to the departure and arrival stations' local times, using the Airport Data table (including daylight saving time), so its times line up with the rest of your data. Before it starts, a <strong>Logbook Times</strong> notice shows the base from the report header and the report's date range.</p>
+  <div class="warning">The conversion uses one base for the whole report. If you changed bases during the period, Cancel at the Logbook Times notice and pull a separate report for the dates at each base.</div>
+  <h5>Scheduled or Actual?</h5>
+  <p>The report's "Generated on" line (at the bottom of the file) tells Floggy when it was run. A leg with a tail number that arrived before that time is treated as flown, and its times go into the actual (out/in) fields. Legs still in the future go into the scheduled fields.</p>
+  <h5>Deadheads</h5>
+  <p>A leg with no block time and no PIC or co-pilot time is recorded as a deadhead.</p>
+  <h5>When the Flight Is Already in Flt Data</h5>
+  <ul>
+    <li>Times, tail, block, landings, instructor and Part 121/91 from the logbook replace what's there &mdash; the most recent import wins, the same as every other parser.</li>
+    <li><strong>PIC / SIC capacity</strong> is always taken from the logbook, even if that clears a capacity another parser set.</li>
+    <li><strong>Captain's name:</strong> if one name contains the other (for example "COMLEY" and "COMLEY Justin"), the fuller name is kept; otherwise the logbook's name is used.</li>
+    <li>A leg already recorded as a deadhead stays a deadhead.</li>
+  </ul>
+  <p>The Data panel shows a <strong>TIME CONVERSION</strong> summary (actual and scheduled leg counts, plus any leg whose times don't match its block time or couldn't be converted) and, when it changed anything on existing flights, a short <strong>LOGBOOK MERGE</strong> list of what it changed.</p>
+  <p>To use:</p>
+  <pre class="menu-path">eCrew → Reports → Pilot Logbook Report
+  → press the file/export icon → choose Save as Text (.csv)
+  → in Floggy, press Parse LogBook and select the saved file</pre>
+  <p>After a successful parse, Floggy moves the report into your Documents folder and renames it the same way as schedule reports &mdash; for example <code>WILCO-1234_Logbook_2026-08-01_to_2026-08-31.csv</code>. See Section 2, Managing Saved Files.</p>
+
+  <h4>Parse Flighty</h4>
+  <p>Imports data exported from the Flighty app. Useful for capturing tail number and aircraft type on deadhead legs (non QX), and often provides more accurate actual departure and arrival times than eCrew.</p>
+  <p>Flighty exports your entire flight history in one file, so Parse Flighty asks which year you want to import before parsing &mdash; it lists the years found in the file and defaults to the most recent one. Only flights from the year you choose are imported; run Parse Flighty again to import a different year.</p>
+  <p>After a successful parse, Floggy moves the file you selected into your Documents folder and renames it with the same pattern as your other archived files &mdash; for example <code>WILCO_Flighty_2026-01-01_to_2026-12-31.csv</code> (last name, then the calendar year you imported). If your eCrew Name isn't set yet, the name starts with <code>PILOT</code> instead. Duplicates are handled the same way as the other parsers: an identical file is skipped, and a different file with the same name gets the <strong>Cancel / Replace / Keep Both</strong> choice (see Section 2, Managing Saved Files).</p>
+
+  <h4>Calculate Rig</h4>
+  <p>Calculates trip rig values (TAFB, Duty, CBLK, and MDCR) for a single pairing and shows which one wins as Trip Pay, plus the expected RainMaker REG bucket values for each calendar day. Performs the math so you can verify what you should be paid against RainMaker or your airline's pay system.</p>
+  <p>Results appear in the <strong>Output</strong> panel of the Collect workspace (the credit table, REG buckets and TAFB/duty details), with the pairing's leg-by-leg times shown in the <strong>Data</strong> panel above it. Times are calculated in crew-base (LBase) time.</p>
+  <p>Like Parse, Calculate Rig accepts any of the three saved Pairing Details formats &mdash; a Safari WebArchive (.webarchive), a Chrome or Firefox saved HTML page (.html with its companion "..._files" folder), or a compact .flog archive &mdash; so you can run it on the same file you used for Parse, or on a .flog you saved earlier, without needing to keep the original capture around. See Section 8, Parse (Archive or HTML) above, for the full explanation of these three input types.</p>
+  <div class="note">Known limitation: Results may be inaccurate when both actual departure and arrival times fall on the following calendar day.</div>
+
+  <h4>Bypass Dashboard</h4>
+  <p>A toggle that skips everything except the Pairing Details when parsing a WebArchive &mdash; Dashboard, Crew Data, and Training Events are all bypassed, and only the pairing itself is parsed. Use this whenever you are parsing a pairing from a bid month other than your current one &mdash; since Dashboard, Crew Data, and Training Events on the saved page always reflect the current bid month regardless of which pairing you captured, they would otherwise apply stale, mismatched data to that parse. Bypassing also reduces processing time, which is useful if you're working through a batch of older pairings.</p>
+
+  <h4>Help</h4>
+  <p>Opens this User Guide in your default browser. Identical behavior to the Help button in every other workspace &mdash; see Section 12.</p>
+
+  <h3 id="s8-compare">What Each Button Imports</h3>
+  <p>Each of the four buttons above reads a different file and fills in different pieces of your flight data. This table shows how the sources merge into one data set (Flt Data). A checkmark means that button supplies that piece of information &mdash; using more than one button on the same trip fills in more of the picture.</p>
+
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>What it gets</th>
+        <th>Parse (Archive or HTML)</th>
+        <th>Parse Schedule</th>
+        <th>Parse LogBook</th>
+        <th>Parse Flighty</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>File you select</strong></td>
+        <td>eCrew Pairing Details page (.webarchive, or .html + "_files" folder)</td>
+        <td>eCrew schedule export (.csv)</td>
+        <td>eCrew Pilot Logbook export (.csv)</td>
+        <td>Flighty export (.csv)</td>
+      </tr>
+      <tr>
+        <td><strong>How much per file</strong></td>
+        <td>One trip per page</td>
+        <td>One month (or a custom 2&ndash;35 day pull)</td>
+        <td>Any date range, one base</td>
+        <td>Your whole history (one year imported at a time)</td>
+      </tr>
+      <tr>
+        <td><strong>Date, flight number, airports</strong></td>
+        <td>✓</td>
+        <td>✓</td>
+        <td>✓</td>
+        <td>✓</td>
+      </tr>
+      <tr>
+        <td><strong>Every duty (line building, limos, other-airline deadheads)</strong></td>
+        <td>✓</td>
+        <td>✓</td>
+        <td>Flights only</td>
+        <td>Flights only</td>
+      </tr>
+      <tr>
+        <td><strong>Scheduled times on flown legs</strong></td>
+        <td>✓</td>
+        <td>✗</td>
+        <td>✗</td>
+        <td>✓</td>
+      </tr>
+      <tr>
+        <td><strong>Scheduled times on future legs</strong></td>
+        <td>✓</td>
+        <td>✓</td>
+        <td>✓ (converted from base time)</td>
+        <td>✓</td>
+      </tr>
+      <tr>
+        <td><strong>Actual out/in times</strong></td>
+        <td>✓</td>
+        <td>✓</td>
+        <td>✓ (converted from base time)</td>
+        <td>✓</td>
+      </tr>
+      <tr>
+        <td><strong>Aircraft type</strong></td>
+        <td>✓</td>
+        <td>✓</td>
+        <td>✓</td>
+        <td>✓</td>
+      </tr>
+      <tr>
+        <td><strong>Tail number</strong></td>
+        <td>✓</td>
+        <td>✗</td>
+        <td>✓</td>
+        <td>✓</td>
+      </tr>
+      <tr>
+        <td><strong>Block time</strong></td>
+        <td>✓</td>
+        <td>✗</td>
+        <td>✓ (legal block)</td>
+        <td>✗</td>
+      </tr>
+      <tr>
+        <td><strong>Crew names</strong></td>
+        <td>✓</td>
+        <td>✓ (see note below)</td>
+        <td>Captain only</td>
+        <td>✗</td>
+      </tr>
+      <tr>
+        <td><strong>PIC / SIC capacity</strong></td>
+        <td>✗</td>
+        <td>Guess from seat (fills gaps only)</td>
+        <td>✓ (legal record)</td>
+        <td>✗</td>
+      </tr>
+      <tr>
+        <td><strong>Landings</strong></td>
+        <td>✗</td>
+        <td>✗</td>
+        <td>✓</td>
+        <td>✗</td>
+      </tr>
+      <tr>
+        <td><strong>Instructor time</strong></td>
+        <td>✗</td>
+        <td>✗</td>
+        <td>✓</td>
+        <td>✗</td>
+      </tr>
+      <tr>
+        <td><strong>Duty start/end times</strong></td>
+        <td>✓</td>
+        <td>✓</td>
+        <td>✗</td>
+        <td>✗</td>
+      </tr>
+      <tr>
+        <td><strong>Flight Duty Period (FDP) times</strong></td>
+        <td>✓</td>
+        <td>✗</td>
+        <td>✗</td>
+        <td>✗</td>
+      </tr>
+      <tr>
+        <td><strong>Deadhead flag</strong></td>
+        <td>✓</td>
+        <td>✓</td>
+        <td>✓</td>
+        <td>✗</td>
+      </tr>
+      <tr>
+        <td><strong>Remarks</strong></td>
+        <td>✓</td>
+        <td>✓</td>
+        <td>✗</td>
+        <td>Diverted flights only</td>
+      </tr>
+      <tr>
+        <td><strong>Trip/pairing number</strong></td>
+        <td>✓</td>
+        <td>✗</td>
+        <td>✗</td>
+        <td>✗</td>
+      </tr>
+      <tr>
+        <td><strong>Bid period</strong></td>
+        <td>✓</td>
+        <td>✓</td>
+        <td>✓</td>
+        <td>✓</td>
+      </tr>
+      <tr>
+        <td><strong>Flight type (revenue, deadhead, sim, reserve, ground)</strong></td>
+        <td>✓</td>
+        <td>✓</td>
+        <td>✓</td>
+        <td>✗</td>
+      </tr>
+      <tr>
+        <td><strong>Part 121 / Part 91</strong></td>
+        <td>✗</td>
+        <td>Part 121 assumed</td>
+        <td>✓ Both</td>
+        <td>✗</td>
+      </tr>
+      <tr>
+        <td><strong>Training code</strong></td>
+        <td>✓</td>
+        <td>✓</td>
+        <td>✗</td>
+        <td>✗</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="note">Parse Schedule reports either scheduled or actual times for a leg, never both &mdash; before a flight operates only scheduled times are available; once it operates, the schedule export reports actual times instead. Times eCrew marks as estimated are ignored. Scheduled times for legs you've already flown come only from Parse (Archive or HTML).</div>
+
+  <div class="note">Crew names are more reliable from some sources than others. Parse (Archive or HTML)'s Dashboard data (the crew list that comes through when Bypass Dashboard is off) gives the best results &mdash; but it only reflects your <strong>current bid/planning period</strong>. If you wait too long to parse a trip, the Dashboard has already moved on and won't have that crew data anymore. Parse Schedule also picks up crew names, but it has to guess at who's in which seat when a duty day lists more crew than actually worked it (common on reserve-coverage days) &mdash; when it can't tell for sure, it leaves that seat blank rather than guessing wrong. The sooner you parse a trip after flying it, the better your crew data will be.</div>
+
+  <h3 id="s8-order">Recommended Order</h3>
+  <p>Every parser updates the flights already in Flt Data, and the most recent import wins for the fields it supplies. Run them in this order so each source ends up owning the fields it's best at:</p>
+  <ol>
+    <li><strong>Parse Schedule</strong> &mdash; lays down every duty for the month, with crew names and duty times.</li>
+    <li><strong>Parse (Archive or HTML)</strong> for each trip &mdash; adds scheduled times, tail numbers, block, trip numbers and FDP, and corrects crew.</li>
+    <li><strong>Parse LogBook</strong>, once the trips are flown &mdash; the final word on out/in times, capacity, landings, instructor time, block and Part 121/91.</li>
+  </ol>
+  <div class="tip"><strong>Building a historical logbook?</strong> Parse Schedule plus Parse LogBook covers what most pilots need, and the logbook report can span years in one pull. Add Parse (Archive or HTML) only if you want scheduled times, trip numbers or FDP times in your logbook &mdash; it means saving one page per trip.</div>
+
+  <h3 id="s8-edge">Known Edge Cases</h3>
+  <h4>Crew change in the middle of a duty day</h4>
+  <p>If your crew changes partway through a duty day (for example, a training captain leaves after the first leg), Parse Schedule can assign the <em>later</em> crew to the earlier leg. Running the recommended order &mdash; Parse Schedule, then Parse (Archive or HTML), then Parse LogBook &mdash; corrects the captain's name and your capacity (PIC/SIC time) on that leg, because the logbook is the record for both. The <strong>SIC name</strong> on that one leg may still be wrong.</p>
+  <p><strong>Fix:</strong> correct the SIC name for that flight in LogTen Pro after import.</p>
+
+  <div class="nav-note"><strong>Navigation:</strong> Click the Work Space indicator in the lower-right corner to open the workspace popup menu and jump to any other workspace, or select Nav Tool to open the Workspaces palette.</div>
+
+  <hr class="section-divider">
+
+  <!-- ─── Section 9 ─── -->
+  <h2 id="s9">Section 9 &mdash; Flt Data Workspace</h2>
+
+  <p>The Flt Data workspace is the central hub of Floggy. This is where all parsed flight data lives, where you manage and review records, and where you initiate exports to LogTen, calendar, or CSV.</p>
+
+  <p>The main data panel is labeled <strong>Flt Data for Export and Calendar</strong>.</p>
+
+  <h3>Data Panel (main scrollable area)</h3>
+  <p>Displays all aggregated flight records as rows of comma-separated data. Each row represents one flight leg or duty event such as ground school, office days, and similar activities. Flights are sorted newest to oldest by default.</p>
+  <p>The Flt column holds either an actual flight number, or a short code (DT, DH, LB, etc.) marking a non-flight duty entry such as Duty Time, Deadhead, or Line Building. The full list of known duty codes, with plain-language descriptions, is maintained in the Data workspace &mdash; see Section 11, Duty Codes.</p>
+  <div class="tip">Many buttons operate only on selected rows. Click to select a single row, Shift-Click for a range. Always confirm your selection before pressing an action button.</div>
+
+  <p>The buttons are arranged by task: <strong>Row 1</strong> works with the flight data itself (Copy Crew Names, Sort Flights, Delete Flights, Unlock Flights, Help); <strong>Row 2</strong> gets data out or brings updates in (LogTen Export, HTML Export, CSV Export, Display Flts, Flifo).</p>
+
+  <h3>Buttons &mdash; Row 1</h3>
+
+  <h4>Copy Crew Names</h4>
+  <p>Copies crew names (PIC, SIC, FA, FA2) from one flight to adjacent flights within the same pairing. Select a range of two or more rows (click the first, Shift-Click the last), press Copy Crew Names, then choose a direction:</p>
+  <ul>
+    <li><strong>Down</strong> &mdash; copies the crew from the <em>top</em> row of your selection to every row below it.</li>
+    <li><strong>Up</strong> &mdash; copies the crew from the <em>bottom</em> row of your selection to every row above it.</li>
+  </ul>
+  <p>Run as needed to keep crew records complete for LogTen export.</p>
+  <div class="tip">A deadhead leg sitting in the middle of a sequence can throw off a straight adjacent copy &mdash; it isn't crewed the same way as the flights around it, so copying across it can pick up the wrong names. Use Sort Flights to sort by Flt Type first, which groups deadhead legs apart from revenue legs, then run Copy Crew Names &mdash; that way each copy is working against flights that are genuinely adjacent and the same type.</div>
+
+  <h4>Sort Flights</h4>
+  <p>Opens the Sort dialog &mdash; a floating palette that lets you choose a sort field and direction. Sort options include: Date, Flight, Dep Stn, Arv Stn, DH/Ground, and Flt Type. Select Ascending or Descending and click Apply. The dialog is titled <strong>Sort Flts</strong>.</p>
+  <div class="tip">Sort Flights can be used to bring related events together for selective export or deletion. If you use the calendar feature, leave all duty events intact until your calendar updates are complete &mdash; events that might otherwise look like clutter (DT rows, LB rows) often carry the duty on/off times needed to build accurate calendar events.</div>
+
+  <h4>Delete Flights</h4>
+  <p>Permanently removes selected flight rows. This cannot be undone. Use Display Flts first to verify your selection before deleting.</p>
+
+  <h4>Unlock Flights</h4>
+  <p>Unlocks the entire Flt Data list for manual editing. Records are locked by default to prevent accidental changes. While unlocked, the button reads <strong>Lock Flights</strong> and row selection is turned off, so you can click into any line and type. Press Lock Flights when you're done to lock the list again and restore row selection. Your data file is saved each time you lock or unlock.</p>
+
+  <h4>Help</h4>
+  <p>Last button in Row 1. Opens this User Guide in your default browser. Identical behavior to the Help button in the Settings workspace &mdash; see Section 12.</p>
+
+  <h3>Buttons &mdash; Row 2</h3>
+
+  <h4>LogTen Export</h4>
+  <p>Sends selected flights directly to LogTen Pro via the LogTen API. Each record includes a unique flightKey to prevent duplicate entries. LogTen Pro will be launched automatically if it is not already open.</p>
+  <div class="note">Before sending, a Save panel titled <strong>Optional LogTen People file &mdash; Cancel to skip</strong> offers to save a People file for this export's crew (default name <code>eCrew People</code> plus the date, on your Desktop). This step is optional &mdash; your flights export either way. Click <strong>Save</strong> and Floggy writes a People file (Name, ID, Organization) with clean crew associations, then shows a confirmation listing how many people were written and any names it couldn't match. You then import it into LogTen Pro yourself:
+  <pre class="menu-path">LogTen Pro → File → Import From File… → People  (CMD-Shift-P)</pre>
+  Click <strong>Cancel</strong> to skip this step. If the selected flights have no crew (line building days, for example), Floggy skips the People file without asking.</div>
+
+  <h4>HTML Export</h4>
+  <p>Exports selected flights to an HTML file and opens it automatically in your default browser. Use for transferring flight data between machines or sharing a readable copy of flight records. The HTML file also contains a direct LogTen export link.</p>
+  <div class="tip">The HTML file can be emailed to an iPad or iPhone and opened in Safari to trigger a LogTen import directly on that device. This is useful for users who maintain their logbook on a mobile device.</div>
+
+  <h4>CSV Export</h4>
+  <p>Exports selected flights to a CSV file with plain-language column headers, suitable for Excel, Numbers, other spreadsheet applications, or import into a logbook application such as Logbook Pro. You will be asked whether to use colons in time fields (HH:MM) or not (HHMM) &mdash; check your destination application's expected format before choosing. A Cancel option is available at that step if you change your mind partway through.</p>
+  <p>The file is saved to your Desktop. Floggy suggests a name (<code>Flight Export</code> plus the date) that you can change; if a file with that name already exists on the Desktop, you will be asked to confirm before it is overwritten.</p>
+  <div class="note">Block time comes from Parse (Archive or HTML) and Parse LogBook (the legal block) &mdash; Parse Schedule doesn't supply it (see Section 8, What Each Button Imports). Worth checking this field against your destination app before importing or updating records either way.</div>
+
+  <h4>Display Flts</h4>
+  <p>Opens selected flights in a clean, labeled, readable window for review. Use this to spot-check data before exporting. This is read-only and does not modify any data.</p>
+  <div class="tip">Larger and easier to work with than the small in-app panel, this window is handy for monitoring bigger data sets in general. Keep it open while you work &mdash; it updates automatically after any parse action (Parse Schedule, Parse (Archive or HTML), Parse LogBook), so you can watch fields fill in as you go. This is especially useful for tracking collection progress: if you've already run Parse Schedule for the month, keep Display Flts open while you work through your pairings with Parse (Archive or HTML). Parse Schedule establishes each trip with many fields still blank, and as you parse each pairing the missing elements &mdash; times, tail numbers, and the rest &mdash; fill in row by row in the open window, so you can see at a glance which trips are already updated and which still need their pairing parsed.</div>
+
+  <div class="note">Display Flts is also on the Workspaces palette (Section 7), so you can open this window from any workspace &mdash; including Collect while you parse.</div>
+
+  <h4 id="s9-flifo">Flifo</h4>
+  <p>A <strong>secondary source for quick updates</strong> (see Section 2). Select one or more flights, press Flifo, and Floggy looks each one up on Alaska Airlines' public flight status to pick up actual out/in times and the tail number.</p>
+  <ul>
+    <li><strong>Look-back / look-ahead is limited</strong> to what Alaska's status page serves &mdash; about 3 days back and 3 days ahead. Flights outside that window are skipped and noted in the report.</li>
+    <li><strong>What it fills in:</strong> before departure, the planned tail only; once departed, the actual out time (ATD) and tail; once arrived, the actual in time (ATA) as well. If the aircraft was swapped, the actual tail replaces the planned one.</li>
+    <li><strong>What it never changes:</strong> scheduled times (STD/STA), crew, and every other field. Existing out/in times are kept &mdash; if Alaska's differ they are reported, not overwritten.</li>
+    <li><strong>Irregular operations</strong> (cancelled, returned, or diverted flights) and flight numbers that appear twice on the same route in a day are flagged for you to review by hand, never merged automatically.</li>
+  </ul>
+  <p>When the lookup finishes, the Display Flts window shows your selected flights with a Flifo report underneath, then a dialog lists each flight that's ready to update. Choose <strong>Merge</strong> to apply the updates (your data file is saved and the window refreshes to show the new values), or <strong>Cancel</strong> to leave everything as it was.</p>
+  <div class="tip">Flifo pairs well with LogTen Export: run Flifo after a day's flying, merge, then export the same selection to LogTen to update those flights.</div>
+
+  <div class="nav-note"><strong>Navigation:</strong> Click the Work Space indicator in the lower-right corner to open the workspace popup menu and jump to any other workspace, or select Nav Tool to open the Workspaces palette.</div>
+
+  <hr class="section-divider">
+
+  <!-- ─── Section 10 ─── -->
+  <h2 id="s10">Section 10 &mdash; Calendar</h2>
+
+  <p>Floggy offers two ways to get your schedule onto a calendar: <strong>Cal &ndash; ICS</strong>, which writes a portable file you import into Apple Calendar, Google Calendar, or Outlook, and <strong>Cal &ndash; APS</strong>, which writes events directly into Apple Calendar on your Mac via AppleScript, with no file or import step. Both work from the same flight data, the same event-type controls, and the same underlying event structure &mdash; this section covers what's shared between them before getting into what's different about each.</p>
+
+  <h3 id="s10-compare">Which Should I Use? &mdash; Cal &ndash; ICS vs Cal &ndash; APS</h3>
+
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th></th>
+        <th>Cal &ndash; ICS</th>
+        <th>Cal &ndash; APS</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>How it works</strong></td>
+        <td>Creates a file you import</td>
+        <td>Writes directly to Calendar</td>
+      </tr>
+      <tr>
+        <td><strong>Steps</strong></td>
+        <td>Build, Write, double-click file</td>
+        <td>Build, Add Calendar</td>
+      </tr>
+      <tr>
+        <td><strong>Duplicate risk</strong></td>
+        <td>Low (UUID protected)</td>
+        <td>Higher &mdash; no duplicate detection</td>
+      </tr>
+      <tr>
+        <td><strong>Other devices</strong></td>
+        <td>Yes &mdash; share or AirDrop ICS file</td>
+        <td>This Mac only (you can share a calendar via iCloud though)</td>
+      </tr>
+      <tr>
+        <td><strong>Best for</strong></td>
+        <td>First imports, sharing with others</td>
+        <td>Quick updates on primary Mac</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Event Type Controls</h3>
+  <p>Three checkboxes control which event types are included in the build, shared between Cal &ndash; ICS and Cal &ndash; APS &mdash; there is only one set, so checking a box, unchecking it, or changing a calendar name in either workspace applies in both:</p>
+  <ul>
+    <li><strong>Flt Cal</strong> &mdash; Individual flight leg events (one per leg)</li>
+    <li><strong>Duty Cal</strong> &mdash; Duty period events (one per duty period)</li>
+    <li><strong>Trip Cal</strong> &mdash; All-day trip events (one per pairing &mdash; pairing number required)</li>
+  </ul>
+  <div class="note">Flt Cal can build from Parse Schedule or Parse (Archive or HTML) alone. Duty Cal and Trip Cal go beyond individual flights, so they need the full combined dataset &mdash; both Parse Schedule and Parse (Archive or HTML) &mdash; to build correctly. Pull both for a trip before generating calendar data for it if you plan to use Duty Cal or Trip Cal.</div>
+  <p>Each checkbox has a calendar name field to its right showing the target calendar name. The defaults are <strong>Flights</strong>, <strong>Duty</strong>, and <strong>Trip</strong>. CMD-Click any of the three calendar name fields at any time to repopulate it with the calendars available on your Mac and choose from them &mdash; not just on first use. Once set, the calendar name is saved with your data file and does not need to be re-entered.</p>
+  <p>Checking or unchecking a box controls whether that event type is included the <em>next</em> time you press Build ICS Data (or Build Events, in Cal &ndash; APS) &mdash; it does not add or remove rows from a table that's already been built. The calendar name shown in each field is captured into the preview table's Calendar column at the moment you build, too. So if you build, then edit a calendar name field or a checkbox, the table on screen still reflects the old build &mdash; press Build again to pick up the change before writing.</p>
+  <div class="note">The calendar name field carries different weight depending on which build you're using it for. For Cal &ndash; APS, this text is passed directly to Apple Calendar via AppleScript to select the target calendar &mdash; it must match an existing calendar name exactly, or Apple Calendar will create a new calendar under that (possibly mistyped) name rather than using the one you meant. CMD-Click to choose from your existing calendars rather than typing the name by hand. For Cal &ndash; ICS, the name is written into the ICS file for reference only and does not determine where events land on import &mdash; that's decided by however you (or your calendar app) handle the .ics file when you open it.</div>
+
+  <h3>Data Panel &mdash; Column Descriptions</h3>
+  <p>Both Cal &ndash; ICS and Cal &ndash; APS use an identical upper/lower panel layout. The upper panel is labeled <strong>Formatted Flt Data for Calendar Export</strong> and displays the calendar events Floggy has built from your selected flights &mdash; empty until you press Build ICS Data or Build Events. The lower panel is labeled <strong>Calendar Data from Selected Lines of Flt Data</strong> and shows the raw flight data rows used to build the events above.</p>
+  <p>Column descriptions (upper panel):</p>
+  <pre class="menu-path">Calendar    Target calendar name configured in the Cal workspace.
+Summary     Event title &mdash; route for flights, pairing number for duty/trip.
+StartDate   Event start time in ISO format including timezone.
+EndDate     Event end time in ISO format including timezone.
+AllDay      True = all-day event (trips) &mdash; renders as a banner spanning the top of the calendar view. False = timed event (flights, duty).
+Location    Airport pair shown in the calendar event location field.
+Description Full event detail including report time, crew info, flight details.</pre>
+  <div class="note">Floggy automatically handles timezone conversion. Events are placed in the correct local time for each airport, including cross-timezone trips.</div>
+
+  <h3>Calendar Setup Tips</h3>
+  <p>Consider creating a separate calendar in Apple Calendar for each event type &mdash; for example, "QX Flights", "QX Duty", and "QX Trips". Benefits include:</p>
+  <ul>
+    <li>Independent color coding for each calendar, for easy visual identification at a glance</li>
+    <li>Individual calendars can be toggled on or off without affecting others</li>
+    <li>Flight and duty calendars can be shared with family or friends so they can see your schedule &mdash; useful for partners and family members who want to track your trips</li>
+    <li>Shared calendars update automatically when you re-import or add new events</li>
+    <li>If you are a Flighty user, the Flights calendar is specifically formatted for Flighty compatibility. Point Flighty to your Flights calendar to display your schedule directly within the Flighty app.</li>
+  </ul>
+  <p>To share a calendar in Apple Calendar:</p>
+  <pre class="menu-path">Right-click the calendar name in the sidebar
+  → Share Calendar
+  → enter the recipient's iCloud email address</pre>
+  <div class="note">Calendar sharing requires iCloud. The recipient must have an Apple ID to view a shared calendar.</div>
+
+  <hr class="section-divider">
+
+  <h3 id="s10-ics">Cal &ndash; ICS</h3>
+
+  <p>Generates standard ICS calendar files from your flight data. ICS is a universal calendar format compatible with Apple Calendar, Google Calendar, and Outlook &mdash; the most portable way to get your schedule into a calendar application, and it works across devices and platforms.</p>
+
+  <h4>Build ICS Data</h4>
+  <p>Reads selected flights from the Flt Data workspace and generates the event preview table. Always run this first and review the table before writing any files.</p>
+  <div class="warning">Some duty types &mdash; reserve and deadhead in particular &mdash; carry duty start time and other elements that Build ICS Data needs to construct accurate Duty Cal and Trip Cal events. Deleting these rows to keep your LogTen export clean will also break calendar events for the trips they belong to. Leave them in Flt Data; if you don't want a particular set of rows going to LogTen, use Sort Flights to group and select just what you want to export instead of deleting anything.</div>
+
+  <h4>Write ICS Files</h4>
+  <p>Saves ICS files to your Desktop &mdash; one file per event type. Double-click each file on the Desktop to import into Apple Calendar or another calendar application.</p>
+  <div class="note">ICS events are keyed to a unique UUID. Importing the same ICS file more than once will not create duplicate calendar events &mdash; your calendar application will recognize and skip existing events automatically.</div>
+
+  <h4>Display Events</h4>
+  <p>Opens generated events in a clean formatted window showing full event descriptions. Use to verify report times and crew information before writing files.</p>
+  <div class="tip">Larger and easier to review than the small in-app panel, this window is handy for monitoring bigger event sets in general. If it's already open, running Build ICS Data or Write ICS Files again automatically refreshes it with the latest results &mdash; no need to close and reopen it.</div>
+
+  <h4>Help</h4>
+  <p>Positioned beside the Navigator. Opens this User Guide in your default browser. Identical behavior to the Help button in the Settings workspace &mdash; see Section 12.</p>
+
+  <hr class="section-divider">
+
+  <h3 id="s10-aps">Cal &ndash; APS</h3>
+
+  <p>Writes calendar events directly into Apple Calendar on your Mac using AppleScript. No ICS file is created and no manual import step is required &mdash; the most seamless option for macOS users who want events written to their calendar in a single step.</p>
+
+  <h4>Build Events</h4>
+  <p>Reads selected flights from the Flt Data workspace and generates the event preview table. Always run this first and review the table before writing any events.</p>
+  <div class="warning">Some duty types &mdash; reserve and deadhead in particular &mdash; carry duty start time and other elements that Build Events needs to construct accurate Duty Cal and Trip Cal events. Deleting these rows to keep your LogTen export clean will also break calendar events for the trips they belong to. Leave them in Flt Data; if you don't want a particular set of rows going to LogTen, use Sort Flights to group and select just what you want to export instead of deleting anything.</div>
+
+  <h4>Add Calendar</h4>
+  <p>Writes events directly to Apple Calendar. Target calendars will be created automatically if they do not already exist. Calendar name fields must be populated via CMD-Click before using this button &mdash; see Event Type Controls above.</p>
+  <div class="warning">Unlike the ICS method, AppleScript events do not use UUID duplicate protection. Running Add Calendar more than once on the same flights will create duplicate events that must be removed manually in Apple Calendar. Always verify the preview table before clicking Add Calendar.</div>
+  <div class="warning">Add Calendar depends on a Calendar.app preference that Floggy cannot check or set for you. Before using Add Calendar, confirm: Calendar → Settings → Advanced → Time Zone Support is turned on, with its current time zone set to your home base (eCrew Base).
+    <br><br>
+    If this is off, or set to a zone other than your home base, events will be created at the wrong real-world time with no error shown. Floggy reminds you of this with a confirmation dialog every time you use Add Calendar.</div>
+
+  <h4>Display Events</h4>
+  <p>Opens generated events in a clean formatted window showing full event descriptions. Use to verify report times and crew information before writing events.</p>
+  <div class="tip">Larger and easier to review than the small in-app panel, this window is handy for monitoring bigger event sets in general. If it's already open, running Build Events or Add Calendar again automatically refreshes it with the latest results &mdash; no need to close and reopen it.</div>
+
+  <h4>Help</h4>
+  <p>Positioned beside the Navigator. Opens this User Guide in your default browser. Identical behavior to the Help button in the Settings workspace &mdash; see Section 12.</p>
+
+  <div class="nav-note"><strong>Navigation:</strong> Click the Work Space indicator in the lower-right corner to open the workspace popup menu and jump to any other workspace, or select Nav Tool to open the Workspaces palette.</div>
+
+  <hr class="section-divider">
+
+  <!-- ─── Section 11 ─── -->
+  <h2 id="s11">Section 11 &mdash; Data Workspace</h2>
+
+  <p>The Data workspace contains the supporting reference databases and user configuration settings Floggy uses behind the scenes. Most users rarely need to interact here directly &mdash; the databases work automatically once configured. All fields are editable via CMD-Click.</p>
+
+  <h3>Panels</h3>
+
+  <p>The Data workspace displays five panels. Airport Data and Duty Codes run full-height down the left and middle columns; eCrew Pilot Logbook Data, Crew Data, and Crew Names stack in the right column, with the eCrew Name and eCrew Base fields below them.</p>
+
+  <h4>Airport Data</h4>
+  <p>Reference database of airports by IATA code, each with its standard UTC offset and a list of upcoming DST transition dates (spring-forward and fall-back pairs, several years out). Powers DST-aware timezone conversion in calendar exports &mdash; Floggy uses the offset together with the surrounding transition dates to determine whether a given flight or duty time falls in daylight or standard time at that airport.</p>
+
+  <h4>Duty Codes</h4>
+  <p>Maps eCrew duty type codes to plain-language descriptions. For example: <code>G,LB</code> = Line Building; <code>G,IB</code> = IBT Union Business. Determines how records are categorized in the Flt Data workspace.</p>
+  <div class="note">Each row is three comma-separated items: the first is a flight/duty type category &mdash; <code>G</code> Ground, <code>F</code> Flight, <code>R</code> Reserve, <code>S</code> Simulator, or <code>X</code> to exclude the code from categorization; the second is the exact code as it appears in eCrew; the third is a plain-language description, which can simply be copied from eCrew. New duty codes occasionally appear in eCrew &mdash; add a row here for any code you don't recognize.</div>
+
+  <div class="note">Both Airport Data and Duty Codes carry an internal version tag on their first line. When importing a data file via Import User Data, Floggy checks this tag and skips loading that field if the incoming copy predates the version currently required &mdash; protecting corrected reference data already in your stack from being silently overwritten by an older import.</div>
+
+  <h4>eCrew Pilot Logbook Data</h4>
+  <p>Stores tail-number data gathered by Parse LogBook. May be empty if Parse LogBook has not been run.</p>
+
+  <h4>Crew Data</h4>
+  <p>Links crew members to specific flights by date, route, and seat position. Populates PIC, SIC, FA, and FA2 fields. Used by Copy Crew Names in the Flt Data workspace.</p>
+  <p>Crew Data is populated automatically by the various parsing functions. When parsing a WebArchive, Floggy captures crew assignments embedded in the eCrew pairing data. This data is retained and reused when merging subsequent imports and during internal audit runs, ensuring crew associations remain consistent across your dataset.</p>
+
+  <h4>Crew Names</h4>
+  <p>Roster of crew members with LogTen People IDs, airline, and last-seen date. Supports clean crew associations in LogTen export.</p>
+
+  <h3>User Configuration Fields</h3>
+
+  <p>eCrew Name and eCrew Base are populated automatically the first time you run Parse Schedule, Parse (Archive or HTML) or Parse LogBook on a file that contains your name and base. You can verify or correct these fields at any time via CMD-Click.</p>
+
+  <h4>eCrew Name</h4>
+  <p>Your eCrew username &mdash; must match exactly how your name appears in eCrew, last name first. Auto-populates the first time you run Parse Schedule or Parse (Archive or HTML) on a file containing your name, so you typically won't need to enter it by hand. Used for parsing logic and data management throughout the application. If parsing results look incorrect, verify this field first. To edit: CMD-Click to unlock, CMD-Click again to lock.</p>
+
+  <h4>eCrew Base</h4>
+  <p>Your home base airport code (e.g., PDX). Auto-populates the first time you run Parse Schedule or Parse (Archive or HTML) on a file containing your base, so you typically won't need to enter it by hand. Used for timezone calculations and logic assumptions across calendar and schedule parsing. An incorrect base can cause calendar timezone errors. To edit: CMD-Click to unlock, CMD-Click again to lock.</p>
+
+  <h4>File Path For User Data</h4>
+  <p>The active data file path is displayed in the footer bar of the Settings workspace (same row as the Work Space indicator). It is not shown in the Data workspace itself. Click it there to open, switch, or reset your data file &mdash; see Section 12 for details.</p>
+
+  <h3>Buttons</h3>
+  <p>These three buttons are also available on the Settings workspace &mdash; see Section 12. They behave identically wherever you access them.</p>
+
+  <h4>Import User Data</h4>
+  <p>Loads a Floggy data file (.flgy) from a location you choose. Use to restore from backup, switch between data files, or reconnect after moving your file.</p>
+  <p>Since this replaces everything currently in the stack's fields, Floggy first checks in with you twice:</p>
+  <ul>
+    <li>If you have unsaved changes, you will be asked to confirm before they are lost.</li>
+    <li>Once you have chosen a file, Floggy shows a summary of what's in it &mdash; crew name, base, flight and crew record counts, and the file's last-saved date &mdash; before actually loading it. Cancel at this point leaves your current data untouched.</li>
+  </ul>
+
+  <h4>Export User Data</h4>
+  <p>Saves your current data &mdash; flights, crew records, preferences, and all databases &mdash; to a file of your choice. Use for manual backups or moving data to a new location. If the file you choose already exists, you will be asked to confirm before it is overwritten.</p>
+  <p><strong>Option-click</strong> Export User Data to export just one year instead. You will be prompted for a four-digit year, and Floggy will build a standalone file containing only that year's flight and crew records plus your full reference tables &mdash; a complete, independently loadable file scoped to a single year. Your current working file is untouched by this action.</p>
+
+  <h4>Reset User Data</h4>
+  <p>Clears flight and crew data so you can start fresh &mdash; typically used when moving to a new year or bid period. Airport Data, Duty Codes, and Bid Data are static reference tables and are never affected by Reset User Data.</p>
+  <p>Flight and crew data are cleared &mdash; including the Crew Names roster (your LogTen People IDs) and your eCrew Name and eCrew Base, which repopulate on your next parse. Interface settings (fonts, button styles, cal list selections) are left as they were. You are then required to point Floggy at a file &mdash; Load Existing or New File &mdash; before continuing. There is no option to defer this step, since leaving the old file path in place after clearing your data risks overwriting that file with the now-empty fields the next time Floggy saves.</p>
+  <div class="warning">This action is destructive and cannot be undone. Always use Export User Data to create a backup before running Reset User Data.</div>
+
+  <div class="nav-note"><strong>Navigation:</strong> Click the Work Space indicator in the lower-right corner to open the workspace popup menu and jump to any other workspace, or select Nav Tool to open the Workspaces palette.</div>
+
+  <hr class="section-divider">
+
+  <!-- ─── Section 12 ─── -->
+  <h2 id="s12">Section 12 &mdash; Settings Workspace</h2>
+
+  <p>The Settings workspace controls the visual appearance of Floggy &mdash; font, color theme, button style, and workspace transition effects. None of these settings affect your flight data or exports. Changes take effect immediately and save automatically.</p>
+
+  <p>The workspace is divided into two panels. The left panel handles font selection; the right panel contains theme, style, and effect controls, along with Import User Data, Export User Data, Reset User Data, and Help.</p>
+
+  <h3>Left Panel &mdash; Font Selection</h3>
+
+  <h4>Font List</h4>
+  <p>Displays a scrollable list of every monospaced font installed on your Mac, with a sample string showing letters, numbers, and common symbols (<code>AaBbCc 0123456789 -_=+</code>). Monospaced fonts are required because Floggy displays flight data in aligned columns &mdash; each character takes the same width, keeping rows readable and consistent.</p>
+  <p>Click any font name to preview and apply it. The currently selected font is highlighted.</p>
+  <p>Tips for choosing a font:</p>
+  <ul>
+    <li>Readability matters more than aesthetics &mdash; you will be scanning rows of flight data quickly</li>
+    <li>Menlo and Courier New are traditional, very legible options</li>
+    <li>Source Code Pro is a modern option designed for data-heavy readability</li>
+    <li>If 0 and O, or 1 and l look identical in a font, try a different one &mdash; some monospaced fonts distinguish these characters better than others</li>
+  </ul>
+
+  <h4>Selected Field Font</h4>
+  <p>Displays the currently active font name below the list. CMD-Click to reset the font to the default. The font list is populated automatically from all monospaced fonts installed on your Mac &mdash; if you install a new font and it does not appear, restart Floggy.</p>
+
+  <h3>Right Panel &mdash; Appearance Controls</h3>
+
+  <h4>Theme</h4>
+  <p>Sets the overall color scheme for the Floggy interface. Click to open a dropdown menu and choose from the available themes. Changes apply instantly across all workspaces and palette windows and are saved automatically.</p>
+  <p>Available themes:</p>
+  <ul>
+    <li><strong>Auto</strong> &mdash; Follows macOS system appearance. Applies Light in light mode, Dark in dark mode.</li>
+    <li><strong>Blue</strong> &mdash; Deep blue background with light blue and white text accents.</li>
+    <li><strong>Green</strong> &mdash; Dark green background with light text &mdash; the default theme for Floggy.</li>
+    <li><strong>Gray</strong> &mdash; Medium gray neutral theme.</li>
+    <li><strong>Dark</strong> &mdash; Dark gray background with light text. Easy on the eyes in low-light environments.</li>
+    <li><strong>Light</strong> &mdash; Light gray background with dark text.</li>
+    <li><strong>FMS</strong> &mdash; Dark background with amber group labels and green field text &mdash; styled after an aircraft FMS display.</li>
+    <li><strong>Arcade</strong> &mdash; High-contrast dark blue background with bright green and yellow accents.</li>
+    <li><strong>White</strong> &mdash; Bright white background variant of the light theme.</li>
+    <li><strong>Eggplant</strong> &mdash; Deep plum background with lavender text and a green selection highlight.</li>
+  </ul>
+  <div class="note">Alternating row colors in data fields are derived automatically from the selected theme for consistent readability across all themes, including light and white variants.</div>
+
+  <h4>Button Style</h4>
+  <p>Controls the visual style of all buttons throughout Floggy. Click to open a dropdown and choose from: Standard, Rectangle, Transparent, Opaque, RoundRect, Shadow. Changes apply immediately across the interface so you can see the effect on the buttons around you.</p>
+
+  <h4>Visual Effects</h4>
+  <p>Controls the animated transition effect used when switching between workspaces. Click to open a dropdown menu and choose from:</p>
+  <ul>
+    <li><strong>None</strong> &mdash; Instant switch, no animation</li>
+    <li><strong>plain</strong> &mdash; Simple cut with no effect</li>
+    <li><strong>dissolve</strong> &mdash; Cross-fade between workspaces</li>
+    <li><strong>iris open / iris close</strong> &mdash; Circular reveal expanding from or collapsing to center</li>
+    <li><strong>zoom open / zoom close</strong> &mdash; Scale transition expanding or contracting</li>
+    <li><strong>zoom in / zoom out</strong> &mdash; Zoom direction variants</li>
+    <li><strong>wipe left / wipe right / wipe up / wipe down</strong> &mdash; Directional wipe transitions</li>
+    <li><strong>scroll left / scroll right / scroll up / scroll down</strong> &mdash; Directional scroll transitions</li>
+  </ul>
+  <div class="tip">Visual effects are purely cosmetic. If Floggy feels sluggish when switching workspaces, set Visual Effects to None.</div>
+
+  <h4>Help</h4>
+  <p>Opens this User Guide in your default browser.</p>
+
+  <h4>Import User Data</h4>
+  <p>Loads a Floggy data file (.flgy). Identical to the Import User Data button in the Data workspace &mdash; see Section 11 for the full behavior, including the unsaved-changes warning and the load-preview confirmation dialog.</p>
+
+  <h4>Export User Data</h4>
+  <p>Saves your current data to a file of your choice. Identical to the Export User Data button in the Data workspace, including the Option-click year-filtered export &mdash; see Section 11 for details.</p>
+
+  <h4>Reset User Data</h4>
+  <p>Clears flight and crew data, including Crew Names and your eCrew Name and Base. Identical to the Reset User Data button in the Data workspace &mdash; see Section 11 for details.</p>
+  <div class="warning">This action is destructive and cannot be undone. Always use Export User Data to create a backup before running Reset User Data.</div>
+
+  <h3>Footer Bar &mdash; File Path For User Data</h3>
+  <p>The footer bar at the bottom of the Settings workspace contains two controls: <strong>File Path For User Data</strong> on the left, and the <strong>Work Space</strong> indicator on the right.</p>
+  <p>File Path For User Data displays the full path to your active .flgy data file and is clickable. Clicking it opens a prompt with three choices:</p>
+  <ul>
+    <li><strong>New File</strong> &mdash; choose a location and start fresh. Will not overwrite a file that already exists at the chosen location.</li>
+    <li><strong>Load Existing</strong> &mdash; browse to and open a saved .flgy file. Read-only &mdash; never writes to disk.</li>
+    <li><strong>Later</strong> &mdash; dismiss the prompt, then choose whether to keep your current file path or reset it to blank.</li>
+  </ul>
+  <p>If the file path is empty, wrong, or you simply want to switch files, click it directly rather than going through Import User Data in the Data workspace &mdash; both reach the same file, but this control is the more direct path.</p>
+  <p>Choosing Load Existing here shows the same load-preview summary described in Section 1 (crew, base, record counts, last-saved date) before anything is applied &mdash; use it to confirm you picked the right file.</p>
+
+  <div class="nav-note"><strong>Navigation:</strong> Click the Work Space indicator in the lower-right corner to open the workspace popup menu and jump to any other workspace, or select Nav Tool to open the Workspaces palette.</div>
+
+  <hr class="section-divider">
+
+  <!-- ─── Section 13 ─── -->
+  <h2 id="s13">Section 13 &mdash; Common Workflows</h2>
+
+  <p>This section describes the most common usage patterns for Floggy. New users should start with the Beginner workflow and progress to the Ongoing workflow once comfortable with the process.</p>
+
+  <h3>Beginner &mdash; First Month</h3>
+  <p>See <a href="#quickstart">Quick Start</a> at the top of this guide for the step-by-step first-month walkthrough. Once you've successfully processed one month, processing multiple months at once is straightforward &mdash; the workflows below cover ongoing use and building a full historical logbook.</p>
+
+  <h3>Ongoing Users</h3>
+  <p>For pilots maintaining an active logbook with Floggy:</p>
+  <ol>
+    <li>Before a trip, preload flights into LogTen using Parse Schedule and LogTen Export.</li>
+    <li>During the trip, log times, approaches, and landings per leg in LogTen Pro.</li>
+    <li>After trip completion, save the Pairing Details WebArchive and run Parse (Archive or HTML) to update flight data with actual times, FDP, and duty periods.</li>
+    <li>Run Parse LogBook for the period you've flown &mdash; it sets landings, capacity, instructor time and Part 121/91 from the legal record.</li>
+    <li>Re-export to LogTen to capture updated times.</li>
+    <li>Run Calculate Rig and compare results against RainMaker or your airline's pay system.</li>
+  </ol>
+
+  <h3>New Users &mdash; Building a Full Logbook</h3>
+  <p>For pilots building a complete historical logbook, work forward one month at a time until you're comfortable with the process, then switch to processing a year at a time:</p>
+  <ol>
+    <li>Load schedule data using Parse Schedule (.csv).</li>
+    <li>Optional: add pairing data using Parse (Archive or HTML) for each pairing &mdash; only needed if you want scheduled times, trip numbers or FDP times (see Section 8, Recommended Order).</li>
+    <li>Load eCrew logbook data using Parse LogBook (.csv) last. One report can cover a year or more &mdash; pull separate reports for each base if you changed bases.</li>
+    <li>Audit: use Sort Flights to sort Flt Data by Flt Type, then review crews and trip numbers together. Trip numbers and complement can help you make an educated guess at crew assignments where data is incomplete &mdash; use Copy Crew Names to copy crews up or down to adjacent flights within a pairing as needed. Work date-wise from oldest to newest with the Display Flts window open; on a large enough screen it updates in real time as you edit, so you can verify each change immediately.</li>
+    <li>Watch for redeye/overnight duty &mdash; crew data can occasionally land misaligned by one row against the correct flight in this situation. If you spot it, the fix is to move the crew data up one line and delete the resulting dangling empty line. This is an infrequent edge case, so don't be surprised if you go a long stretch without seeing it.</li>
+    <li>Export to LogTen using LogTen Export or HTML Export.</li>
+  </ol>
+  <div class="tip">For large historical logbooks, process and export one year at a time once you're comfortable with the workflow. Once a year is complete and exported to LogTen, create a new data file for the next year &mdash; leading the filename with the year (e.g. <code>2024 Floggy Wilco.flgy</code>) keeps your archive sorted chronologically by name in Finder. This keeps each file manageable and maintains Floggy performance. See Section 5 for data file management tips.</div>
+
+  <h3>Calendar Workflow</h3>
+  <ol>
+    <li>Select flights in the Flt Data workspace.</li>
+    <li>Navigate to the Cal &ndash; ICS or Cal &ndash; APS workspace.</li>
+    <li>Select desired event types (Flt Cal, Duty Cal, Trip Cal).</li>
+    <li>Press Build ICS Data or Build Events and review the preview table.</li>
+    <li>Press Write ICS Files or Add Calendar to write events.</li>
+  </ol>
+  <p>See Section 10 for full details on each calendar method.</p>
+
+  <hr class="section-divider">
+
+  <!-- ─── Platform & Version Notes ─── -->
+  <h2 id="s1-platform">Platform &amp; Version Notes</h2>
+
+  <p>Legacy versions of Floggy were built in LiveCode and support Intel-based Mac systems. Development has since transitioned to HyperXtalk, the open-source continuation of the LiveCode platform. HyperXtalk supports modern Apple Silicon (ARM64 / M-series) processors.</p>
+
+  <p>See Section 5, Stack File (Alternative), for why you might run Floggy as a stack file instead of a standalone build, and for runtime download links.</p>
+
+  <hr class="section-divider">
+
+  <!-- ─── Section 14 ─── -->
+  <h2 id="s14">Section 14 &mdash; Glossary</h2>
+
+  <dl>
+    <div class="gloss-term"><dt>.flgy</dt><dd>Floggy's native data file format. Contains all your flight data, crew records, and preferences. Created and managed via the Export User Data and Import User Data buttons in the Data workspace.</dd></div>
+    <div class="gloss-term"><dt>.flog</dt><dd>Floggy's compact archive format for WebArchive parses, also referred to internally as a <strong>fixture file</strong> &mdash; Floggy can re-parse a .flog exactly as if it were the original capture. Contains just the data sections Parse (Archive or HTML) actually needs &mdash; roughly 100x smaller than the original .webarchive. Written automatically to your Documents folder each time you run Parse (Archive or HTML), for reuse or as a simple archive; you may delete or move these files manually at any time.</dd></div>
+    <div class="gloss-term"><dt>AppleScript</dt><dd>A macOS automation language that Floggy uses to write events directly into Apple Calendar without requiring you to import a file. Used in the Cal &ndash; AppleScript workspace.</dd></div>
+    <div class="gloss-term"><dt>Currency</dt><dd>In aviation, currency refers to meeting the minimum recent experience requirements to legally act as pilot in command or perform specific operations. For example, three takeoffs and landings within the preceding 90 days for passenger carrying operations. LogTen Pro tracks currency automatically when landing and approach data is complete and accurate. Floggy captures landing data from the eCrew Pilot Logbook report via Parse LogBook.</dd></div>
+    <div class="gloss-term"><dt>Deadhead (DH)</dt><dd>A flight leg where you are a passenger rather than an operating crew member, including limo transfers. Deadhead legs carry DH in the DH field (22) and flight type 1. Parse LogBook treats a leg with no block time and no PIC or co-pilot time as a deadhead.</dd></div>
+    <div class="gloss-term"><dt>Duty Code</dt><dd>A code used by eCrew to identify the type of duty assigned &mdash; for example line building, union business, or training. Floggy maps these codes to plain-language descriptions in the Data workspace.</dd></div>
+    <div class="gloss-term"><dt>eCrew</dt><dd>Your airline's crew management system &mdash; the source of all schedule, pairing, and logbook data that Floggy imports.</dd></div>
+    <div class="gloss-term"><dt>Base Time</dt><dd>Clock time at your home base (eCrew Base), as opposed to the local time at each station. The eCrew Pilot Logbook report shows all times in base time; Parse LogBook converts them to station time.</dd></div>
+    <div class="gloss-term"><dt>FDP</dt><dd>Flight Duty Period &mdash; the regulated time window during which you are legally allowed to fly. Tracked by Floggy from eCrew pairing data.</dd></div>
+    <div class="gloss-term"><dt>FDPS / FDPE</dt><dd>Flight Duty Period Start and End times. The regulated time window during which you are legally allowed to fly begins at FDPS and ends at FDPE. Floggy captures these times from eCrew pairing data and maps them to LogTen Pro fields for FDP tracking and regulatory compliance monitoring.</dd></div>
+    <div class="gloss-term"><dt>flightKey</dt><dd>A unique identifier built for each flight at LogTen export from its date, flight number, departure and arrival &mdash; for example <code>102620262056SBPPDX</code>. Sent as LogTen Pro's flight_key field, so exporting the same flight again updates its LogTen entry instead of creating a duplicate.</dd></div>
+    <div class="gloss-term"><dt>HyperXtalk</dt><dd>The open-source continuation of the LiveCode platform. Supports modern Apple Silicon (ARM64 / M-series) processors. Required for running Floggy as a stack file on Apple Silicon Macs.</dd></div>
+    <div class="gloss-term"><dt>ICS</dt><dd>A universal calendar file format (.ics) that any calendar application can import. Compatible with Apple Calendar, Google Calendar, and Outlook. Think of it like a PDF but for calendar events.</dd></div>
+    <div class="gloss-term"><dt>LiveCode</dt><dd>The development platform used to build legacy versions of Floggy. Supports Intel-based Mac systems. The LiveCode Community Edition runtime is required for running legacy Floggy stack files.</dd></div>
+    <div class="gloss-term"><dt>LogTen Pro</dt><dd>The electronic logbook application that Floggy exports flight data to. Floggy supports direct export via the LogTen API as well as HTML file export for mobile devices.</dd></div>
+    <div class="gloss-term"><dt>Monospaced Font</dt><dd>A font where every character takes exactly the same width. Required for Floggy's data panels so columns line up correctly and flight data remains readable.</dd></div>
+    <div class="gloss-term"><dt>Pairing</dt><dd>A sequence of flights and duties assigned to you as a trip. Pairing details are captured in eCrew via the Pairing Details window and saved as a WebArchive for parsing by Floggy.</dd></div>
+    <div class="gloss-term"><dt>Part 121</dt><dd>Commercial airline operations conducted under FAA Part 121 regulations. Floggy captures Part 121 classification from the eCrew Pilot Logbook report.</dd></div>
+    <div class="gloss-term"><dt>Part 91</dt><dd>General aviation operations conducted under FAA Part 91 regulations. Floggy captures Part 91 classification from the eCrew Pilot Logbook report.</dd></div>
+    <div class="gloss-term"><dt>People</dt><dd>LogTen Pro's crew roster feature. Stores records for each crew member you have flown with, including name and certificate details. Floggy populates crew associations automatically via the Crew Names panel in the Data workspace. Keeping People records current ensures clean crew associations in LogTen exports.</dd></div>
+    <div class="gloss-term"><dt>RainMaker</dt><dd>A pay calculation system used by some airlines. Floggy's Calculate Rig function produces output that can be compared against RainMaker to verify trip pay.</dd></div>
+    <div class="gloss-term"><dt>RIG</dt><dd>A contract-based minimum pay guarantee per trip calculated from the ratio of trip time to flight time. Floggy's Calculate Rig function computes this value from eCrew pairing data so you can verify your pay statement against RainMaker or your airline's pay system.</dd></div>
+    <div class="gloss-term"><dt>Rosetta</dt><dd>A macOS compatibility layer that allows Intel-based applications to run on Apple Silicon Macs. May be required for legacy standalone builds of Floggy on M-series Macs.</dd></div>
+    <div class="gloss-term"><dt>Smart Groups</dt><dd>A LogTen Pro feature that allows you to create dynamic groups of logbook entries based on specific criteria. For example, a Smart Group can gather all entries containing a specific crew capacity code, allowing bulk edits across matching entries without modifying records one by one.</dd></div>
+    <div class="gloss-term"><dt>TAFB</dt><dd>Time Away From Base &mdash; the total time away from your home base airport from report time to release time. A contract-based calculation used for pay and rest purposes. LogTen Pro tracks TAFB automatically when duty start and end times are complete. Floggy captures duty times from eCrew pairing data via Parse (Archive or HTML).</dd></div>
+    <div class="gloss-term"><dt>TCC</dt><dd>Transparency, Consent, and Control &mdash; the macOS privacy permission system that manages application access to Calendar, Files, Automation, and other protected resources. Floggy requires TCC permissions to function correctly.</dd></div>
+    <div class="gloss-term"><dt>Training Code (TRG)</dt><dd>A one-letter code in field 31 of a flight record marking a training leg, taken from the letter eCrew shows in brackets on the training event &mdash; for example <code>e</code> for IOE, <code>c</code> for a line check, <code>r</code> for right-seat pay, <code>f</code> for supervised line flying. Upper case when you were the instructor, lower case when you were the trainee. Set by Parse Schedule and Parse (Archive or HTML); exported to LogTen Pro's custom note 5.</dd></div>
+    <div class="gloss-term"><dt>Flight Type</dt><dd>Field 28 of a flight record: 0 = revenue flight, 1 = deadhead, 2 = ground/non-flying duty, 3 = simulator, 6 = reserve. Sent to LogTen Pro's flight_type field.</dd></div>
+    <div class="gloss-term"><dt>UUID</dt><dd>A unique identifier assigned to each ICS calendar event. Prevents duplicate events when the same ICS file is imported more than once into a calendar application.</dd></div>
+    <div class="gloss-term"><dt>WebArchive</dt><dd>A single file (.webarchive) that Safari creates when you save a web page. It captures a complete snapshot of the page at that moment including all embedded data. The preferred format for saving eCrew pages for Floggy imports.</dd></div>
+  </dl>
+
+  <hr class="section-divider">
+
+  <!-- ─── Section 15 ─── -->
+  <h2 id="s15">Section 15 &mdash; Flight Data Field Key</h2>
+
+  <p>Each flight record in Floggy is stored as a comma-separated row in the Flt Data workspace. The following describes each field in the order it appears in a flight record, along with the corresponding LogTen Pro field name.</p>
+
+  <table class="field-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Field</th>
+        <th>LogTen Field</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td>Date</td><td>flight_flightDate</td><td>Date of the flight leg</td></tr>
+      <tr><td>2</td><td>Flt</td><td>flight_flightNumber</td><td>Flight number</td></tr>
+      <tr><td>3</td><td>DEP</td><td>flight_from</td><td>Departure airport code</td></tr>
+      <tr><td>4</td><td>ARV</td><td>flight_to</td><td>Arrival airport code</td></tr>
+      <tr><td>5</td><td>STD</td><td>flight_scheduledDepartureTime</td><td>Scheduled departure time</td></tr>
+      <tr><td>6</td><td>ATD</td><td>flight_actualDepartureTime</td><td>Actual departure time</td></tr>
+      <tr><td>7</td><td>STA</td><td>flight_scheduledArrivalTime</td><td>Scheduled arrival time</td></tr>
+      <tr><td>8</td><td>ATA</td><td>flight_actualArrivalTime</td><td>Actual arrival time</td></tr>
+      <tr><td>9</td><td>Type</td><td>flight_selectedAircraftType</td><td>Aircraft type</td></tr>
+      <tr><td>10</td><td>Tail</td><td>flight_selectedAircraftID</td><td>Aircraft tail number</td></tr>
+      <tr><td>11</td><td>PIC</td><td>flight_selectedCrewPIC</td><td>Pilot in Command</td></tr>
+      <tr><td>12</td><td>SIC</td><td>flight_selectedCrewSIC</td><td>Second in Command</td></tr>
+      <tr><td>13</td><td>FA</td><td>flight_selectedCrewFlightAtt.</td><td>Flight Attendant 1</td></tr>
+      <tr><td>14</td><td>FA2</td><td>flight_selectedCrewFlightAtt2</td><td>Flight Attendant 2</td></tr>
+      <tr><td>15</td><td>P1</td><td>flight_picCapacity</td><td>PIC capacity role</td></tr>
+      <tr><td>16</td><td>P2</td><td>flight_sicCapacity</td><td>SIC capacity role</td></tr>
+      <tr><td>17</td><td>DutyS</td><td>flight_onDutyTime</td><td>Duty period start</td></tr>
+      <tr><td>18</td><td>DutyE</td><td>flight_offDutyTime</td><td>Duty period end</td></tr>
+      <tr><td>19</td><td>FDPS</td><td>flight_flightDutyStartTime</td><td>FDP start time</td></tr>
+      <tr><td>20</td><td>FDPE</td><td>flight_flightDutyEndTime</td><td>FDP end time</td></tr>
+      <tr><td>21</td><td>LND</td><td>flight_pilotFlyingCapacity</td><td>Who landed the leg</td></tr>
+      <tr><td>22</td><td>DH</td><td>DH</td><td>Deadhead flag</td></tr>
+      <tr><td>23</td><td>INSTR</td><td>flight_customCapacity1</td><td>Instructor role</td></tr>
+      <tr><td>24</td><td>RMKS</td><td>flight_remarks</td><td>Remarks</td></tr>
+      <tr><td>25</td><td>TRIP</td><td>flight_customNote2</td><td>Trip/pairing note</td></tr>
+      <tr><td>26</td><td>BID</td><td>flight_customNote1</td><td>Bid line note</td></tr>
+      <tr><td>27</td><td>BLK</td><td>flight_key</td><td>Block time (from Parse (Archive or HTML) or the logbook). At LogTen export this position carries the flightKey instead; LogTen works out block time from the out and in times.</td></tr>
+      <tr><td>28</td><td>Ftype</td><td>flight_type</td><td>Flight type: 0 revenue, 1 deadhead, 2 ground, 3 simulator, 6 reserve</td></tr>
+      <tr><td>29</td><td>121</td><td>flight_faaPart121</td><td>FAA Part 121 flag</td></tr>
+      <tr><td>30</td><td>91</td><td>flight_faaPart91</td><td>FAA Part 91 flag</td></tr>
+      <tr><td>31</td><td>TRG</td><td>flight_customNote5</td><td>Training code &mdash; one letter from the training event (e.g. e = IOE, c = line check, r = right-seat pay, f = supervised line flying); upper case = instructor, lower case = trainee. Set by Parse Schedule and Parse (Archive or HTML).</td></tr>
+    </tbody>
+  </table>
+
+  <hr class="section-divider">
+
+  <!-- ─── Section 15.1 ─── -->
+  <h2 id="s15-1">Section 15.1 &mdash; Tips for LogTen Pro</h2>
+
+  <p>The following tips apply to LogTen Pro and can help you get the most out of your logbook once flight data has been imported from Floggy.</p>
+
+  <h3>Use All Data Sources for Best Results</h3>
+  <p>Floggy is designed to work with multiple eCrew data sources. Using all three sources together, in the order below (see Section 8, Recommended Order), produces the most complete logbook entries and leverages the full capabilities of LogTen Pro:</p>
+
+  <h4>Parse Schedule</h4>
+  <p>Provides trip structure, pairing numbers, and duty assignments.</p>
+
+  <h4>Parse (Archive or HTML)</h4>
+  <p>Adds leg-by-leg detail including actual times, aircraft type, tail number, crew names, FDP start and end times, and duty periods.</p>
+
+  <h4>Parse LogBook</h4>
+  <p>Run last. Adds the legal record: out/in times, tail, block, PIC/SIC capacity, who landed each leg, instructor time, and Part 121 vs Part 91 classification.</p>
+
+  <p>Together these sources enable LogTen Pro features including:</p>
+  <ul>
+    <li>Duty period tracking</li>
+    <li>Flight Duty Period (FDP) tracking</li>
+    <li>Time Away From Base (TAFB) calculation</li>
+    <li>Accurate currency tracking based on actual landing data</li>
+    <li>Part 121 and Part 91 time separation</li>
+    <li>Instructor and examiner time tracking</li>
+    <li>Complete crew association via People records</li>
+  </ul>
+  <p>The more complete your source data, the less manual entry is required in LogTen Pro and the more accurate your logbook currency, pay verification, and regulatory tracking will be.</p>
+
+  <h3>Lock Completed Entries</h3>
+  <p>When you are satisfied that a logbook entry is complete and accurate, lock the entry. Locking helps indicate that the information has been reviewed and finalized, and prevents accidental changes to entries you have already verified.</p>
+
+  <h3>Learn to Use Smart Groups</h3>
+  <p>Smart Groups allow you to gather entries that meet specific criteria so you can quickly review or make mass changes to qualifying entries.</p>
+  <p>Example: Create a Smart Group for entries containing "SI" and then bulk-enter SFI / Simulator Instructor time across all matching entries at once. This is a powerful feature that helps you efficiently organize and fine-tune your logbook without editing entries one by one.</p>
+
+  <h3>Sort Entries by Column Header</h3>
+  <p>Click any column header in LogTen Pro to sort your entries by that field. For example:</p>
+  <ul>
+    <li>Click Departure City to sort entries alphabetically by departure airport, making it easy to scroll through and find all flights departing from PDX.</li>
+    <li>Click Date to return to chronological order.</li>
+  </ul>
+  <p>Sorting is a quick way to spot missing data, verify entries, or prepare for bulk edits using Smart Groups.</p>
+
+  <h3>Currency Tracking</h3>
+  <p>LogTen Pro currency warnings are only as accurate as your landing and approach data. Since Floggy captures who landed each leg from the eCrew Pilot Logbook report, review landing data carefully before locking entries to ensure currency tracking is correct.</p>
+  <div class="note">Approach type and count are not currently parsed from eCrew and should be entered manually in LogTen Pro after import.</div>
+
+  <h3>People Records</h3>
+  <p>Keeping your crew roster clean in LogTen Pro's People section pays off when reviewing who you flew with and for certificate and rating requirements. Floggy populates crew associations automatically &mdash; review the Crew Names panel in the Data workspace periodically to ensure records are current.</p>
+
+  <h3>Backup</h3>
+  <p>LogTen Pro stores its database locally. Enable iCloud sync in LogTen Pro settings and periodically export a CSV backup. If your Floggy data file is your source of truth, keeping both backed up gives you two independent recovery paths.</p>
+
+  <hr class="section-divider">
+
+  <!-- ─── Release Notes ─── -->
+  <h2 id="release-notes">Release Notes &mdash; What's New in Version 2.6</h2>
+
+  <p>This section lists what's changed in Floggy 2.6, followed by the 2.5 notes. You don't need to read it to use the app &mdash; it's here for reference if you're curious what's new since your last update.</p>
+
+  <h4>Parse LogBook &mdash; Times Converted from Base Time</h4>
+  <p>Parse LogBook now imports out/in times. The logbook report lists times in your base time, so Floggy converts each leg to local station time (daylight saving time included), and uses the report's "Generated on" time to decide which legs are flown (actual times) and which are still scheduled. A <strong>Logbook Times</strong> notice shows the base and date range before every parse, with a reminder to pull separate reports after a base change. See Section 8, Parse LogBook.</p>
+
+  <h4>Parse LogBook &mdash; The Legal Record</h4>
+  <p>On flights already in Flt Data, the logbook now sets PIC/SIC capacity outright (including PIC from the right seat as an instructor, or SIC while listed as captain), along with Part 121/91, landings, instructor time and block. Captain names are kept in full, and a leg with no block or flight time is recorded as a deadhead. A short <strong>LOGBOOK MERGE</strong> list in the Data panel shows what it changed.</p>
+
+  <h4>Recommended Order</h4>
+  <p>Run Parse Schedule, then Parse (Archive or HTML), then Parse LogBook. For historical logbooks, Parse Schedule plus Parse LogBook covers most needs. See Section 8, Recommended Order, and the new Known Edge Cases.</p>
+
+  <h4>Parse Schedule</h4>
+  <p>Times eCrew marks as estimated are ignored, so they can no longer replace a real scheduled time. PIC/SIC capacity from the schedule now only fills legs that don't have one yet.</p>
+
+  <h4>Parse (Archive or HTML)</h4>
+  <p>Return legs of out-and-back turns now pick up the crew correctly, and limo transfers are always recorded as deadheads.</p>
+
+  <h4>Parse Flighty &mdash; Standard File Naming</h4>
+  <p>Archived Flighty exports now use the same naming as every other archived file, e.g. <code>WILCO_Flighty_2026-01-01_to_2026-12-31.csv</code>, with the same Cancel / Replace / Keep Both handling.</p>
+
+  <h4>Quitting</h4>
+  <p>Closing the main window with the red close button now quits Floggy cleanly &mdash; it closes the palette windows and exits instead of staying in the background.</p>
+
+  <h4>Window Title &amp; Dialogs</h4>
+  <p>The title bar shows the Floggy version and the current workspace (e.g. <strong>Floggy 2.6 Arm &mdash; Flt Data</strong>). Every dialog is titled with the workspace or button it comes from.</p>
+
+  <h4>Backups</h4>
+  <p>The backup written when Floggy closes is now named <code>rwilco_Backup_2026-10-29.flgy</code> (first initial and last name, then the date); a second backup the same day adds <code>-2</code>, <code>-3</code>&hellip; See Section 5, Automatic Backup on Close.</p>
+
+  <h4>Save Failed Notice</h4>
+  <p>If Floggy can't write your data file or a backup (a locked file, or a folder that isn't available), a <strong>Save Failed</strong> dialog now says so, with the reason, instead of failing silently.</p>
+
+  <h3 id="release-notes-25">Earlier &mdash; Version 2.5</h3>
+
+  <h4>Nav Tool &amp; Workspaces Palette</h4>
+  <p>The Work Space indicator now opens a popup menu with all workspaces plus a <strong>Nav Tool</strong> item. Selecting Nav Tool opens the floating Workspaces palette, which stays visible while you work and provides one-click access to all workspaces.</p>
+
+  <h4>Display Flts on the Workspaces Palette</h4>
+  <p>The Workspaces palette now has a <strong>Display Flts</strong> button below a separator line. It opens the Display Flts data window without switching workspaces, so you can keep it open while parsing in Collect. See Section 7.</p>
+
+  <h4>Flifo &mdash; Quick Updates from Alaska Flight Status</h4>
+  <p>New <strong>Flifo</strong> button in the Flt Data workspace. A secondary source for quick updates: fills in actual out/in times and tail numbers for selected flights from Alaska's public flight status, within its limited look-back and look-ahead window (about 3 days back). Scheduled times are never changed. See Section 2 and Section 9.</p>
+
+  <h4>Flt Data Button Layout</h4>
+  <p>The Flt Data buttons are regrouped by task: Row 1 works with the data (Copy Crew Names, Sort Flights, Delete Flights, Unlock Flights, Help); Row 2 moves data out or brings updates in (LogTen Export, HTML Export, CSV Export, Display Flts, Flifo). Help is now a regular-size button at the end of Row 1.</p>
+
+  <h4>User Configuration Auto-Populate</h4>
+  <p>eCrew Name and eCrew Base in the Data workspace are now populated automatically from your first Parse Schedule or Parse WebArchive import. You no longer need to manually enter these fields before your first parse.</p>
+
+  <h4>Visual Effects</h4>
+  <p>A Visual Effects control has been added to the Settings workspace. Cycles through optional cosmetic effects for the interface. Purely decorative &mdash; no impact on data or exports.</p>
+
+  <h4>Color &amp; Theme System</h4>
+  <p>The theme system has been substantially rebuilt. Ten named themes are now available: Auto, Blue, Green, Gray, Dark, Light, FMS, Arcade, White, and Eggplant. Alternating row colors in all data fields are derived automatically from the active theme using a luminance-aware algorithm, ensuring consistent readability in both light and dark themes. The theme is applied simultaneously to all open Floggy palette windows. See Section 12 for the full theme list.</p>
+
+  <h4>Sort Dialog</h4>
+  <p>The Sort Flights button in the Flt Data workspace now opens a dedicated floating Sort dialog. You can sort by Date, Flight, Dep Stn, Arv Stn, DH/Ground, or Flt Type, and choose Ascending or Descending order. This replaces the previous single-click sort toggle.</p>
+
+  <h4>Renamed: Parse HTML → Parse WebArchive</h4>
+  <p>The Parse HTML button has been renamed to <strong>Parse WebArchive</strong> to better reflect what it actually imports. Along with Parse Schedule, Parse WebArchive is one of two co-equal primary data sources &mdash; both are important for complete flight data.</p>
+
+  <h4>WebArchive Parsing Improvements</h4>
+  <p>Parse HTML has been updated with a more robust pipeline for extracting data from eCrew WebArchive files. The parsing now handles edge cases in crew data, embedded training event sections, and DST-aware timezone conversion using airport-specific timezone data. The pipeline is organized into discrete numbered steps for easier debugging.</p>
+
+  <h4>Parse (Archive or HTML) — Chrome &amp; Firefox Support</h4>
+  <p>Parse WebArchive has been renamed <strong>Parse</strong> (labeled "Parse / Archive or HTML" on the button) and now accepts three kinds of saved input from a single button: a Safari WebArchive (.webarchive), a Chrome or Firefox saved HTML page (.html, with its companion "..._files" folder), or a previously written compact .flog archive. See Section 8, Parse (Archive or HTML), for full details and usage steps for each browser.</p>
+  <div class="note">Safari remains the recommended browser, in part because a saved page can be captured on an iPad or iPhone and mailed to your desktop. Chrome and Firefox are fully supported for users who prefer them, and work well on older Macs that can no longer run a current version of Safari. See Section 8 for the developer's full note on browser choice.</div>
+
+  <h4>Calculate Rig — Chrome &amp; Firefox Support</h4>
+  <p>Calculate Rig now accepts the same three input types as Parse &mdash; WebArchive, Chrome/Firefox HTML, or a compact .flog archive &mdash; instead of requiring a WebArchive file specifically. See Section 8, Calculate Rig, for details.</p>
+
+  <h4>Compact Archive Files (.flog)</h4>
+  <p>Every successful Parse WebArchive run now also writes a small compact archive of the parse to your Documents folder. These files use the <code>.flog</code> extension, are roughly 100x smaller than the original .webarchive, and are named like your other archived files (see below).</p>
+  <p>A .flog file exists purely for your convenience &mdash; a compact record of a past parse, or for reuse if you ever need to re-run a pairing through Parse WebArchive without the original (much larger) .webarchive file still around. Floggy does not manage or clean these files up on its own; feel free to manually delete or move them as you see fit.</p>
+
+  <h4>File Archiving</h4>
+  <p>Parse Schedule, Parse LogBook and Parse (Archive or HTML) file their source material in your Documents folder under one Finder-friendly name, e.g. <code>WILCO-1234_Schedule_2026-07-01_to_2026-07-31.csv</code>. See Section 2, Managing Saved Files.</p>
+
+  <h4>CSV File Format for Schedule and Logbook Reports</h4>
+  <p>The eCrew Schedule report and Pilot Logbook report are now imported as <strong>.csv files</strong> rather than .txt files. Save both using the "Save as Text (.csv)" option in the eCrew export dialog.</p>
+
+  <h4>Schedule File Parsing Improvements</h4>
+  <p>Parse Schedule includes a rebuilt calendar grid date parser that uses the day-of-week column layout to anchor dates correctly across schedule formats. AIMS duty code suffixes are now separated more reliably, and flight record construction has been refactored into discrete functions.</p>
+
+  <h4>Logbook Report Parsing Improvements</h4>
+  <p>Parse LogBook has received pipeline bug fixes that improve accuracy when merging logbook records with existing parsed flight data. The merge function now correctly handles tail matching across multiple records.</p>
+
+  <h4>Flighty Import — Year Selection &amp; Archiving</h4>
+  <p>Because a Flighty export contains your entire flight history, Parse Flighty now asks which year to import before parsing, defaulting to the most recent year found in the file &mdash; earlier versions imported every year in the export on every run. After a successful parse, Floggy also moves the file into your Documents folder and renames it using your last name and the imported year, matching the archiving behavior already used by Parse Schedule.</p>
+
+  <h4>Training Code Support</h4>
+  <p>Training codes (field 31, TRG) are now supported. Parse HTML automatically detects and extracts training event data from the Training Details section of the pairing WebArchive. Both SLF (line check) events matched by date and flight number, and IOE events matched by date and actual departure time, are supported. Training codes are also assigned by Parse Schedule based on AIMS duty type codes.</p>
+
+  <h4>Bypass Dashboard Now Also Skips Training Events</h4>
+  <p>Bypass Dashboard is meant to skip everything but the Pairing Details when you're parsing a WebArchive from a bid month other than your current one &mdash; since Dashboard, Crew Data, and Training Events on the saved page always reflect the current bid month regardless of which pairing you captured. Training Events extraction was missed when this toggle was first added, so it kept running even with Bypass Dashboard on; it is now correctly skipped along with Dashboard and Crew Data.</p>
+
+  <h4>Add Calendar — Time Zone Support Reminder</h4>
+  <p>Add Calendar (Cal &ndash; APS) now shows a confirmation dialog reminding you to check Calendar.app's Time Zone Support setting before creating events. This preference lives entirely inside Calendar.app and can't be checked or set by Floggy &mdash; see Section 10, Cal &ndash; APS, for details.</p>
+
+  <h4>User Guide Format</h4>
+  <p>This guide is now an HTML document. It can be opened in any web browser directly, or via the Help button in Floggy, which opens it in your default browser.</p>
+
+  <h4>Data File Safety Improvements</h4>
+  <p>The File Path For User Data control in the Settings workspace footer bar is now interactive. Clicking it opens a <strong>New File / Load Existing / Later</strong> prompt instead of jumping straight into a file picker:</p>
+  <ul>
+    <li><strong>New File</strong> &mdash; choose a location and start a fresh data file. If a file already exists at the location you choose, Floggy will not overwrite it &mdash; you will be told to pick Load Existing instead, or choose a different name.</li>
+    <li><strong>Load Existing</strong> &mdash; opens a saved .flgy file. This never writes to disk, so it is always safe to browse with.</li>
+    <li><strong>Later</strong> &mdash; dismiss the prompt. You will then be asked whether to keep your current file path or reset it.</li>
+  </ul>
+  <p>Export User Data and any Save As action now check whether a file already exists at the destination before writing. If it does, you will be asked to confirm the overwrite rather than having it happen silently. This closes a prior failure mode where selecting an existing file &mdash; even just to look at it &mdash; could silently replace its contents with whatever was currently loaded in the stack's fields.</p>
+  <div class="tip">If you ever pick the wrong file by mistake, this confirmation step is your safety net &mdash; always read the dialog before choosing Overwrite.</div>
+  <p>Automatic backups (written on quit) are also now protected: if a backup for today already exists, the new backup is saved alongside it with a numbered suffix &mdash; <code>(2)</code>, <code>(3)</code>, and so on &mdash; instead of replacing the earlier one.</p>
+
+  <h4>Confirm Before You Load</h4>
+  <p>Loading a file &mdash; whether through Import User Data, the File Path For User Data control, or Floggy's own startup load &mdash; no longer replaces your data silently. Before anything is applied to the stack's fields, Floggy shows a summary of the file you are about to load:</p>
+  <ul>
+    <li>Crew name and base</li>
+    <li>Number of flight records and crew records</li>
+    <li>The file's last-saved date</li>
+  </ul>
+  <p>Review this before choosing Load. It is the fastest way to catch a wrong file &mdash; especially useful when you keep several similarly named backups (e.g. dated <code>Floggy Back Up</code> files) in the same folder.</p>
+  <div class="tip">Cancel at this dialog leaves everything currently in the stack's fields untouched.</div>
+  <p>Separately, Import User Data now warns you before it loads anything: if you have unsaved changes sitting in the stack's fields, you will be asked to confirm before they are replaced.</p>
+
+  <h4>Reset User Data</h4>
+  <p>Clears flight and crew data so you can start fresh &mdash; typically used when moving to a new year or bid period. Interface settings (fonts, button styles, cal list selections) are left as-is. You will be required to point at a file afterward &mdash; either Load Existing or New File &mdash; there is no Later option here, since leaving the file path pointed at the old file after clearing the data risks silently overwriting it with the now-empty fields.</p>
+  <p>Airport Data, Duty Codes, and Bid Data are left untouched &mdash; these are static reference tables, not something Reset User Data needs to touch.</p>
+
+  <h4>Year-Filtered Export</h4>
+  <p>Export User Data now supports a second export mode. Hold <strong>Option</strong> while clicking Export User Data to export a single year's worth of flight and crew data to its own standalone .flgy file, rather than your entire dataset. You will be prompted for a four-digit year; Floggy filters flight records and crew records to that year and writes them &mdash; along with your full reference tables (airports, duty codes, crew names, etc.) &mdash; to a new file you choose the location for. The result is a complete, independently loadable file scoped to one year, useful for archiving a completed year or working on a smaller subset of data. Your current working file and its file path are not affected.</p>
+
+  <h4>HTML Export &mdash; Auto-Open</h4>
+  <p>HTML Export now opens the exported file directly in your default browser after saving, instead of only saving it to disk.</p>
+
+</main>
+
+<script>
+  // Active section highlighting in sidebar
+  const tocLinks = document.querySelectorAll('.toc-item');
+  const sections = document.querySelectorAll('h2[id], h3[id]');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.getAttribute('id');
+        tocLinks.forEach(link => {
+          link.classList.remove('active');
+          if (link.getAttribute('href') === '#' + id) {
+            link.classList.add('active');
+          }
+        });
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>
