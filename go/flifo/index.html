@@ -84,7 +84,7 @@ button.btn:disabled, a.btn[aria-disabled="true"] { opacity:.45; pointer-events:n
     <div>
       <h1>Floggy-Go <span class="sub">Flifo</span></h1>
       <p>Alaska flight status → LogTen</p>
-      <span class="ver">beta v2.0 · 10/31/26</span>
+      <span class="ver">beta v2.1 · 11/01/26</span>
     </div>
     <img class="plane" src="../../img/plane-teal.webp" alt="Smiling E175 in Floggy livery">
   </header>
@@ -116,13 +116,13 @@ button.btn:disabled, a.btn[aria-disabled="true"] { opacity:.45; pointer-events:n
       <thead><tr><th>Flight status</th><th>Sent</th></tr></thead>
       <tbody>
         <tr><td>Not departed yet</td><td>Planned tail only</td></tr>
-        <tr><td>Departed / in flight</td><td>ATD + actual tail</td></tr>
+        <tr><td>Departed / in flight</td><td>ATD + actual tail (+ your ATA (In) if you type it)</td></tr>
         <tr><td>Arrived</td><td>ATD + your ATA (In) + actual tail</td></tr>
         <tr><td>Cancelled, returned or diverted</td><td>Nothing: enter it by hand</td></tr>
         <tr><td>Same route twice (return to gate)</td><td>Nothing: enter it by hand</td></tr>
       </tbody>
     </table>
-    <p><strong>ATA (In):</strong> Alaska only reports the <em>On</em> (touchdown) time, not block-in. The box starts with Alaska's On time; change it to your block-in time, e.g. 16:12 or 1612.</p>
+    <p><strong>ATA (In):</strong> every leg that has departed gets an In box you can edit. Alaska only reports the <em>On</em> (touchdown) time, not block-in, so once landed the box starts with Alaska's On time; change it to your block-in time, e.g. 16:12 or 1612. Before landing it's empty: type your In once you're at the gate, or leave it empty to send just the Out time.</p>
     <p><strong>STD/STA:</strong> off by default so your IBT contract scheduled times in LogTen stay put. Alaska's are the public ORA times.</p>
     <p>Full details: <a href="../help/#flifo">Floggy-Go Help → Flifo</a>.</p>
     <p>LogTen updates the matching flight (date + flight number + route) or adds a new one. Times are station local, like eCrew.</p>
@@ -143,12 +143,14 @@ button.btn:disabled, a.btn[aria-disabled="true"] { opacity:.45; pointer-events:n
   // "4:45 pm" -> "16:45"
   function hm(e) { var t = (e || '').match(/(\d{1,2}):(\d{2})/); if (!t) return ''; var h = parseInt(t[1], 10); if (/pm/i.test(e) && h < 12) h += 12; if (/am/i.test(e) && h === 12) h = 0; return pad(h) + ':' + t[2]; }
   // block-in typed by the pilot, rolled to the right day against Alaska's On time
-  function inTime(onTime, typed) {
+  // ref = Alaska's On time (In is close to it) or, before landing, the actual Out (In comes after it)
+  function inTime(ref, typed, after) {
     var n = (typed || '').replace(/\D/g, ''); if (n.length < 3 || n.length > 4) return '';
     var h = parseInt(n.slice(0, -2), 10), m = parseInt(n.slice(-2), 10); if (h > 23 || m > 59) return '';
-    var r = onTime.match(/^(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2})$/), d = new Date(+r[3], r[1] - 1, +r[2]);
+    var r = ref.match(/^(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2})$/), d = new Date(+r[3], r[1] - 1, +r[2]);
     var diff = h * 60 + m - (60 * r[4] + +r[5]);
-    if (diff < -720) d.setDate(d.getDate() + 1); if (diff > 720) d.setDate(d.getDate() - 1);
+    if (after) { if (diff < 0) d.setDate(d.getDate() + 1); }
+    else { if (diff < -720) d.setDate(d.getDate() + 1); if (diff > 720) d.setDate(d.getDate() - 1); }
     return pad(d.getMonth() + 1) + '/' + pad(d.getDate()) + '/' + d.getFullYear() + ' ' + pad(h) + ':' + pad(m);
   }
 
@@ -162,11 +164,13 @@ button.btn:disabled, a.btn[aria-disabled="true"] { opacity:.45; pointer-events:n
     if (hm(L.sta)) p.sched.sta = (ad ? ad[1] : dateUS) + ' ' + hm(L.sta);
     if (all.filter(function (x) { return x.dep === L.dep && x.arr === L.arr; }).length > 1) { p.blocked = true; p.why = 'Same route twice (return to gate?): enter by hand'; return p; }
     if (L.cancelled === 'true' || L.returned === 'true' || L.newArr) { p.blocked = true; p.why = 'Cancelled, returned or diverted: enter by hand'; return p; }
-    var arrived = /arrived|landed/i.test(L.status), departed = arrived || /departed|in flight|in air|en route|enroute|airborne/i.test(L.status);
+    var arrived = /arrived|landed|at gate|on ground/i.test(L.status), departed = arrived || /departed|in flight|in air|en route|enroute|airborne|taxi/i.test(L.status);
     if (departed && disp(L.atd)) { p.fields.flight_actualDepartureTime = disp(L.atd); p.text.push('ATD ' + disp(L.atd).slice(11)); }
     if (arrived && disp(L.ata)) p.onTime = disp(L.ata);
+    // an In box on every leg that has gone: prefilled with Alaska's On time once landed, empty before that
+    if (departed) { p.inBox = true; p.inRef = p.onTime || disp(L.atd) || ''; p.inAfter = !p.onTime; p.landed = arrived; }
     if (L.tail) { p.fields.flight_selectedAircraftID = L.tail; p.text.push('Tail ' + L.tail + (departed ? '' : ' (planned)')); }
-    if (p.text.length || p.onTime) p.ok = true; else p.why = 'Nothing to send yet';
+    if (p.text.length || p.inBox) p.ok = true; else p.why = 'Nothing to send yet';
     return p;
   }
 
@@ -177,7 +181,7 @@ button.btn:disabled, a.btn[aria-disabled="true"] { opacity:.45; pointer-events:n
     $('rhead').textContent = 'Flight ' + cur.flt + ' · ' + dateUS;
     cur.legs.forEach(function (L) {
       var p = plan(L, cur.legs, dateUS);
-      var row = document.createElement('label'); row.className = 'leg';
+      var row = document.createElement('div'); row.className = 'leg';
       var cb = document.createElement('input'); cb.type = 'checkbox';
       var body = document.createElement('div');
       body.innerHTML = '<div class="route"></div><div class="st"></div><div class="line sl"></div><div class="line"></div>';
@@ -188,11 +192,14 @@ button.btn:disabled, a.btn[aria-disabled="true"] { opacity:.45; pointer-events:n
       body.children[3].textContent = p.ok ? p.text.join('  ') : '';
       if (!p.ok) { var w = document.createElement('div'); w.className = 'why'; w.textContent = p.why; body.appendChild(w); }
       var inp = null;
-      if (p.onTime) {
+      if (p.inBox) {
         var a = document.createElement('div'); a.className = 'ata';
-        a.innerHTML = '<strong>ATA (In)</strong>'; inp = document.createElement('input'); inp.type = 'text'; inp.inputMode = 'numeric'; inp.maxLength = 5; inp.value = p.onTime.slice(11);
-        inp.addEventListener('click', function (e) { e.preventDefault(); inp.focus(); });
-        a.appendChild(inp); var sm = document.createElement('small'); sm.textContent = 'Prefilled with Alaska\'s arrival ' + p.onTime.slice(11) + ' (On). Enter your block-in time.'; a.appendChild(sm);
+        a.innerHTML = '<strong>ATA (In)</strong>'; inp = document.createElement('input'); inp.type = 'text'; inp.inputMode = 'numeric'; inp.maxLength = 5;
+        inp.value = p.onTime ? p.onTime.slice(11) : ''; inp.placeholder = 'hh:mm';
+        a.appendChild(inp); var sm = document.createElement('small');
+        sm.textContent = p.onTime ? 'Prefilled with Alaska\'s arrival ' + p.onTime.slice(11) + ' (On). Change it to your block-in time.' :
+          (p.landed ? 'Alaska shows no arrival time yet. Type your block-in time.' : 'Not in yet. Type your block-in time once you\'re at the gate, or leave it empty.');
+        a.appendChild(sm);
         body.appendChild(a);
         inp.addEventListener('input', update);
       }
@@ -220,7 +227,10 @@ button.btn:disabled, a.btn[aria-disabled="true"] { opacity:.45; pointer-events:n
     rows.forEach(function (r) {
       if (!r.cb.checked || r.cb.disabled) return;
       var inT = '';
-      if (r.p.onTime && r.inp) { inT = inTime(r.p.onTime, r.inp.value); if (!inT) { bad = r.L.dep + '–' + r.L.arr; return; } }
+      if (r.inp && r.inp.value.trim()) {
+        inT = r.p.inRef ? inTime(r.p.inRef, r.inp.value, r.p.inAfter) : '';
+        if (!inT) { bad = r.L.dep + '–' + r.L.arr; return; }
+      }
       var o = { entity_name: 'Flight', flight_key: cur.keyDate + cur.flt + r.L.dep + r.L.arr, flight_flightDate: cur.dateUS,
         flight_flightNumber: cur.flt, flight_from: r.L.dep, flight_to: r.L.arr };
       if ($('sched').checked) { if (r.p.sched.std) o.flight_scheduledDepartureTime = r.p.sched.std; if (r.p.sched.sta) o.flight_scheduledArrivalTime = r.p.sched.sta; }

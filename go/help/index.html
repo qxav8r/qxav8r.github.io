@@ -236,11 +236,11 @@ code { font:.85rem var(--f-data); }
     <ol>
       <li>Type the flight number. The date starts at today; change it for a flight on another day. Alaska keeps about 3 days either side of today.</li>
       <li>Tap <span class="btn">Get Status</span>. Each leg of that flight number appears, with its status, tail and times.</li>
-      <li>Fix the <strong>ATA (In)</strong> time on arrived legs (see below), uncheck any leg that isn't yours, and tap <span class="btn">Send to LogTen</span>.</li>
+      <li>Fix the <strong>ATA (In)</strong> time (see below), uncheck any leg that isn't yours, and tap <span class="btn">Send to LogTen</span>.</li>
     </ol>
 
     <h3>Alaska shows On, not In</h3>
-    <p>Alaska's flight status gives the <strong>actual departure (Out)</strong> but its arrival time is the <strong>On</strong> (touchdown) time, not block-in. Your logbook needs block-in, so for every arrived leg Flifo shows an <strong>ATA (In)</strong> box prefilled with Alaska's On time. <strong>Change it to your actual block-in time</strong> before sending, e.g. <code>16:12</code> or <code>1612</code> (24-hour, station local). If you send it unchanged, LogTen gets the touchdown time and your block time comes out a few minutes short. Past midnight is handled for you.</p>
+    <p>Alaska's flight status gives the <strong>actual departure (Out)</strong> but its arrival time is the <strong>On</strong> (touchdown) time, not block-in. Your logbook needs block-in, so every leg that has departed gets an editable <strong>ATA (In)</strong> box. Once the flight has landed it is prefilled with Alaska's On time; before that (or if Alaska has no time yet) it is empty, so you can type your In at the gate or leave it empty to send just the Out. <strong>Change it to your actual block-in time</strong> before sending, e.g. <code>16:12</code> or <code>1612</code> (24-hour, station local). If you send it unchanged, LogTen gets the touchdown time and your block time comes out a few minutes short. Past midnight is handled for you.</p>
 
     <h3>IBT vs ORA scheduled times</h3>
     <p>The scheduled times in eCrew are the <strong>IBT contract times</strong>. They don't always match the <strong>ORA</strong> times Alaska publishes to the public, and that difference is on purpose: the contract times are the ones that count for rig and pay.</p>
@@ -254,7 +254,7 @@ code { font:.85rem var(--f-data); }
       <thead><tr><th>Flight status</th><th>Sent to LogTen</th></tr></thead>
       <tbody>
         <tr><td>Not departed yet</td><td>Planned tail only (times are still estimates)</td></tr>
-        <tr><td>Departed / in flight</td><td>Actual Out + actual tail</td></tr>
+        <tr><td>Departed / in flight</td><td>Actual Out + actual tail, plus your ATA (In) if you type one</td></tr>
         <tr><td>Arrived</td><td>Actual Out + your ATA (In) + actual tail</td></tr>
         <tr><td>Cancelled, returned or diverted</td><td>Nothing: enter it by hand</td></tr>
         <tr><td>Same route twice (return to gate)</td><td>Nothing: enter it by hand</td></tr>
