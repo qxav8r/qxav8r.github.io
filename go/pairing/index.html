@@ -870,7 +870,7 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
           if (r.doubled) L.warnings.push('Two ' + r.selfSeat + 's listed: P1/P2 left to the logbook; check the ' + (r.selfSeat === 'CA' ? 'PIC' : 'SIC') + ' name.');
           if (r.warn.length) L.warnings.push('Crew list: ' + r.warn.join('; ') + ' (seat left blank).');
           if (r.selfDH) { L.ftype = '1'; L.remarks = 'Dead Head'; L.pic = L.sic = L.fa1 = L.fa2 = ''; L.p1 = L.p2 = false; }
-        } else L.warnings.push('No crew in this file for this leg (the saved page covers another month). Crew can come from Floggy-Go Schedule.');
+        } else L.warnings.push('No crew in this file for this leg: eCrew only keeps crew lists for the current schedule period (this month). Crew can come from Floggy-Go Schedule.');
       }
       L.nonFlying = L.ftype !== '0';
       legs.push(L);

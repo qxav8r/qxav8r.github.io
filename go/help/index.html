@@ -97,21 +97,26 @@ code { font:.85rem var(--f-data); }
 
   <section id="start">
     <h2>Quick start</h2>
-    <p>Floggy-Go reads an eCrew report you've saved and sends the flights to LogTen Pro. There are two import pages:</p>
-    <ul>
-      <li><strong><a href="../schedule/">Floggy-Go Schedule</a></strong> for the <em>Personal Crew Schedule Report</em>, one bid month at a time, with crew, scheduled times and duty times.</li>
-      <li><strong><a href="../logbook/">Floggy-Go Logbook</a></strong> for the <em>Pilot Logbook</em> report: flown legs with actual times, tail, landings, P1/P2 and Part 121/91.</li>
-    </ul>
-    <p>On the road, <strong><a href="../flifo/">Floggy-Go Flifo</a></strong> fills in actual out/in times and tail from Alaska's flight status. See <a href="#flifo">Flifo</a> below.</p>
-    <p>For one trip, <strong><a href="../pairing/">Floggy-Go Pairing</a></strong> reads a saved pairing and shows the trip rig, sends the legs to LogTen and makes calendar files. See <a href="#pairing">Pairing</a> below.</p>
+    <p><strong>LogTen Pro is the record.</strong> Floggy-Go doesn't keep anything: each page reads one eCrew (or Flighty) file in your browser and hands its part of the flights to LogTen. Every page builds the same match key for a flight (date + flight number + route), so they all land on the <em>same</em> LogTen flight and fill it in a little more each time, instead of adding copies. It's the same idea as the Floggy Mac app, just without Floggy's data file in the middle: the records come together in LogTen.</p>
+    <div class="tablewrap"><table class="stack">
+      <thead><tr><th>Page</th><th>What it adds to the record</th></tr></thead>
+      <tbody>
+        <tr><td><a href="../schedule/">Schedule</a></td><td>The month's flights, deadheads and duties, with scheduled (IBT) times, crew, duty on/off and P1/P2. Use it first: it builds the records.</td></tr>
+        <tr><td><a href="../pairing/">Pairing</a></td><td>One trip: legs with crew and duty times, plus the trip rig and calendar files. Handy for a single trip or a change mid-month.</td></tr>
+        <tr><td><a href="../flifo/">Flifo</a></td><td>On the road: actual Out, your In and the tail, leg by leg from Alaska's flight status.</td></tr>
+        <tr><td><a href="../flighty/">Flighty</a></td><td>Actual Out/In and tails for a whole year from your Flighty export.</td></tr>
+        <tr><td><a href="../logbook/">Logbook</a></td><td>The final word: actual times, tail, landings, P1/P2 and Part 121/91 from eCrew's Pilot Logbook. Send it last.</td></tr>
+      </tbody>
+    </table></div>
     <ol>
-      <li>Save the report from eCrew as a CSV file.</li>
-      <li>Open the matching Floggy-Go page and tap <span class="btn">Choose … CSV</span>.</li>
-      <li>Check the preview. Uncheck any leg you don't want.</li>
+      <li>Save the report from eCrew (or Flighty).</li>
+      <li>Open the matching Floggy-Go page and choose the file.</li>
+      <li>Check the legs. Uncheck any you don't want.</li>
       <li>Tap <span class="btn">Send to LogTen</span>. LogTen opens and imports.</li>
     </ol>
-    <p class="tip"><strong>Using both?</strong> Send the <strong>schedule first and the logbook last</strong>. Both write to the same LogTen flights (matched by flight number, date and route), and the logbook has the final say on P1/P2 and Part 121/91.</p>
-    <p>Your file never leaves your device. The page reads it in the browser and hands the flights straight to LogTen.</p>
+    <p class="tip"><strong>Order:</strong> Schedule (or Pairing) first to build the records, Flifo or Flighty along the way for actual times, and the <strong>Logbook last</strong>: it has the final say on P1/P2 and Part 121/91. Sending a page again later just updates the same flights.</p>
+    <p class="tip"><strong>Best results:</strong> import on any device, but review and tidy your records in <strong>LogTen Pro for Mac</strong> on a large display. Seeing the whole month's flights side by side makes gaps and odd legs easy to spot, and it's where your full record lives.</p>
+    <p>Your files never leave your device. The pages read them in the browser and hand the flights straight to LogTen.</p>
   </section>
 
   <section id="csv">
@@ -302,7 +307,7 @@ code { font:.85rem var(--f-data); }
         <tr><td>Show</td><td>All legs, or only legs with warnings (what you see, not what is sent).</td></tr>
       </tbody>
     </table></div>
-    <p><strong>Crew:</strong> crew names come from the crew list eCrew saves with the page. That list only covers the month that was showing when you saved, so a trip in another month (or across a month end) may have legs with no crew; the Notes column says so. Import Floggy-Go Schedule for those.</p>
+    <p><strong>Crew:</strong> behind the scenes, eCrew keeps a list of flights and crew, but <strong>only for the current schedule period</strong> (the month today falls in). A pairing saved from any other month, past or future, has no crew data no matter how you save it, and a trip that crosses into another month has crew only for the current month's legs. The leg's warning says so. For those trips, crew comes from Floggy-Go Schedule (or the Logbook for the PIC).</p>
 
     <h3>Add to Calendar</h3>
     <p>Three buttons make the same events as Floggy's Cal &ndash; ICS, from the checked legs:</p>
