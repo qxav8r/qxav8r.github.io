@@ -81,12 +81,57 @@ details[open] summary { margin-bottom:8px; }
 .seg button + button { border-left:1px solid var(--line); }
 .seg button[aria-pressed="true"] { background:var(--accent); color:var(--accent-ink); }
 td.warnc { white-space:normal; min-width:14rem; color:var(--amber); font-size:.82rem; }
-#legs td, #legs th { white-space:nowrap; }
-#legs:not(.all) .x { display:none; }
 #opts summary { font:600 .9rem var(--f-ui); cursor:pointer; margin:4px 0; }
 #opts summary .sub { font-weight:400; }
 a.btn[aria-disabled="true"], button.btn:disabled { opacity:.45; pointer-events:none; }
 button.btn { border:0; cursor:pointer; }
+</style>
+<style id="fgo-ui-css">
+/* Floggy-Go shared UI: options panel, leg cards, send parts (inlined by build.py) */
+details.fl-opts { border:1px solid var(--line); border-radius:8px; background:var(--panel); padding:0 14px; }
+details.fl-opts > summary { cursor:pointer; padding:10px 0; font:600 .95rem var(--f-ui); color:var(--accent); }
+details.fl-opts > summary .fl-os { font-weight:400; color:var(--muted); }
+details.fl-opts[open] > summary { border-bottom:1px solid var(--line); margin-bottom:10px; }
+details.fl-opts .bar { padding-bottom:12px; display:flex; flex-wrap:wrap; gap:10px 20px; align-items:center; }
+label.opt { display:flex; align-items:center; gap:8px; font:600 1rem var(--f-ui); margin:6px 0 0; cursor:pointer; }
+label.opt input { width:1.15rem; height:1.15rem; accent-color:var(--accent); }
+.opt-note { margin:2px 0 6px 1.9rem; font-size:.85rem; color:var(--muted); }
+.fl-legs { border:1px solid var(--line); border-radius:8px; background:var(--panel); overflow:hidden; }
+.fl-top { display:flex; flex-wrap:wrap; align-items:center; gap:6px 14px; padding:8px 12px; border-bottom:1px solid var(--line); font:.9rem var(--f-ui); }
+.fl-all { display:flex; align-items:center; gap:6px; font-weight:600; cursor:pointer; }
+.fl-count { color:var(--muted); }
+.fl-link { background:none; border:0; color:var(--accent); font:600 .85rem var(--f-ui); cursor:pointer; padding:2px 4px; }
+.fl-top .fl-link:first-of-type { margin-left:auto; }
+.fl-empty { padding:12px; color:var(--muted); margin:0; }
+.fl-gh { display:flex; align-items:center; gap:8px; padding:6px 12px; background:var(--bg); border-bottom:1px solid var(--line); }
+.fl-gt { flex:1; text-align:left; background:none; border:0; color:var(--ink); font:.95rem var(--f-ui); cursor:pointer; padding:4px 0; min-width:0; }
+.fl-gs { color:var(--muted); }
+.fl-grp:not(.open) > .fl-gb { display:none; }
+.fl-chev { display:inline-block; color:var(--muted); transition:transform .15s; font-size:.8em; }
+.fl-grp.open > .fl-gh .fl-chev, .fl-leg.open > .fl-sum .fl-chev { transform:rotate(90deg); }
+.fl-leg { display:grid; grid-template-columns:auto 1fr; align-items:start; column-gap:8px; padding:0 12px; border-bottom:1px solid var(--line); }
+.fl-leg > input { margin-top:12px; width:1.1rem; height:1.1rem; accent-color:var(--accent); }
+.fl-leg.off > .fl-sum { opacity:.5; }
+.fl-sum { display:flex; flex-wrap:wrap; align-items:center; gap:2px 12px; background:none; border:0; color:var(--ink); text-align:left; padding:9px 0; cursor:pointer; font:.95rem var(--f-data); font-variant-numeric:tabular-nums; min-width:0; }
+.fl-d { color:var(--muted); } .fl-f { font-weight:600; } .fl-t { color:var(--muted); font-size:.88rem; }
+.fl-sum .chip { font-family:var(--f-ui); }
+.fl-sum .fl-chev { margin-left:auto; }
+.fl-w { color:var(--amber); }
+.fl-det { display:none; grid-column:2; padding:0 0 10px; font-size:.9rem; }
+.fl-leg.open > .fl-det { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:6px 16px; }
+.fl-det > div { min-width:0; } .fl-dl { display:block; font:600 .68rem var(--f-ui); text-transform:uppercase; letter-spacing:.06em; color:var(--muted); }
+.fl-dv { font-family:var(--f-data); font-size:.85rem; overflow-wrap:anywhere; }
+.fl-wt { grid-column:1/-1; margin:2px 0 0; color:var(--amber); font-size:.85rem; }
+.fl-sendbox { display:grid; gap:8px; }
+.fl-part { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+.fl-part .btn small { display:block; font-weight:400; font-size:.78rem; opacity:.85; }
+.btn.send[aria-disabled="true"], span.btn.send { opacity:.45; pointer-events:none; display:inline-block; }
+.fl-sum .chip { display:inline-block; font:600 .68rem var(--f-ui); letter-spacing:.05em; text-transform:uppercase; padding:1px 6px; border-radius:4px; }
+.fl-sum .chip.dh { background:var(--dh-bg, rgba(106,79,163,.14)); color:var(--dh, #8a6fd0); }
+.fl-sum .chip.gnd, .fl-sum .chip.skd { background:var(--sel, rgba(120,140,160,.16)); color:var(--muted); }
+.fl-sum .chip.sim, .fl-sum .chip.rsv { background:var(--amber-bg); color:var(--amber); }
+.fl-sum .chip.act { background:var(--ok-bg, rgba(31,122,74,.14)); color:var(--ok, #2f9a62); }
+.nd { color:var(--amber); font-size:.7rem; vertical-align:super; }
 </style>
 </head>
 <body>
@@ -96,7 +141,7 @@ button.btn { border:0; cursor:pointer; }
     <div>
       <h1>Floggy-Go <span class="sub" style="color:#fff">Pairing</span></h1>
       <p>eCrew pairing → rig, LogTen &amp; calendar</p>
-      <span class="ver">beta v0.7 · 10/31/26</span>
+      <span class="ver">beta v0.8 · 11/01/26</span>
     </div>
     <img class="plane" src="../../img/plane-yellow.webp" alt="Smiling E175 in Floggy livery">
   </header>
@@ -134,25 +179,21 @@ button.btn { border:0; cursor:pointer; }
     <section id="imp">
       <h2>Send to LogTen</h2>
       <p class="sub" id="impInfo"></p>
-      <details id="opts"><summary>Options <span class="sub" id="optSum"></span></summary>
+      <details class="fl-opts" id="opts"><summary>Options <span class="fl-os" id="optSum"></span></summary>
       <div class="bar">
+        <div class="grp"><span class="lbl">Flight number</span><div class="seg" data-k="px"><button data-v="" aria-pressed="true">No code</button><button data-v="QX">QX</button><button data-v="AS">AS</button></div></div>
+        <div class="grp"><span class="lbl">Aircraft type</span><div class="seg" data-k="ty"><button data-v="none" aria-pressed="true">Not sent</button><button data-v="raw">As reported</button><button data-v="E170">E170</button></div></div>
+        <div class="grp"><span class="lbl">Tail</span><div class="seg" data-k="tail"><button data-v="flown" aria-pressed="true">When flown</button><button data-v="all">Always</button><button data-v="none">Never</button></div></div>
         <div class="grp"><span class="lbl">Non-flying</span><div class="seg" data-k="nf"><button data-v="in" aria-pressed="true">Include</button><button data-v="out">Leave out</button></div></div>
         <div class="grp"><span class="lbl">Duty times</span><div class="seg" data-k="duty"><button data-v="send" aria-pressed="true">Send</button><button data-v="out">Leave out</button></div></div>
         <div class="grp"><span class="lbl">P1/P2</span><div class="seg" data-k="cap"><button data-v="send" aria-pressed="true">Send</button><button data-v="out">Leave to logbook</button></div></div>
-        <div class="grp"><span class="lbl">Tail</span><div class="seg" data-k="tail"><button data-v="flown" aria-pressed="true">When flown</button><button data-v="all">Always</button><button data-v="none">Never</button></div></div>
-        <div class="grp"><span class="lbl">Aircraft type</span><div class="seg" data-k="ty"><button data-v="none" aria-pressed="true">Not sent</button><button data-v="raw">As reported</button><button data-v="E170">E170</button></div></div>
-        <div class="grp"><span class="lbl">Flight number</span><div class="seg" data-k="px"><button data-v="" aria-pressed="true">No code</button><button data-v="QX">QX</button><button data-v="AS">AS</button></div></div>
-        <label class="grp"><input type="checkbox" id="allCols"> <span class="lbl">All columns</span></label>
+        <div class="grp"><span class="lbl">Show</span><div class="seg" data-k="sh"><button data-v="all" aria-pressed="true">All</button><button data-v="warn">Warnings only</button></div></div>
       </div>
       </details>
-      <p class="sub" id="selCount"></p>
-      <div class="tablewrap"><table id="legs"></table></div>
-      <div class="btns" style="margin-top:12px">
-        <a class="btn" id="send" href="#" aria-disabled="true">Send to LogTen</a>
-        <button class="btn ghost" id="copyUrl" type="button" disabled>Copy LogTen URL</button>
-      </div>
+      <div id="legs" class="fl-legs" style="margin-top:10px"></div>
+      <div class="fl-sendbox" id="sendBox" style="margin-top:12px"></div>
       <p class="sub" id="sendMsg"></p>
-      <p class="sub">Updates the same LogTen flights as Floggy-Go Schedule and Logbook. Send the logbook last: it is the record for P1/P2. <a href="../help/#pairing">Help</a></p>
+      <p class="sub">Updates the same LogTen flights as Floggy and the other Floggy-Go pages (matched by date + flight + route). Send the logbook last: it is the record for P1/P2. <a href="../help/#pairing">Help</a></p>
     </section>
 
     <section id="cal">
@@ -211,6 +252,157 @@ button.btn { border:0; cursor:pointer; }
 
   <p class="foot">Floggy-Go Pairing is a beta port of Floggy's Calculate Rig and Parse Archive. Check important results against Floggy or RainMaker. · <a href="../../">All tools</a> · Not affiliated with or endorsed by Alaska Airlines or Horizon Air.</p>
 </div>
+<script id="fgo-ui-js">
+// Floggy-Go shared UI (leg cards, options summary, send-in-parts). Inlined into each import page by build.py.
+(function (root) {
+  'use strict';
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+  // ---- leg cards ----
+  // el: container. m: { groups:[{id,title,sub,items:[...]}], on(i)->bool, toggle(idxs, on) }
+  // item: { i, key, date, flt, route, sched, actual, chip:{text,cls}, warn:[...], details:[[label, html]] }
+  function legs(el, m) {
+    var S = el._fgo || (el._fgo = { leg: {}, grp: {} });
+    S.m = m;
+    var all = [], onN = 0;
+    m.groups.forEach(function (g) { g.items.forEach(function (it) { all.push(it.i); if (m.on(it.i)) onN++; }); });
+    var h = '<div class="fl-top"><label class="fl-all"><input type="checkbox" data-all' + (onN && onN === all.length ? ' checked' : '') + '> All</label>' +
+      '<span class="fl-count">' + onN + ' of ' + all.length + ' checked</span>' +
+      '<button type="button" class="fl-link" data-expand="1">Open all</button><button type="button" class="fl-link" data-expand="0">Close all</button></div>';
+    if (!all.length) h += '<p class="fl-empty">No legs to show.</p>';
+    m.groups.forEach(function (g) {
+      var gOn = g.items.filter(function (it) { return m.on(it.i); }).length;
+      var gOpen = S.grp[g.id] !== false;
+      var gw = g.items.filter(function (it) { return it.warn && it.warn.length; }).length;
+      h += '<div class="fl-grp' + (gOpen ? ' open' : '') + '" data-gid="' + esc(g.id) + '"><div class="fl-gh">' +
+        '<input type="checkbox" data-g="' + esc(g.id) + '"' + (gOn === g.items.length && gOn ? ' checked' : '') + ' aria-label="Check all in ' + esc(g.title) + '">' +
+        '<button type="button" class="fl-gt" data-gt="' + esc(g.id) + '" aria-expanded="' + gOpen + '"><span class="fl-chev">▸</span> <strong>' + esc(g.title) + '</strong>' +
+        (g.sub ? ' <span class="fl-gs">' + esc(g.sub) + '</span>' : '') + ' <span class="fl-gs">· ' + gOn + '/' + g.items.length + '</span>' + (gw ? ' <span class="fl-w" title="Has warnings">⚠</span>' : '') + '</button></div><div class="fl-gb">';
+      g.items.forEach(function (it) {
+        var on = m.on(it.i), hasW = it.warn && it.warn.length;
+        var open = S.leg[it.key] != null ? S.leg[it.key] : !!hasW;
+        h += '<div class="fl-leg' + (on ? '' : ' off') + (open ? ' open' : '') + '">' +
+          '<input type="checkbox" data-i="' + it.i + '"' + (on ? ' checked' : '') + ' aria-label="Include ' + esc(it.date + ' ' + it.flt) + '">' +
+          '<button type="button" class="fl-sum" data-k="' + esc(it.key) + '" aria-expanded="' + open + '">' +
+          '<span class="fl-d">' + esc(it.date) + '</span><span class="fl-f">' + esc(it.flt) + '</span><span class="fl-r">' + esc(it.route) + '</span>' +
+          '<span class="fl-t">' + (it.times || '') + '</span>' +
+          (it.chip ? '<span class="chip ' + esc(it.chip.cls || '') + '">' + esc(it.chip.text) + '</span>' : '') +
+          (hasW ? '<span class="fl-w" title="Warning">⚠</span>' : '') + '<span class="fl-chev">▸</span></button>' +
+          '<div class="fl-det">' + (it.details || []).filter(function (d) { return d[1] !== '' && d[1] != null; }).map(function (d) { return '<div><span class="fl-dl">' + esc(d[0]) + '</span><span class="fl-dv">' + d[1] + '</span></div>'; }).join('') +
+          (hasW ? '<p class="fl-wt">' + esc(it.warn.join(' ')) + '</p>' : '') + '</div></div>';
+      });
+      h += '</div></div>';
+    });
+    el.innerHTML = h;
+    var a = el.querySelector('[data-all]'); if (a) a.indeterminate = onN > 0 && onN < all.length;
+    m.groups.forEach(function (g) {
+      var gOn = g.items.filter(function (it) { return m.on(it.i); }).length, c = el.querySelector('[data-g="' + g.id.replace(/"/g, '\\"') + '"]');
+      if (c) c.indeterminate = gOn > 0 && gOn < g.items.length;
+    });
+    if (S.bound) return;
+    S.bound = true;
+    el.addEventListener('change', function (e) {
+      var t = e.target, M = S.m;
+      if (t.dataset.i != null) M.toggle([+t.dataset.i], t.checked);
+      else if (t.dataset.g != null) { var g = M.groups.filter(function (x) { return x.id === t.dataset.g; })[0]; if (g) M.toggle(g.items.map(function (it) { return it.i; }), t.checked); }
+      else if (t.hasAttribute('data-all')) { var ids = []; M.groups.forEach(function (g) { g.items.forEach(function (it) { ids.push(it.i); }); }); M.toggle(ids, t.checked); }
+    });
+    el.addEventListener('click', function (e) {
+      var b = e.target.closest('button'); if (!b || !el.contains(b)) return;
+      if (b.dataset.k != null) { var leg = b.parentNode, o = !leg.classList.contains('open'); leg.classList.toggle('open', o); b.setAttribute('aria-expanded', o); S.leg[b.dataset.k] = o; }
+      else if (b.dataset.gt != null) { var g = b.closest('.fl-grp'), go = !g.classList.contains('open'); g.classList.toggle('open', go); b.setAttribute('aria-expanded', go); S.grp[b.dataset.gt] = go; }
+      else if (b.dataset.expand != null) {
+        var o2 = b.dataset.expand === '1';
+        Array.prototype.forEach.call(el.querySelectorAll('.fl-leg'), function (l) { l.classList.toggle('open', o2); var s = l.querySelector('.fl-sum'); s.setAttribute('aria-expanded', o2); S.leg[s.dataset.k] = o2; });
+        if (o2) Array.prototype.forEach.call(el.querySelectorAll('.fl-grp'), function (g) { g.classList.add('open'); S.grp[g.dataset.gid] = true; });
+      }
+    });
+  }
+
+  // ---- grouping ----
+  // trips: a trip starts when a flying leg leaves base and ends when one arrives at base; other duties group alone.
+  // trips: a trip starts when a flying leg leaves base and ends with the duty in which it gets back to base;
+  // other duties (ground, reserve, sim) inside a trip stay with it, otherwise they group alone.
+  function groupTrips(items, base, isFlying, label) {
+    var out = [], cur = null;
+    items.forEach(function (it) {
+      if (cur && cur.home != null && it._duty !== cur.home) cur.closed = true;   // the duty that brought us home has ended
+      var fly = isFlying(it);
+      if (!fly && (!cur || cur.closed)) { out.push({ id: 'g' + out.length, items: [it], title: label(it), sub: '', closed: true }); cur = null; return; }
+      if (fly && (!cur || cur.closed)) { cur = { id: 'g' + out.length, items: [], first: it.date, closed: false, home: null }; out.push(cur); }
+      cur.items.push(it); cur.end = it.date;
+      if (fly && it._arv === base) cur.home = it._duty; else if (fly) cur.home = null;
+    });
+    out.forEach(function (g) {
+      if (g.title) return;
+      var fl = g.items.filter(isFlying), stops = [fl[0]._dep];
+      fl.forEach(function (it) { if (it._dep !== stops[stops.length - 1]) stops.push(it._dep); stops.push(it._arv); });
+      g.title = 'Trip ' + g.first.slice(0, 5) + (g.end && g.end !== g.first ? '–' + g.end.slice(0, 5) : '');
+      g.sub = stops.length > 7 ? stops.slice(0, 3).join('–') + '…' + stops[stops.length - 1] : stops.join('–');
+    });
+    return out;
+  }
+  function groupMonths(items) {
+    var out = [], idx = {};
+    items.forEach(function (it) {
+      var p = it.date.split('/'), k = p[2] + p[0];
+      if (!idx[k]) { idx[k] = { id: 'm' + k, title: MONTHS[+p[0] - 1] + ' ' + p[2], items: [] }; out.push(idx[k]); }
+      idx[k].items.push(it);
+    });
+    return out;
+  }
+  function groupBy(items, keyFn, titleFn) {
+    var out = [], idx = {};
+    items.forEach(function (it) { var k = keyFn(it); if (!idx[k]) { idx[k] = { id: 'k' + out.length, title: titleFn(it, out.length), items: [] }; out.push(idx[k]); } idx[k].items.push(it); });
+    return out;
+  }
+
+  // ---- options summary ----
+  function optSum(el, parts) { var t = parts.filter(Boolean); el.textContent = t.length ? '· ' + t.join(', ') : '· defaults'; }
+
+  // ---- send in parts ----
+  // el: container. o: { legs, url(partLegs), max, noun, disabledText, msg(el) }
+  function send(el, o) {
+    var max = o.max || 100, legs = o.legs, noun = o.noun || 'flight';
+    var plural = function (n) { return n + ' ' + noun + (n === 1 ? '' : 's'); };
+    el.innerHTML = '';
+    var msg = o.msgEl;
+    if (o.disabledText || !legs.length) {
+      el.innerHTML = '<span class="btn send" aria-disabled="true">' + esc(o.disabledText || 'Nothing checked') + '</span>';
+      if (msg) msg.textContent = ''; return;
+    }
+    var n = Math.ceil(legs.length / max);
+    for (var b = 0; b < n; b++) {
+      var part = legs.slice(b * max, (b + 1) * max), url = o.url(part);
+      var row = document.createElement('div'); row.className = 'fl-part';
+      var a = document.createElement('a'); a.className = 'btn send'; a.href = url;
+      a.innerHTML = n === 1 ? 'Send ' + plural(part.length) + ' to LogTen' : 'Send part ' + (b + 1) + ' of ' + n + '<small>' + esc(part[0].date + ' – ' + part[part.length - 1].date) + ' · ' + plural(part.length) + '</small>';
+      var c = document.createElement('button'); c.type = 'button'; c.className = 'btn ghost'; c.textContent = n === 1 ? 'Copy LogTen URL' : 'Copy URL';
+      (function (u, btn) {
+        a.addEventListener('click', function () { if (msg) { msg.textContent = 'Opening LogTen…'; setTimeout(function () { msg.textContent = 'If LogTen didn’t open, use Copy' + (n === 1 ? ' LogTen URL' : ' URL') + ' and paste it into Safari’s address bar.'; }, 2500); } });
+        btn.addEventListener('click', function () {
+          var done = function () { if (msg) msg.textContent = 'URL copied. Paste it into Safari’s address bar and tap Go.'; };
+          if (navigator.clipboard) navigator.clipboard.writeText(u).then(done, fallback); else fallback();
+          function fallback() { var ta = document.createElement('textarea'); ta.value = u; ta.readOnly = true; ta.rows = 2; ta.style.width = '100%'; row.appendChild(ta); ta.focus(); ta.select(); if (msg) msg.textContent = 'Selected. Use Copy, then paste into Safari.'; }
+        });
+      })(url, c);
+      row.appendChild(a); row.appendChild(c); el.appendChild(row);
+    }
+    if (msg) msg.textContent = n > 1 ? plural(legs.length) + ' in ' + n + ' parts of up to ' + max + '. Send each part in turn, letting LogTen finish before the next.' : '';
+  }
+
+  // ---- shared aircraft type names ----
+  // eCrew-style short code -> "E170" mode name (same as Floggy-Go Schedule/Logbook mapType)
+  function typeName(code, mode) {
+    if (mode === 'none' || !code) return '';
+    if (mode === 'raw') return code;
+    return { E75: 'E170', DH4: 'DH8D' }[code] || code;
+  }
+
+  root.FGO = { legs: legs, groupTrips: groupTrips, groupMonths: groupMonths, groupBy: groupBy, optSum: optSum, send: send, typeName: typeName, esc: esc };
+})(this);
+</script>
 <script>
 window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return to Field or Gate"],"C":["F","Return to Field or Gate"],"GMOV":["F","Taxi"],"AD":["G","Office Admin Day"],"AG":["G","AQP Ground School"],"CM":["G","CRM"],"CQ":["G","AQP Ground School Extended time"],"DD":["G","Duty Day"],"DO":["G","Duty Officer"],"DOFF":["G","Duty Officer Day"],"DT":["G","Duty Time"],"FM":["G","FMS"],"FMD":["G","Instr FMS"],"FODO":["G","FLIGHT OPS DUTY OFFICER"],"FP":["G","FltPath or Beyond Sv Co Required Trng"],"GI":["G","Ground Instructor"],"GS":["G","Ground School"],"IB":["G","IBT Union Business Union Requested"],"IL":["G","Intermittent Leave"],"IU":["G","IBT Union Business QX Requested"],"JCQ":["G","Jet AQP Ground School extended time"],"JLC":["G","Line Check"],"JMT":["G","Jet Meeting Day"],"JTV":["G","Jet Travel Day"],"LB":["G","IBT Line Building"],"LC":["G","Line Check"],"MT":["G","Meeting Day"],"OE":["G","Operating Experience"],"OPVI":["G","Instructor Open VPT"],"OR":["G","Oral"],"QCQ":["G","Q400 AQP Ground School Extended Time"],"QFM":["G","Q400 FMS Lab"],"QGI":["G","Q400 Ground Instr"],"QLC":["G","Q400 Line Check"],"QMT":["G","Q400 Meeting Day"],"QSP":["G","Q400 SPT training"],"QTV":["G","Q400 Travel Day"],"QVI":["G","VPT Instructor"],"RG":["G","Recurrent Ground School"],"SFTY":["G","Flight Ops Quality Assurance"],"SP":["G","Special Procedures Training"],"TD":["G","Duty Day Training"],"VI":["G","VPT Instructor"],"VI1":["G","Q400 Instructor VPT"],"VI2":["G","VPT Instructor"],"VP":["G","VPT Student"],"VT":["G","VT Student"],"AS":["P","Dead Head Alaska"],"DH":["P","Dead Head"],"DHA":["P","Dead Head"],"GT":["P","Ground Transport"],"LIMO":["P","Limo"],"LM":["P","Limo"],"LMO":["P","Limo"],"AA":["R","Airport Reserve AM"],"AKA":["R","AM Short Call Reserve"],"AKM":["R","AM Airport Reserve"],"AKN":["R","PM Airport Reserve"],"AKP":["R","PM Short Call Reserve"],"AR":["R","Composite Reserve AM"],"AZ":["R","BOI AM Composite Reserve"],"BA":["R","Airport Reserve AM 10 Hours"],"BAA":["R","BOI Airport Reserve AM"],"BER":["R","Long Call Early"],"BP":["R","Airport Reserve PM 10 Hours"],"BRA":["R","BOI Reserve Line AM"],"BRL":["R","Long Call Reserve"],"BRP":["R","BOI Reserve Line PM"],"BVA":["R","AM Short Call Reserve"],"BVP":["R","BOI Reserve"],"EEA":["R","AM Short Call Reserve"],"EEP":["R","PM Short Call Reserve"],"ER":["R","Long Call Early"],"ERA":["R","PAE AM Reserve"],"ERL":["R","Long Call Reserve"],"ERP":["R","PAE PM Reserve"],"GAA":["R","GEG Airport Reserve AM"],"GRA":["R","GEG Reserve Line AM"],"GRL":["R","GEG Long Call Reserve"],"GRP":["R","GEG Reserve Line PM"],"GVA":["R","AM Short Call Reserve"],"GVP":["R","PM Short Call Reserve"],"JOEL":["R","Jet Operating experience Long Call"],"MAA":["R","MFR Airport Reserve AM"],"MRA":["R","MFR Reserve Line AM"],"MRL":["R","Long Call Reserve"],"MRP":["R","MFR Reserve Line PM"],"MTA":["R","MFR PILOT RESERVE AM AIRPORT"],"MVA":["R","AM Short Call Reserve"],"MVP":["R","PM Short Call Reserve"],"PA":["R","Airport Reserve PM"],"PAA":["R","PDX Airport Reserve AM"],"PEA":["R","AM Short Call Reserve"],"PEM":["R","AM Airport Reserve"],"PEN":["R","PM Airport Reserve"],"PEP":["R","PM Short Call Reserve"],"PPA":["R","PDX Airport Reserve PM"],"PR":["R","Composite Reserve PM"],"PRA":["R","PDX Reserve Line AM"],"PRL":["R","Long Call Reserve"],"PRP":["R","PDX Composite Reserve PM"],"PTA":["R","AM Airport Reserve"],"PTP":["R","PM Airport Reserve"],"PVA":["R","AM Short Call Reserve"],"PVP":["R","PDX Reserve"],"PZ":["R","BOI PM Composite Reserve"],"RA":["R","Reserve Line AM"],"RE":["R","Coverage Short Call Early Reserve"],"RL":["R","Long Call Reserve"],"RO":["R","CDO Reserve"],"RP":["R","Reserve Line PM"],"RT":["R","Trip Time Reserve"],"SAA":["R","SEA Airport Reserve AM"],"SEA":["R","AM Short Call Reserve"],"SEM":["R","AM Airport Reserve"],"SEN":["R","E175 SEA PILOT RESERVE PM AIRPORT"],"SEP":["R","E175 SEA PILOT RESERVE PM HOME"],"SKA":["R","AM Short Call Reserve"],"SKL":["R","Long Call Reserve"],"SKP":["R","E175 SEA AK PILOT RESERVE PM HOME"],"SPA":["R","SEA Airport Reserve PM"],"SRA":["R","SEA Reserve Line AM"],"SRL":["R","Long Call Reserve"],"SRP":["R","SEA Reserve Line PM"],"STA":["R","AM Airport Reserve"],"STP":["R","PM Airport Reserve"],"SVA":["R","AM Short Call Reserve"],"SVP":["R","PM Short Call Reserve"],"ZA":["R","BOI AM Reserve Line"],"ZP":["R","BOI PM Reserve Line"],"CK":["S","Simm Check"],"JSCQ":["S","CQ SM Resets Recency"],"JSI":["S","Jet Sim CKA Instructor"],"JSM":["S","Pilot receiving Sim"],"JSMQ":["S","Maneuvers QUAL"],"JSP":["S","E175 Special Training"],"OL":["S","Other Landings Not PC"],"OPSI":["S","Sim/CKA Instructor Open Sim"],"QSCQ":["S","Q400 SIM LOE"],"QSI":["S","Q400 Sim CKA Instructor"],"QSM":["S","Pilot receiving Sim"],"QSMQ":["S","Maneuvers QUAL"],"SC":["S","Simm Check"],"SI":["S","Simm Instructor or Check Pilot"],"SM":["S","Pilot receiving Sim"],"SU":["S","Sim Support"],"SUP":["S","Sim Support"],"SUPI":["S","Sim Support Instructor"],"TK":["S","Other Take off Recency"],"AV":["X","Available Day"],"CO":["X","Commuter"],"DF":["X","Bereavement"],"FG":["X","Pilot Fatigue"],"FLT":["X","Flight Duty Uploaded"],"GF":["X","PILOT FATIGUE"],"GL":["X","Golden Day"],"IN":["X","Incentive Line"],"JANAN":["X","JET Termination Resign Retire"],"JD":["X","Jury Duty"],"JMI":["X","Jet Military"],"JNAN":["X","Jet Termination Resign/Retire"],"JPD":["X","Jet Person Day Off"],"JSLN":["X","Jet Medical Leave"],"LA":["X","Personal/Family Leave"],"LS":["X","Late Show"],"NS":["X","No Show"],"OD":["X","Office Day"],"OFF":["X","Day off"],"OFF.":["X","OFF REST Day Not counted to Days OFF"],"OS":["X","Crewmember on Furlough"],"OWN":["X","Own Way Travel"],"PD":["X","Personal Day Off"],"QIL":["X","Q400 Intermittent Leave"],"QLA":["X","Personal Family Leave"],"QMI":["X","Q400 Military Leave"],"QPD":["X","Q400 Personal Day Off"],"QSL":["X","Q400 Medical Leave"],"REST":["X","Required Rest FAR 117"],"SK":["X","Sick"],"SL":["X","Medical Leave"],"T":["X","Reserve Cancelled Route Credit"],"TAXI":["X","Taxi Credit point 25 SCH for Pilots"],"TB":["X","Training Break Planning use"],"TV":["X","Travel Day"],"UT":["X","Uncontactable"],"V":["X","Vacation 3 hour credit"],"VA":["X","Bid Vacation"],"VB":["X","DAT Vacation"],"VC":["X","CP Line Transition Vacation"],"VJM":["X","Volunteer Junior Man Pilots"],"WFLY":["X","Volunteer to fly on day off"],"WP":["X","Without Pay"],"WPRD":["X","Without Pay Reserve"]};
 // Floggy-Go Rig core: a port of Floggy 2.6 btn "Calculate Rig" (rev 10/29/26).
@@ -855,7 +1047,7 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
 
 
   // ---------- Send to LogTen ----------
-  var IM = { text: '', res: null, off: {}, o: { nf: 'in', duty: 'send', cap: 'send', tail: 'flown', ty: 'none', px: '' }, url: '' };
+  var IM = { text: '', res: null, off: {}, o: { nf: 'in', duty: 'send', cap: 'send', tail: 'flown', ty: 'none', px: '', sh: 'all' }, url: '' };
   var KIND = { '0': 'Flight', '1': 'Deadhead', '2': 'Ground', '3': 'Sim', '6': 'Reserve' };
   function impParse() {
     IM.res = FloggyPairing.parse(IM.text, { dutyCodes: window.FLOGGY_DUTY_CODES, typeMode: IM.o.ty, prefix: IM.o.px });
@@ -871,40 +1063,32 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
     $('imp').hidden = false;
     var withCrew = r.legs.filter(function (L) { return L.crewSrc; }).length;
     $('impInfo').textContent = (r.me.name ? r.me.name + ' · ' + r.me.id + ' · ' : '') + r.legs.length + ' legs, crew found for ' + withCrew + '.';
-    var head = ['', 'Date', 'Flight', 'Route', 'Kind', 'Scheduled', 'Actual', 'Tail', 'PIC', 'SIC', 'FA', 'FA2', 'Cap', 'Duty on–off', 'Crew from', 'flight_key', 'Notes'];
-    var X = { 4: 1, 8: 1, 9: 1, 10: 1, 11: 1, 12: 1, 13: 1, 14: 1, 15: 1 };   // shown with "All columns"
-    var h = '<thead><tr>' + head.map(function (t, j) { return '<th' + (X[j] ? ' class="x"' : '') + '>' + esc(t) + '</th>'; }).join('') + '</tr></thead><tbody>';
-    r.legs.forEach(function (L, i) {
-      var sch = (L.std || '–') + '–' + (L.sta || '–'), act = L.atd ? (L.atd + '–' + (L.ata || '–') + (L.actDepDate !== L.depDate ? ' (' + L.actDepDate.slice(0, 5) + ')' : '')) : '–';
-      var cap = IM.o.cap === 'out' ? 'logbook' : ([L.p1 ? 'P1' : '', L.p2 ? 'P2' : ''].filter(Boolean).join(' ') || '–');
-      var duty = IM.o.duty === 'out' ? 'not sent' : ((L.dutyS ? L.dutyS : '') + (L.dutyS || L.dutyE ? '–' : '') + (L.dutyE ? L.dutyE : '')) || '';
-      var tail = IM.o.tail === 'none' ? '–' : (IM.o.tail === 'flown' && !L.atd ? '(' + (L.tail || '–') + ')' : (L.tail || '–'));
-      var cells = [['', '<input type="checkbox" data-i="' + i + '"' + (IM.off[i] ? '' : ' checked') + '>'], ['m', esc(L.date)], ['m', esc(L.fltSend)], ['m', esc(L.dep + '–' + L.arv)], ['', esc(KIND[L.ftype] || L.ftype)],
-        ['m', esc(sch)], ['m', esc(act)], ['m', esc(tail)], ['', esc(L.pic)], ['', esc(L.sic)], ['', esc(L.fa1)], ['', esc(L.fa2)],
-        ['', esc(cap)], ['m', esc(duty)], ['', esc(L.crewSrc || '–')], ['m', esc(L.key)], ['warnc', esc(L.warnings.join(' '))]];
-      h += '<tr>' + cells.map(function (c, j) { var cl = (c[0] + (X[j] ? ' x' : '')).trim(); return '<td' + (cl ? ' class="' + cl + '"' : '') + '>' + c[1] + '</td>'; }).join('') + '</tr>';
+    var shown = r.legs.filter(function (L) { return IM.o.sh === 'all' || L.warnings.length; });
+    var items = shown.map(function (L) {
+      var i = r.legs.indexOf(L);
+      var sch = L.std || L.sta ? esc((L.std || '–') + '–' + (L.sta || '–')) : '';
+      var act = L.atd ? esc(L.atd + '–' + (L.ata || '–')) + (L.actDepDate !== L.depDate ? ' <span class="nd">' + esc(L.actDepDate.slice(0, 5)) + '</span>' : '') : '';
+      var cap = IM.o.cap === 'out' ? 'logbook' : [L.p1 ? 'P1' : '', L.p2 ? 'P2' : ''].filter(Boolean).join(' ');
+      var duty = IM.o.duty === 'out' ? 'not sent' : ((L.dutyS || L.dutyE) ? (L.dutyS || '') + '–' + (L.dutyE || '') : '');
+      var tail = IM.o.tail === 'none' ? 'not sent' : (IM.o.tail === 'flown' && !L.atd ? (L.tail ? L.tail + ' (not sent until flown)' : '') : (L.tail || ''));
+      return { i: i, key: L.key + '|' + i, date: L.date.slice(0, 5), flt: L.fltSend, route: L.dep + '–' + L.arv, _d: L.date,
+        times: act ? (sch && sch !== act ? sch + ' → ' : '') + act : sch, chip: L.ftype === '0' ? null : { text: KIND[L.ftype] || L.ftype, cls: L.ftype === '1' ? 'dh' : 'gnd' }, warn: L.warnings,
+        details: [['Scheduled', sch], ['Actual', act], ['Tail', esc(tail)], ['PIC', esc(L.pic)], ['SIC', esc(L.sic)], ['FA', esc(L.fa1)], ['FA2', esc(L.fa2)],
+          ['P1/P2', esc(cap)], ['Duty on–off', esc(duty)], ['Crew from', esc(L.crewSrc || '')], ['Match key', esc(L.key)]] };
     });
-    $('legs').innerHTML = h + '</tbody>';
-    Array.prototype.forEach.call($('legs').querySelectorAll('input[data-i]'), function (cb) {
-      cb.addEventListener('change', function () { if (cb.checked) delete IM.off[cb.dataset.i]; else IM.off[cb.dataset.i] = 1; impUpdate(); });
-    });
+    var day = 0;
+    var groups = FGO.groupBy(items, function (it) { return it._d; }, function (it, n) { return 'Day ' + (n + 1) + ' · ' + it._d.slice(0, 5); });
+    groups.forEach(function (g) { var st = [g.items[0].route.split('–')[0]]; g.items.forEach(function (it) { st.push(it.route.split('–')[1]); }); g.sub = st.join('–'); });
+    FGO.legs($('legs'), { groups: groups, on: function (i) { return !IM.off[i]; }, toggle: function (ids, on) { ids.forEach(function (i) { if (on) delete IM.off[i]; else IM.off[i] = 1; }); impRender(); } });
     impUpdate();
   }
   function impUpdate() {
-    var sel = IM.res.legs.filter(function (L, i) { return !IM.off[i]; });
-    $('selCount').textContent = sel.length + ' of ' + IM.res.legs.length + ' legs checked';
-    var o = IM.o, t = [];
-    t.push(o.nf === 'out' ? 'non-flying out' : '', o.duty === 'out' ? 'no duty times' : '', o.cap === 'out' ? 'P1/P2 to logbook' : '',
-      { flown: 'tail when flown', all: 'tail always', none: 'no tail' }[o.tail], o.ty === 'none' ? '' : 'type ' + (o.ty === 'raw' ? 'as reported' : o.ty), o.px ? o.px + ' numbers' : '');
-    $('optSum').textContent = '· ' + t.filter(Boolean).join(', ');
-    if (!sel.length) { IM.url = ''; $('sendMsg').textContent = 'No legs checked.'; }
-    else {
-      var pkg = FloggyPairing.buildPackage(sel, { duty: IM.o.duty === 'send', capacity: IM.o.cap === 'send', tail: IM.o.tail });
-      IM.url = 'logten://v2/addEntities?package=' + encodeURIComponent(JSON.stringify(pkg));
-      $('sendMsg').textContent = sel.length + (sel.length === 1 ? ' leg' : ' legs') + ' ready. When Safari asks to open LogTen Pro, tap Open.';
-    }
+    var sel = IM.res.legs.filter(function (L, i) { return !IM.off[i]; }), o = IM.o;
+    FGO.optSum($('optSum'), [o.px ? o.px + ' flight numbers' : '', o.ty === 'raw' ? 'type as reported' : o.ty === 'E170' ? 'type E170' : '',
+      { flown: '', all: 'tail always', none: 'no tail' }[o.tail], o.nf === 'out' ? 'non-flying left out' : '', o.duty === 'out' ? 'no duty times' : '', o.cap === 'out' ? 'P1/P2 to logbook' : '', o.sh === 'warn' ? 'warnings only' : '']);
+    var po = { duty: o.duty === 'send', capacity: o.cap === 'send', tail: o.tail };
+    FGO.send($('sendBox'), { legs: sel, noun: 'leg', msgEl: $('sendMsg'), url: function (part) { return 'logten://v2/addEntities?package=' + encodeURIComponent(JSON.stringify(FloggyPairing.buildPackage(part, po))); } });
     calRender();
-    $('send').href = IM.url || '#'; $('send').setAttribute('aria-disabled', IM.url ? 'false' : 'true'); $('copyUrl').disabled = !IM.url;
   }
   Array.prototype.forEach.call(document.querySelectorAll('.seg[data-k]'), function (seg) {
     seg.addEventListener('click', function (e) {
@@ -943,13 +1127,6 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
       $('calMsg').textContent = k + ': ' + r.events.length + (r.events.length === 1 ? ' event' : ' events') + (touch ? ' opened.' : ' saved as ' + name + '.');
     });
   });
-  $('allCols').addEventListener('change', function () { $('legs').classList.toggle('all', this.checked); });
-  $('copyUrl').addEventListener('click', function () {
-    if (!IM.url) return;
-    (navigator.clipboard ? navigator.clipboard.writeText(IM.url) : Promise.reject()).then(function () { $('sendMsg').textContent = 'URL copied. Paste it into Safari\'s address bar and tap Go.'; },
-      function () { $('sendMsg').textContent = 'Could not copy on this device.'; });
-  });
-
   $('file').addEventListener('change', function (e) {
     var f = e.target.files[0]; if (!f) return;
     $('msg').className = 'msg'; $('msg').textContent = 'Reading ' + f.name + '…'; $('out').hidden = true;

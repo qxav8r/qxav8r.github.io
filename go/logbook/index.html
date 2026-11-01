@@ -88,6 +88,53 @@ pre { margin: 0; max-height: 420px; overflow: auto; background: var(--bg); borde
 .homelink { justify-self:start; font:600 .95rem var(--f-ui); color:var(--accent); text-decoration:none; padding:.2rem 0; }
 .homelink:hover { text-decoration:underline; }
 </style>
+<style id="fgo-ui-css">
+/* Floggy-Go shared UI: options panel, leg cards, send parts (inlined by build.py) */
+details.fl-opts { border:1px solid var(--line); border-radius:8px; background:var(--panel); padding:0 14px; }
+details.fl-opts > summary { cursor:pointer; padding:10px 0; font:600 .95rem var(--f-ui); color:var(--accent); }
+details.fl-opts > summary .fl-os { font-weight:400; color:var(--muted); }
+details.fl-opts[open] > summary { border-bottom:1px solid var(--line); margin-bottom:10px; }
+details.fl-opts .bar { padding-bottom:12px; display:flex; flex-wrap:wrap; gap:10px 20px; align-items:center; }
+label.opt { display:flex; align-items:center; gap:8px; font:600 1rem var(--f-ui); margin:6px 0 0; cursor:pointer; }
+label.opt input { width:1.15rem; height:1.15rem; accent-color:var(--accent); }
+.opt-note { margin:2px 0 6px 1.9rem; font-size:.85rem; color:var(--muted); }
+.fl-legs { border:1px solid var(--line); border-radius:8px; background:var(--panel); overflow:hidden; }
+.fl-top { display:flex; flex-wrap:wrap; align-items:center; gap:6px 14px; padding:8px 12px; border-bottom:1px solid var(--line); font:.9rem var(--f-ui); }
+.fl-all { display:flex; align-items:center; gap:6px; font-weight:600; cursor:pointer; }
+.fl-count { color:var(--muted); }
+.fl-link { background:none; border:0; color:var(--accent); font:600 .85rem var(--f-ui); cursor:pointer; padding:2px 4px; }
+.fl-top .fl-link:first-of-type { margin-left:auto; }
+.fl-empty { padding:12px; color:var(--muted); margin:0; }
+.fl-gh { display:flex; align-items:center; gap:8px; padding:6px 12px; background:var(--bg); border-bottom:1px solid var(--line); }
+.fl-gt { flex:1; text-align:left; background:none; border:0; color:var(--ink); font:.95rem var(--f-ui); cursor:pointer; padding:4px 0; min-width:0; }
+.fl-gs { color:var(--muted); }
+.fl-grp:not(.open) > .fl-gb { display:none; }
+.fl-chev { display:inline-block; color:var(--muted); transition:transform .15s; font-size:.8em; }
+.fl-grp.open > .fl-gh .fl-chev, .fl-leg.open > .fl-sum .fl-chev { transform:rotate(90deg); }
+.fl-leg { display:grid; grid-template-columns:auto 1fr; align-items:start; column-gap:8px; padding:0 12px; border-bottom:1px solid var(--line); }
+.fl-leg > input { margin-top:12px; width:1.1rem; height:1.1rem; accent-color:var(--accent); }
+.fl-leg.off > .fl-sum { opacity:.5; }
+.fl-sum { display:flex; flex-wrap:wrap; align-items:center; gap:2px 12px; background:none; border:0; color:var(--ink); text-align:left; padding:9px 0; cursor:pointer; font:.95rem var(--f-data); font-variant-numeric:tabular-nums; min-width:0; }
+.fl-d { color:var(--muted); } .fl-f { font-weight:600; } .fl-t { color:var(--muted); font-size:.88rem; }
+.fl-sum .chip { font-family:var(--f-ui); }
+.fl-sum .fl-chev { margin-left:auto; }
+.fl-w { color:var(--amber); }
+.fl-det { display:none; grid-column:2; padding:0 0 10px; font-size:.9rem; }
+.fl-leg.open > .fl-det { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:6px 16px; }
+.fl-det > div { min-width:0; } .fl-dl { display:block; font:600 .68rem var(--f-ui); text-transform:uppercase; letter-spacing:.06em; color:var(--muted); }
+.fl-dv { font-family:var(--f-data); font-size:.85rem; overflow-wrap:anywhere; }
+.fl-wt { grid-column:1/-1; margin:2px 0 0; color:var(--amber); font-size:.85rem; }
+.fl-sendbox { display:grid; gap:8px; }
+.fl-part { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+.fl-part .btn small { display:block; font-weight:400; font-size:.78rem; opacity:.85; }
+.btn.send[aria-disabled="true"], span.btn.send { opacity:.45; pointer-events:none; display:inline-block; }
+.fl-sum .chip { display:inline-block; font:600 .68rem var(--f-ui); letter-spacing:.05em; text-transform:uppercase; padding:1px 6px; border-radius:4px; }
+.fl-sum .chip.dh { background:var(--dh-bg, rgba(106,79,163,.14)); color:var(--dh, #8a6fd0); }
+.fl-sum .chip.gnd, .fl-sum .chip.skd { background:var(--sel, rgba(120,140,160,.16)); color:var(--muted); }
+.fl-sum .chip.sim, .fl-sum .chip.rsv { background:var(--amber-bg); color:var(--amber); }
+.fl-sum .chip.act { background:var(--ok-bg, rgba(31,122,74,.14)); color:var(--ok, #2f9a62); }
+.nd { color:var(--amber); font-size:.7rem; vertical-align:super; }
+</style>
 
 <div class="wrap">
   <a class="homelink" href="../../">‹ All Tools / Home</a>
@@ -95,7 +142,7 @@ pre { margin: 0; max-height: 420px; overflow: auto; background: var(--bg); borde
     <div class="hero-text">
       <h1>Floggy-Go <span class="sub">Logbook</span></h1>
       <p class="tag">eCrew Pilot Logbook → LogTen</p>
-      <span class="ver">v0.9.2 · 10/31/26</span>
+      <span class="ver">beta v1.0 · 11/01/26</span>
     </div>
     <img class="plane" alt="Smiling E175 in Floggy livery" src="../../img/plane-blue.webp">
   </header>
@@ -117,48 +164,44 @@ pre { margin: 0; max-height: 420px; overflow: auto; background: var(--bg); borde
 
   <div class="strip" id="strip"></div>
 
+  <details class="fl-opts" id="opts"><summary>Options <span class="fl-os" id="optSum"></span></summary>
   <div class="bar">
-    <div class="grp"><span class="lbl">Aircraft type</span>
-      <div class="seg" role="group" aria-label="Aircraft type">
-        <button type="button" id="ty-none" data-ty="none" aria-pressed="true">Not sent</button>
-        <button type="button" id="ty-raw" data-ty="raw" aria-pressed="false">As reported</button>
-        <button type="button" id="ty-E170" data-ty="E170" aria-pressed="false">E170</button>
-      </div>
-    </div>
     <div class="grp"><span class="lbl">Flight number</span>
       <div class="seg" role="group" aria-label="Airline code before the flight number">
-        <button type="button" id="px-none" data-px="" aria-pressed="true">No code</button>
-        <button type="button" id="px-qx" data-px="QX" aria-pressed="false">QX</button>
-        <button type="button" id="px-as" data-px="AS" aria-pressed="false">AS</button>
+        <button type="button" data-px="" aria-pressed="true">No code</button>
+        <button type="button" data-px="QX" aria-pressed="false">QX</button>
+        <button type="button" data-px="AS" aria-pressed="false">AS</button>
+      </div>
+    </div>
+    <div class="grp"><span class="lbl">Aircraft type</span>
+      <div class="seg" role="group" aria-label="Aircraft type">
+        <button type="button" data-ty="none" aria-pressed="true">Not sent</button>
+        <button type="button" data-ty="raw" aria-pressed="false">As reported</button>
+        <button type="button" data-ty="E170" aria-pressed="false">E170</button>
+      </div>
+    </div>
+    <div class="grp"><span class="lbl">Tail</span>
+      <div class="seg" role="group" aria-label="Tail number">
+        <button type="button" data-tl="send" aria-pressed="true">Send</button>
+        <button type="button" data-tl="out" aria-pressed="false">Leave out</button>
       </div>
     </div>
     <div class="grp"><span class="lbl">Show</span>
       <div class="seg" role="group" aria-label="Show">
-        <button type="button" id="sh-all" data-sh="all" aria-pressed="true">All legs</button>
-        <button type="button" id="sh-warn" data-sh="warn" aria-pressed="false">Warnings only</button>
+        <button type="button" data-sh="all" aria-pressed="true">All</button>
+        <button type="button" data-sh="warn" aria-pressed="false">Warnings only</button>
       </div>
     </div>
-    <span class="count" id="selCount"></span>
   </div>
+  </details>
 
-  <div class="tablebox">
-    <table>
-      <thead><tr>
-        <th><input type="checkbox" id="all" aria-label="Select all legs" checked></th>
-        <th>Date</th><th>Flight</th><th>Route</th><th>Out–In base</th><th>Out–In UTC</th><th>Times</th>
-        <th>Type</th><th>Tail</th><th>PIC</th><th>Cap</th><th>Ldg</th><th>Instr</th><th>Part</th><th>Flt type</th><th>flight_key</th><th>Notes</th>
-      </tr></thead>
-      <tbody id="rows"></tbody>
-    </table>
-  </div>
+  <div id="legs" class="fl-legs"></div>
+  <div id="notesBox" class="banner error" hidden><p id="notesText"></p></div>
 
   <div class="sendbar">
-    <div class="sendrow">
-      <a class="btn send" id="send" href="#" aria-disabled="true">Send to LogTen</a>
-      <button type="button" class="btn ghost" id="copyUrl">Copy LogTen URL</button>
-      <span class="count" id="sendMsg"></span>
-    </div>
-    <p class="note">LogTen adds new flights and updates ones it already has, matched by flight_key. Flights you have locked in LogTen are skipped without any message. If LogTen doesn't open, tap Copy LogTen URL, paste it into Safari's address bar and tap Go.</p>
+    <div class="fl-sendbox" id="sendBox"></div>
+    <span class="count" id="sendMsg"></span>
+    <p class="note">Updates the same LogTen flights as Floggy and the other Floggy-Go pages (matched by date + flight + route); locked flights are skipped. Send the logbook last: it is the record for P1/P2 and Part 121/91. <a href="../help/#send">Help</a></p>
   </div>
 
   <details class="pkg" id="pkgBox">
@@ -172,6 +215,157 @@ pre { margin: 0; max-height: 420px; overflow: auto; background: var(--bg); borde
   <p class="foot">Nothing reaches LogTen until you tap Send. Rules match Floggy 2.6 Parse LogBook and Log10 Export. The airline code, when chosen, goes on the flight number only; flight_key stays the bare number so imports match Floggy. Times are read in the pilot's base time and sent to LogTen in UTC. <span class="nd">+1</span> marks a time that falls on the day after the logbook date (in base time or in UTC).</p>
 </div>
 
+<script id="fgo-ui-js">
+// Floggy-Go shared UI (leg cards, options summary, send-in-parts). Inlined into each import page by build.py.
+(function (root) {
+  'use strict';
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+  // ---- leg cards ----
+  // el: container. m: { groups:[{id,title,sub,items:[...]}], on(i)->bool, toggle(idxs, on) }
+  // item: { i, key, date, flt, route, sched, actual, chip:{text,cls}, warn:[...], details:[[label, html]] }
+  function legs(el, m) {
+    var S = el._fgo || (el._fgo = { leg: {}, grp: {} });
+    S.m = m;
+    var all = [], onN = 0;
+    m.groups.forEach(function (g) { g.items.forEach(function (it) { all.push(it.i); if (m.on(it.i)) onN++; }); });
+    var h = '<div class="fl-top"><label class="fl-all"><input type="checkbox" data-all' + (onN && onN === all.length ? ' checked' : '') + '> All</label>' +
+      '<span class="fl-count">' + onN + ' of ' + all.length + ' checked</span>' +
+      '<button type="button" class="fl-link" data-expand="1">Open all</button><button type="button" class="fl-link" data-expand="0">Close all</button></div>';
+    if (!all.length) h += '<p class="fl-empty">No legs to show.</p>';
+    m.groups.forEach(function (g) {
+      var gOn = g.items.filter(function (it) { return m.on(it.i); }).length;
+      var gOpen = S.grp[g.id] !== false;
+      var gw = g.items.filter(function (it) { return it.warn && it.warn.length; }).length;
+      h += '<div class="fl-grp' + (gOpen ? ' open' : '') + '" data-gid="' + esc(g.id) + '"><div class="fl-gh">' +
+        '<input type="checkbox" data-g="' + esc(g.id) + '"' + (gOn === g.items.length && gOn ? ' checked' : '') + ' aria-label="Check all in ' + esc(g.title) + '">' +
+        '<button type="button" class="fl-gt" data-gt="' + esc(g.id) + '" aria-expanded="' + gOpen + '"><span class="fl-chev">▸</span> <strong>' + esc(g.title) + '</strong>' +
+        (g.sub ? ' <span class="fl-gs">' + esc(g.sub) + '</span>' : '') + ' <span class="fl-gs">· ' + gOn + '/' + g.items.length + '</span>' + (gw ? ' <span class="fl-w" title="Has warnings">⚠</span>' : '') + '</button></div><div class="fl-gb">';
+      g.items.forEach(function (it) {
+        var on = m.on(it.i), hasW = it.warn && it.warn.length;
+        var open = S.leg[it.key] != null ? S.leg[it.key] : !!hasW;
+        h += '<div class="fl-leg' + (on ? '' : ' off') + (open ? ' open' : '') + '">' +
+          '<input type="checkbox" data-i="' + it.i + '"' + (on ? ' checked' : '') + ' aria-label="Include ' + esc(it.date + ' ' + it.flt) + '">' +
+          '<button type="button" class="fl-sum" data-k="' + esc(it.key) + '" aria-expanded="' + open + '">' +
+          '<span class="fl-d">' + esc(it.date) + '</span><span class="fl-f">' + esc(it.flt) + '</span><span class="fl-r">' + esc(it.route) + '</span>' +
+          '<span class="fl-t">' + (it.times || '') + '</span>' +
+          (it.chip ? '<span class="chip ' + esc(it.chip.cls || '') + '">' + esc(it.chip.text) + '</span>' : '') +
+          (hasW ? '<span class="fl-w" title="Warning">⚠</span>' : '') + '<span class="fl-chev">▸</span></button>' +
+          '<div class="fl-det">' + (it.details || []).filter(function (d) { return d[1] !== '' && d[1] != null; }).map(function (d) { return '<div><span class="fl-dl">' + esc(d[0]) + '</span><span class="fl-dv">' + d[1] + '</span></div>'; }).join('') +
+          (hasW ? '<p class="fl-wt">' + esc(it.warn.join(' ')) + '</p>' : '') + '</div></div>';
+      });
+      h += '</div></div>';
+    });
+    el.innerHTML = h;
+    var a = el.querySelector('[data-all]'); if (a) a.indeterminate = onN > 0 && onN < all.length;
+    m.groups.forEach(function (g) {
+      var gOn = g.items.filter(function (it) { return m.on(it.i); }).length, c = el.querySelector('[data-g="' + g.id.replace(/"/g, '\\"') + '"]');
+      if (c) c.indeterminate = gOn > 0 && gOn < g.items.length;
+    });
+    if (S.bound) return;
+    S.bound = true;
+    el.addEventListener('change', function (e) {
+      var t = e.target, M = S.m;
+      if (t.dataset.i != null) M.toggle([+t.dataset.i], t.checked);
+      else if (t.dataset.g != null) { var g = M.groups.filter(function (x) { return x.id === t.dataset.g; })[0]; if (g) M.toggle(g.items.map(function (it) { return it.i; }), t.checked); }
+      else if (t.hasAttribute('data-all')) { var ids = []; M.groups.forEach(function (g) { g.items.forEach(function (it) { ids.push(it.i); }); }); M.toggle(ids, t.checked); }
+    });
+    el.addEventListener('click', function (e) {
+      var b = e.target.closest('button'); if (!b || !el.contains(b)) return;
+      if (b.dataset.k != null) { var leg = b.parentNode, o = !leg.classList.contains('open'); leg.classList.toggle('open', o); b.setAttribute('aria-expanded', o); S.leg[b.dataset.k] = o; }
+      else if (b.dataset.gt != null) { var g = b.closest('.fl-grp'), go = !g.classList.contains('open'); g.classList.toggle('open', go); b.setAttribute('aria-expanded', go); S.grp[b.dataset.gt] = go; }
+      else if (b.dataset.expand != null) {
+        var o2 = b.dataset.expand === '1';
+        Array.prototype.forEach.call(el.querySelectorAll('.fl-leg'), function (l) { l.classList.toggle('open', o2); var s = l.querySelector('.fl-sum'); s.setAttribute('aria-expanded', o2); S.leg[s.dataset.k] = o2; });
+        if (o2) Array.prototype.forEach.call(el.querySelectorAll('.fl-grp'), function (g) { g.classList.add('open'); S.grp[g.dataset.gid] = true; });
+      }
+    });
+  }
+
+  // ---- grouping ----
+  // trips: a trip starts when a flying leg leaves base and ends when one arrives at base; other duties group alone.
+  // trips: a trip starts when a flying leg leaves base and ends with the duty in which it gets back to base;
+  // other duties (ground, reserve, sim) inside a trip stay with it, otherwise they group alone.
+  function groupTrips(items, base, isFlying, label) {
+    var out = [], cur = null;
+    items.forEach(function (it) {
+      if (cur && cur.home != null && it._duty !== cur.home) cur.closed = true;   // the duty that brought us home has ended
+      var fly = isFlying(it);
+      if (!fly && (!cur || cur.closed)) { out.push({ id: 'g' + out.length, items: [it], title: label(it), sub: '', closed: true }); cur = null; return; }
+      if (fly && (!cur || cur.closed)) { cur = { id: 'g' + out.length, items: [], first: it.date, closed: false, home: null }; out.push(cur); }
+      cur.items.push(it); cur.end = it.date;
+      if (fly && it._arv === base) cur.home = it._duty; else if (fly) cur.home = null;
+    });
+    out.forEach(function (g) {
+      if (g.title) return;
+      var fl = g.items.filter(isFlying), stops = [fl[0]._dep];
+      fl.forEach(function (it) { if (it._dep !== stops[stops.length - 1]) stops.push(it._dep); stops.push(it._arv); });
+      g.title = 'Trip ' + g.first.slice(0, 5) + (g.end && g.end !== g.first ? '–' + g.end.slice(0, 5) : '');
+      g.sub = stops.length > 7 ? stops.slice(0, 3).join('–') + '…' + stops[stops.length - 1] : stops.join('–');
+    });
+    return out;
+  }
+  function groupMonths(items) {
+    var out = [], idx = {};
+    items.forEach(function (it) {
+      var p = it.date.split('/'), k = p[2] + p[0];
+      if (!idx[k]) { idx[k] = { id: 'm' + k, title: MONTHS[+p[0] - 1] + ' ' + p[2], items: [] }; out.push(idx[k]); }
+      idx[k].items.push(it);
+    });
+    return out;
+  }
+  function groupBy(items, keyFn, titleFn) {
+    var out = [], idx = {};
+    items.forEach(function (it) { var k = keyFn(it); if (!idx[k]) { idx[k] = { id: 'k' + out.length, title: titleFn(it, out.length), items: [] }; out.push(idx[k]); } idx[k].items.push(it); });
+    return out;
+  }
+
+  // ---- options summary ----
+  function optSum(el, parts) { var t = parts.filter(Boolean); el.textContent = t.length ? '· ' + t.join(', ') : '· defaults'; }
+
+  // ---- send in parts ----
+  // el: container. o: { legs, url(partLegs), max, noun, disabledText, msg(el) }
+  function send(el, o) {
+    var max = o.max || 100, legs = o.legs, noun = o.noun || 'flight';
+    var plural = function (n) { return n + ' ' + noun + (n === 1 ? '' : 's'); };
+    el.innerHTML = '';
+    var msg = o.msgEl;
+    if (o.disabledText || !legs.length) {
+      el.innerHTML = '<span class="btn send" aria-disabled="true">' + esc(o.disabledText || 'Nothing checked') + '</span>';
+      if (msg) msg.textContent = ''; return;
+    }
+    var n = Math.ceil(legs.length / max);
+    for (var b = 0; b < n; b++) {
+      var part = legs.slice(b * max, (b + 1) * max), url = o.url(part);
+      var row = document.createElement('div'); row.className = 'fl-part';
+      var a = document.createElement('a'); a.className = 'btn send'; a.href = url;
+      a.innerHTML = n === 1 ? 'Send ' + plural(part.length) + ' to LogTen' : 'Send part ' + (b + 1) + ' of ' + n + '<small>' + esc(part[0].date + ' – ' + part[part.length - 1].date) + ' · ' + plural(part.length) + '</small>';
+      var c = document.createElement('button'); c.type = 'button'; c.className = 'btn ghost'; c.textContent = n === 1 ? 'Copy LogTen URL' : 'Copy URL';
+      (function (u, btn) {
+        a.addEventListener('click', function () { if (msg) { msg.textContent = 'Opening LogTen…'; setTimeout(function () { msg.textContent = 'If LogTen didn’t open, use Copy' + (n === 1 ? ' LogTen URL' : ' URL') + ' and paste it into Safari’s address bar.'; }, 2500); } });
+        btn.addEventListener('click', function () {
+          var done = function () { if (msg) msg.textContent = 'URL copied. Paste it into Safari’s address bar and tap Go.'; };
+          if (navigator.clipboard) navigator.clipboard.writeText(u).then(done, fallback); else fallback();
+          function fallback() { var ta = document.createElement('textarea'); ta.value = u; ta.readOnly = true; ta.rows = 2; ta.style.width = '100%'; row.appendChild(ta); ta.focus(); ta.select(); if (msg) msg.textContent = 'Selected. Use Copy, then paste into Safari.'; }
+        });
+      })(url, c);
+      row.appendChild(a); row.appendChild(c); el.appendChild(row);
+    }
+    if (msg) msg.textContent = n > 1 ? plural(legs.length) + ' in ' + n + ' parts of up to ' + max + '. Send each part in turn, letting LogTen finish before the next.' : '';
+  }
+
+  // ---- shared aircraft type names ----
+  // eCrew-style short code -> "E170" mode name (same as Floggy-Go Schedule/Logbook mapType)
+  function typeName(code, mode) {
+    if (mode === 'none' || !code) return '';
+    if (mode === 'raw') return code;
+    return { E75: 'E170', DH4: 'DH8D' }[code] || code;
+  }
+
+  root.FGO = { legs: legs, groupTrips: groupTrips, groupMonths: groupMonths, groupBy: groupBy, optSum: optSum, send: send, typeName: typeName, esc: esc };
+})(this);
+</script>
 <script>
 // Floggy-Go core — eCrew Pilot Logbook CSV -> LogTen Pro entities.
 // Rules mirror Floggy 2.6: btn "Parse LogBook" (rows, deadhead, sim, capacity,
@@ -400,7 +594,8 @@ pre { margin: 0; max-height: 420px; overflow: auto; background: var(--bg); borde
   }
 
   // LogTen entity for one leg (fields left out when empty, as Floggy does).
-  function entity(L) {
+  function entity(L, opts) {
+    opts = opts || {};
     const e = { entity_name: 'Flight' };
     const put = (k, v) => { if (v !== '' && v != null && v !== false) e[k] = String(v); };
     put('flight_flightDate', L.date);
@@ -416,7 +611,7 @@ pre { margin: 0; max-height: 420px; overflow: auto; background: var(--bg); borde
       }
     }
     put('flight_selectedAircraftType', L.type);
-    put('flight_selectedAircraftID', L.tail);
+    if (opts.tail !== 'out') put('flight_selectedAircraftID', L.tail);
     put('flight_selectedCrewPIC', L.pic);
     if (L.p1) put('flight_picCapacity', '1');
     if (L.p2) put('flight_sicCapacity', '1');
@@ -430,13 +625,13 @@ pre { margin: 0; max-height: 420px; overflow: auto; background: var(--bg); borde
     return e;
   }
 
-  function buildPackage(legs) {
+  function buildPackage(legs, opts) {
     return {
       metadata: {
-        dateAndTimeFormat: 'MM/dd/yyyy HH:mm', timesAreZulu: true, application: 'Floggy-Go',
+        dateAndTimeFormat: 'MM/dd/yyyy HH:mm', timesAreZulu: true, application: 'Floggy-Go Logbook',
         dateFormat: 'MM/dd/yyyy', shouldApplyAutoFillTimes: true, version: '1.0'
       },
-      entities: legs.map(entity)
+      entities: legs.map(L => entity(L, opts))
     };
   }
 
@@ -472,7 +667,7 @@ pre { margin: 0; max-height: 420px; overflow: auto; background: var(--bg); borde
   ].join('\n');
 
   const ZONES = ['America/Los_Angeles','America/Boise','America/Denver','America/Phoenix','America/Anchorage','America/Chicago','America/New_York','Pacific/Honolulu','America/Vancouver'];
-  const st = { initOff: true, text: SAMPLE, name: '', example: true, zone: null, typeMode: 'none', prefix: '', show: 'all', off: new Set(), result: null };
+  const st = { initOff: true, text: SAMPLE, name: '', example: true, zone: null, typeMode: 'none', prefix: '', show: 'all', tail: 'send', off: new Set(), result: null };
   try { const z = localStorage.getItem('fgo-zone-override'); if (z) st.savedZones = JSON.parse(z); } catch (e) { }
   st.savedZones = st.savedZones || {};
 
@@ -498,8 +693,8 @@ pre { margin: 0; max-height: 420px; overflow: auto; background: var(--bg); borde
     if (!h.ok) {
       err.className = 'banner error';
       $('baseText').innerHTML = '<strong>Can’t read this file.</strong> ' + esc(h.errors.join(' ')) + ' In eCrew, run the Pilot Logbook report and save it as CSV.';
-      $('strip').innerHTML = ''; $('rows').innerHTML = ''; $('pkg').textContent = ''; $('selCount').textContent = '';
-      st.url = ''; $('send').setAttribute('aria-disabled', 'true'); $('send').href = '#'; $('copyUrl').disabled = true;
+      $('strip').innerHTML = ''; $('legs').innerHTML = ''; $('pkg').textContent = '';
+      FGO.send($('sendBox'), { legs: [], disabledText: 'Nothing to send' });
       return;
     }
     err.className = 'banner';
@@ -530,52 +725,36 @@ pre { margin: 0; max-height: 420px; overflow: auto; background: var(--bg); borde
     });
 
     const shown = legs.filter(L => st.show === 'all' || L.warnings.length);
-    $('rows').innerHTML = shown.map(L => {
+    const items = shown.map(L => {
       const i = legs.indexOf(L);
-      const chip = L.ftype === 1 ? '<span class="chip dh">Deadhead</span>' : L.ftype === 3 ? '<span class="chip sim">Sim</span>' : '';
-      const times = L.utcOut ? (L.actual ? '<span class="chip act">Actual</span>' : '<span class="chip skd">Scheduled</span>') : '<span class="chip sim">None</span>';
-      const cap = [L.p1 ? 'P1' : '', L.p2 ? 'P2' : ''].filter(Boolean).join(' ') || '–';
-      const part = L.pt91 ? '91' : L.pt121 ? '121' : '–';
-      return '<tr><td><input type="checkbox" data-i="' + i + '"' + (st.off.has(i) ? '' : ' checked') + ' aria-label="Include ' + esc(L.date + ' ' + L.fltOut) + '"></td>' +
-        '<td class="mono">' + esc(L.date) + '</td><td class="mono">' + esc(L.fltSend) + '</td><td class="mono">' + esc(L.dep + '–' + L.arv) + '</td>' +
-        '<td class="mono">' + esc(L.stdBase + '–' + L.staBase) + (L.nextDay ? '<span class="nd"> +1</span>' : '') + '</td>' +
-        '<td class="mono">' + (L.utcOut ? esc(hm(L.utcOut) + '–' + hm(L.utcIn)) + (L.utcIn.slice(0, 10) !== L.date ? '<span class="nd" title="' + esc(L.utcIn.slice(0, 10)) + '"> +1</span>' : '') : '–') + '</td>' +
-        '<td>' + times + '</td><td class="mono">' + esc(L.type || '–') + '</td><td class="mono">' + esc(L.tail || '–') + '</td>' +
-        '<td>' + esc(L.pic) + '</td><td>' + cap + '</td><td>' + (L.lnd ? '1' : '') + '</td><td>' + (L.instr ? 'Instr' : '') + '</td>' +
-        '<td>' + part + '</td><td>' + L.ftype + ' ' + chip + '</td><td class="mono dim">' + esc(L.key) + '</td>' +
-        '<td class="warn">' + esc(L.warnings.join(' ')) + '</td></tr>';
-    }).join('') + (r.notes.length ? '<tr><td colspan="17" class="warn">' + esc(r.notes.join(' ')) + '</td></tr>' : '');
-
+      const cap = [L.p1 ? 'P1' : '', L.p2 ? 'P2' : ''].filter(Boolean).join(' ');
+      const base = esc(L.stdBase + '–' + L.staBase) + (L.nextDay ? '<span class="nd"> +1</span>' : '');
+      const utc = L.utcOut ? esc(hm(L.utcOut) + '–' + hm(L.utcIn)) + 'Z' + (L.utcIn.slice(0, 10) !== L.date ? '<span class="nd"> +1</span>' : '') : '';
+      const chip = L.ftype === 1 ? { text: 'Deadhead', cls: 'dh' } : L.ftype === 3 ? { text: 'Sim', cls: 'sim' } : (!L.actual && L.utcOut ? { text: 'Scheduled', cls: 'skd' } : null);
+      return { i, key: L.key + '|' + i, date: L.date, flt: L.fltSend, route: L.dep + '–' + L.arv, times: base, chip, warn: L.warnings,
+        details: [['Out–In (base)', base], ['Out–In (UTC)', utc], ['Times', L.utcOut ? (L.actual ? 'Actual' : 'Scheduled') : 'None'], ['Tail', esc(st.tail === 'out' ? 'not sent' : (L.tail || ''))], ['Type', esc(L.type || '')],
+          ['PIC', esc(L.pic || '')], ['P1/P2', cap], ['Landing', L.lnd ? '1' : ''], ['Instructor', L.instr ? 'Yes' : ''], ['Part', L.pt91 ? '91' : L.pt121 ? '121' : ''], ['Flight type', String(L.ftype)], ['Match key', esc(L.key)]] };
+    });
+    const groups = FGO.groupMonths(items);
+    groups.forEach(g => g.items.forEach(it => { it.date = it.date.slice(0, 5); }));
+    FGO.legs($('legs'), { groups, on: i => !st.off.has(i), toggle: (ids, on) => { ids.forEach(i => on ? st.off.delete(i) : st.off.add(i)); render(); } });
+    $('notesBox').hidden = !r.notes.length; $('notesText').textContent = r.notes.join(' ');
     const sel = legs.filter((L, i) => !st.off.has(i));
-    $('selCount').textContent = sel.length + ' of ' + legs.length + ' legs checked';
-    $('all').checked = sel.length === legs.length && legs.length > 0;
-    const pkg = G.buildPackage(sel);
-    $('pkg').textContent = JSON.stringify(pkg, null, 2);
-    st.url = sel.length ? 'logten://v2/addEntities?package=' + encodeURIComponent(JSON.stringify(pkg)) : '';
-    const send = $('send');
-    if (st.example) {
-      send.textContent = 'Choose your logbook to send'; send.setAttribute('aria-disabled', 'true'); send.href = '#';
-    } else if (!sel.length) {
-      send.textContent = 'No legs checked'; send.setAttribute('aria-disabled', 'true'); send.href = '#';
-    } else {
-      send.textContent = 'Send ' + sel.length + (sel.length === 1 ? ' flight' : ' flights') + ' to LogTen';
-      send.setAttribute('aria-disabled', 'false'); send.href = st.url;
-    }
-    $('copyUrl').disabled = st.example || !sel.length;
+    FGO.optSum($('optSum'), [st.prefix ? st.prefix + ' flight numbers' : '', st.typeMode === 'raw' ? 'type as reported' : st.typeMode === 'E170' ? 'type E170' : '', st.tail === 'out' ? 'no tail' : '', st.show === 'warn' ? 'warnings only' : '']);
+    const opts = { tail: st.tail };
+    $('pkg').textContent = JSON.stringify(G.buildPackage(sel, opts), null, 2);
+    FGO.send($('sendBox'), { legs: sel, msgEl: $('sendMsg'), disabledText: st.example ? 'Choose your logbook to send' : '',
+      url: part => 'logten://v2/addEntities?package=' + encodeURIComponent(JSON.stringify(G.buildPackage(part, opts))) });
   }
 
-  $('rows').addEventListener('change', e => {
-    const i = e.target.dataset.i; if (i == null) return;
-    e.target.checked ? st.off.delete(+i) : st.off.add(+i); render();
-  });
-  $('all').addEventListener('change', e => {
-    st.off = new Set(); if (!e.target.checked) st.result.legs.forEach((L, i) => st.off.add(i)); render();
-  });
   document.querySelectorAll('[data-ty]').forEach(b => b.addEventListener('click', () => {
     st.typeMode = b.dataset.ty; document.querySelectorAll('[data-ty]').forEach(x => x.setAttribute('aria-pressed', x === b)); run();
   }));
   document.querySelectorAll('[data-px]').forEach(b => b.addEventListener('click', () => {
     st.prefix = b.dataset.px; document.querySelectorAll('[data-px]').forEach(x => x.setAttribute('aria-pressed', x === b)); run();
+  }));
+  document.querySelectorAll('[data-tl]').forEach(b => b.addEventListener('click', () => {
+    st.tail = b.dataset.tl; document.querySelectorAll('[data-tl]').forEach(x => x.setAttribute('aria-pressed', x === b)); render();
   }));
   document.querySelectorAll('[data-sh]').forEach(b => b.addEventListener('click', () => {
     st.show = b.dataset.sh; document.querySelectorAll('[data-sh]').forEach(x => x.setAttribute('aria-pressed', x === b)); render();
@@ -585,20 +764,6 @@ pre { margin: 0; max-height: 420px; overflow: auto; background: var(--bg); borde
     const rd = new FileReader();
     rd.onload = () => { st.text = String(rd.result); st.name = f.name; st.example = false; st.zone = null; st.off = new Set(); st.initOff = true; run(); };
     rd.readAsText(f);
-  });
-  $('send').addEventListener('click', e => {
-    if ($('send').getAttribute('aria-disabled') === 'true') { e.preventDefault(); return; }
-    $('sendMsg').textContent = 'Opening LogTen…';
-    setTimeout(() => { $('sendMsg').textContent = 'If LogTen didn’t open, use Copy LogTen URL.'; }, 2500);
-  });
-  $('copyUrl').addEventListener('click', () => {
-    if (!st.url) return;
-    navigator.clipboard.writeText(st.url).then(() => { $('sendMsg').textContent = 'URL copied. Paste it into Safari’s address bar.'; }, () => {
-      const ta = document.createElement('textarea'); ta.value = st.url; ta.readOnly = true; ta.style.width = '100%'; ta.rows = 2; ta.id = 'urlFallback';
-      const old = document.getElementById('urlFallback'); if (old) old.remove();
-      $('sendMsg').after(ta); ta.focus(); ta.select();
-      $('sendMsg').textContent = 'Selected. Use Copy, then paste into Safari.';
-    });
   });
   $('copy').addEventListener('click', () => {
     const t = $('pkg').textContent;

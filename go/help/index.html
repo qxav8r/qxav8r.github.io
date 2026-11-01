@@ -53,7 +53,7 @@ td:first-child { white-space:nowrap; }
 .btn { display:inline-block; font:600 .88rem var(--f-ui); background:var(--accent); color:var(--accent-ink); border-radius:5px; padding:0 .5rem; white-space:nowrap; }
 .chip { display:inline-block; font:600 .7rem var(--f-ui); letter-spacing:.05em; text-transform:uppercase; padding:1px 6px; border-radius:4px; }
 .chip.act { background:var(--ok-bg); color:var(--ok); } .chip.dh { background:var(--dh-bg); color:var(--dh); }
-.chip.gnd { background:var(--sel); color:var(--muted); } .chip.sim, .chip.rsv { background:var(--amber-bg); color:var(--amber); }
+.chip.gnd, .chip.skd { background:var(--sel); color:var(--muted); } .chip.sim, .chip.rsv { background:var(--amber-bg); color:var(--amber); }
 .tag { font:600 .7rem var(--f-ui); color:var(--muted); border:1px solid var(--line); border-radius:4px; padding:0 5px; margin-left:4px; text-transform:uppercase; }
 .tip { border-left:4px solid var(--gold); background:var(--bg); padding:8px 12px; border-radius:0 6px 6px 0; }
 code { font:.85rem var(--f-data); }
@@ -86,11 +86,12 @@ code { font:.85rem var(--f-data); }
     <a href="#start">Quick start</a>
     <a href="#csv">Getting the CSV</a>
     <a href="#screen">The screen</a>
-    <a href="#switches">Switches</a>
-    <a href="#table">Leg table</a>
+    <a href="#switches">Options</a>
+    <a href="#table">Leg cards</a>
     <a href="#send">Sending</a>
     <a href="#flifo">Flifo</a>
     <a href="#pairing">Pairing</a>
+    <a href="#flighty">Flighty</a>
     <a href="#tips">If something's off</a>
   </nav>
 
@@ -153,67 +154,66 @@ code { font:.85rem var(--f-data); }
       <li><span class="btn">Choose … CSV</span> picks your report. The file name appears beside it. Until you pick one, an <strong>example file</strong> is loaded so you can see how things work. Nothing from the example is yours.</li>
       <li><strong>Info banner</strong> shows the report period and how times are read. Logbook reminds you that logbook times are in <strong>base time</strong>: if you changed bases, pull a separate report for each base.</li>
       <li><strong>Summary boxes</strong> show the pilot, base and seat, when the report was generated, and counts of flights, deadheads, sims, ground, reserve and warnings. Check that the name and dates are what you expect.</li>
-      <li><strong>Switches</strong> control what gets sent (next section).</li>
-      <li><strong>Leg table</strong> has one row per leg or duty. Checked rows are sent. On iPad, swipe the table sideways to see more columns.</li>
-      <li><strong>Send box</strong> holds <span class="btn">Send to LogTen</span> and <span class="btn">Copy LogTen URL</span>.</li>
+      <li><strong>Options ▸</strong> (tap to open) holds the switches that control what gets sent (next section). The line beside it lists anything changed from the defaults.</li>
+      <li><strong>Leg cards</strong>: one line per leg or duty, grouped by trip (Schedule), duty day (Pairing) or month (Logbook, Flighty). Checked legs are sent. Tap a leg to see its details.</li>
+      <li><strong>Send box</strong> holds <span class="btn">Send to LogTen</span> and <span class="btn">Copy LogTen URL</span>. A big send comes in parts of 100.</li>
       <li><strong>LogTen package</strong> (tap to open) shows exactly what Send passes to LogTen. You can ignore it unless you're curious.</li>
     </ol>
   </section>
 
   <section id="switches">
-    <h2>Switches</h2>
-    <p>The highlighted button is the current choice. The defaults suit most pilots, so you can leave them alone. Switches change only what is sent this time. Nothing is saved.</p>
+    <h2>Options</h2>
+    <p>All four import pages (Schedule, Logbook, Pairing, Flighty) use the same options, in the same order; a page only shows the ones that fit its report. The highlighted button is the current choice. The defaults suit most pilots, so you can leave them alone. Switches change only what is sent this time. Nothing is saved.</p>
     <div class="tablewrap"><table class="stack">
       <thead><tr><th>Switch</th><th>Choices</th><th>What it means</th></tr></thead>
       <tbody>
-        <tr><td><span class="ctl">Non-flying</span><span class="tag">Schedule</span></td>
-          <td><span class="opt on">Include</span><br class="optbr"><span class="opt">Leave out</span></td>
-          <td><strong>Include</strong> keeps ground duties, reserve and deadheads checked, so they go to LogTen with the flights.<br><strong>Leave out</strong> unchecks all of them in one tap, so only the flights you operated are sent. You can still re-check single rows by hand.</td></tr>
-        <tr><td><span class="ctl">Duty times</span><span class="tag">Schedule</span></td>
-          <td><span class="opt on">Send</span><br class="optbr"><span class="opt">Leave out</span></td>
-          <td><strong>Send</strong> puts your report (duty on) time on the first checked leg of each duty day and the release (duty off) time on the last.<br><strong>Leave out</strong> sends no duty times, and LogTen keeps whatever it already has.</td></tr>
-        <tr><td><span class="ctl">P1/P2</span><span class="tag">Schedule</span></td>
-          <td><span class="opt on">Send</span><br class="optbr"><span class="opt">Leave to logbook</span></td>
-          <td><strong>Send</strong> marks you P1 (captain) or P2 (first officer), but only when the schedule makes it certain: you're in that seat, not deadheading, and no one else is listed in it.<br><strong>Leave to logbook</strong> sends no P1/P2, so it comes in later from Floggy-Go Logbook. Check pilots and instructors may prefer this.</td></tr>
-        <tr><td><span class="ctl">Aircraft type</span></td>
-          <td><span class="opt on">Not sent</span><br class="optbr"><span class="opt">As reported</span><br class="optbr"><span class="opt">E170</span></td>
-          <td><strong>Not sent</strong> lets LogTen fill in the type from the tail number. This is best if your aircraft are already set up in LogTen.<br><strong>As reported</strong> sends eCrew's code as is (E75, DH4, CR7).<br><strong>E170</strong> converts eCrew's codes to LogTen-style types: E75 becomes E170 and DH4 becomes DH8D.</td></tr>
         <tr><td><span class="ctl">Flight number</span></td>
           <td><span class="opt on">No code</span><br class="optbr"><span class="opt">QX</span><br class="optbr"><span class="opt">AS</span></td>
-          <td>Puts an airline code in front of the flight number shown in LogTen (2108 becomes QX2108 or AS2108). <strong>No code</strong> sends the number alone. This is cosmetic: matching to existing LogTen flights uses the bare number either way, so switching later won't create duplicates. Sims never get a code.</td></tr>
+          <td>Puts an airline code in front of the flight number shown in LogTen (2108 becomes QX2108 or AS2108). <strong>No code</strong> sends the number alone. This is cosmetic: matching to existing LogTen flights uses the bare number either way, so switching later won't create duplicates. Sims never get a code. In Flighty, other airlines' flights get their own code (UA1164).</td></tr>
+        <tr><td><span class="ctl">Aircraft type</span></td>
+          <td><span class="opt on">Not sent</span><br class="optbr"><span class="opt">As reported</span><br class="optbr"><span class="opt">E170</span></td>
+          <td><strong>Not sent</strong> lets LogTen fill in the type from the tail number. This is best if your aircraft are already set up in LogTen.<br><strong>As reported</strong> sends the short code as is (E75, DH4, CR7, B738).<br><strong>E170</strong> converts to LogTen-style types: E75 becomes E170 and DH4 becomes DH8D.</td></tr>
+        <tr><td><span class="ctl">Tail</span><span class="tag">Logbook · Pairing · Flighty</span></td>
+          <td><span class="opt on">Send</span> / <span class="opt">When flown</span><br class="optbr"><span class="opt">Leave out</span> / <span class="opt">Never</span></td>
+          <td>Sends the tail number, or leaves LogTen's alone. Pairing's default, <strong>When flown</strong>, sends it only for legs already flown, since a planned tail can change.</td></tr>
+        <tr><td><span class="ctl">Non-flying</span><span class="tag">Schedule · Pairing</span></td>
+          <td><span class="opt on">Include</span><br class="optbr"><span class="opt">Leave out</span></td>
+          <td><strong>Include</strong> keeps ground duties, reserve and deadheads checked, so they go to LogTen with the flights.<br><strong>Leave out</strong> unchecks all of them in one tap, so only the flights you operated are sent. You can still re-check single rows by hand.</td></tr>
+        <tr><td><span class="ctl">Duty times</span><span class="tag">Schedule · Pairing</span></td>
+          <td><span class="opt on">Send</span><br class="optbr"><span class="opt">Leave out</span></td>
+          <td><strong>Send</strong> puts your report (duty on) time on the first checked leg of each duty day and the release (duty off) time on the last.<br><strong>Leave out</strong> sends no duty times, and LogTen keeps whatever it already has.</td></tr>
+        <tr><td><span class="ctl">P1/P2</span><span class="tag">Schedule · Pairing</span></td>
+          <td><span class="opt on">Send</span><br class="optbr"><span class="opt">Leave to logbook</span></td>
+          <td><strong>Send</strong> marks you P1 (captain) or P2 (first officer), but only when the schedule makes it certain: you're in that seat, not deadheading, and no one else is listed in it.<br><strong>Leave to logbook</strong> sends no P1/P2, so it comes in later from Floggy-Go Logbook. Check pilots and instructors may prefer this.</td></tr>
         <tr><td><span class="ctl">Show</span></td>
           <td><span class="opt on">All</span><br class="optbr"><span class="opt">Warnings only</span></td>
-          <td>Changes only what you <em>see</em> in the table. <strong>Warnings only</strong> hides the clean rows so you can review problem legs. It does <strong>not</strong> change what gets sent: hidden rows that are checked still go.</td></tr>
+          <td>Changes only what you <em>see</em> in the leg list. <strong>Warnings only</strong> hides the clean rows so you can review problem legs. It does <strong>not</strong> change what gets sent: hidden rows that are checked still go.</td></tr>
       </tbody>
     </table></div>
-    <p><span class="tag">Schedule</span> marks switches that appear only in Floggy-Go Schedule. Logbook has no such switches: it takes P1/P2 and Part 121/91 straight from the logbook.</p>
+    <p>A tag marks options that appear only on some pages. Logbook has no Non-flying, Duty or P1/P2 options: it takes P1/P2 and Part 121/91 straight from the logbook. Flighty's two checkboxes (scheduled times, other airlines) sit above Options; see <a href="#flighty">Flighty</a>.</p>
   </section>
 
   <section id="table">
-    <h2>The leg table</h2>
-    <h3>Checkboxes</h3>
+    <h2>The leg cards</h2>
+    <p>Each leg is one line: checkbox, date, flight, route and times. <strong>Scheduled → actual</strong> appear together once the leg has flown (a small <sup>+1</sup> means the next day). A tag shows anything that isn't a normal flight, and <span style="color:var(--amber)">⚠</span> marks a leg with a warning.</p>
     <ul>
-      <li>Only <strong>checked</strong> rows are sent. The box in the header checks or unchecks all of them.</li>
-      <li>A few rows start <strong>unchecked</strong> on their own: duty codes Floggy doesn't recognise, and legs missing an airport. Their Notes column says why.</li>
-      <li>The count beside the switches, for example <em>35 of 35 checked</em>, shows how many will be sent.</li>
+      <li><strong>Tap a leg</strong> to open its details: crew, P1/P2, duty times, tail, type, remarks, the match key and any warning in full. Legs with warnings start open.</li>
+      <li><strong>Groups:</strong> Schedule groups legs by trip (from leaving base to the duty that gets you home), Pairing by duty day, Logbook and Flighty by month. Tap a group header to fold it; its checkbox checks or unchecks the whole group.</li>
+      <li><strong>All</strong> at the top checks or unchecks everything; <strong>Open all / Close all</strong> opens or closes every leg. The count shows how many will be sent.</li>
+      <li>Only <strong>checked</strong> legs are sent. A few start <strong>unchecked</strong> on their own: duty codes Floggy doesn't recognise, legs missing an airport, and (with Non-flying set to Leave out) ground, reserve and deadhead duties.</li>
     </ul>
-    <h3>Kind <span class="tag">Schedule</span></h3>
-    <p><span class="chip act">Flight</span> a leg you operated · <span class="chip dh">Deadhead</span> riding as a passenger · <span class="chip gnd">Ground</span> ground duty such as LB, IB or training · <span class="chip sim">Sim</span> simulator · <span class="chip rsv">Reserve</span> reserve duty</p>
-    <h3>Columns</h3>
+    <h3>Tags</h3>
+    <p><span class="chip dh">Deadhead</span> riding as a passenger · <span class="chip gnd">Ground</span> ground duty such as LB, IB or training · <span class="chip sim">Sim</span> simulator · <span class="chip rsv">Reserve</span> reserve duty · <span class="chip skd">Scheduled</span> not flown yet</p>
+    <h3>In the details</h3>
     <div class="tablewrap"><table class="stack">
-      <thead><tr><th>Column</th><th>Meaning</th></tr></thead>
+      <thead><tr><th>Item</th><th>Meaning</th></tr></thead>
       <tbody>
-        <tr><td>Scheduled / Actual <span class="tag">Schedule</span></td><td>Scheduled out–in and, once eCrew has them, actual out–in. Times are <strong>station local</strong>, as eCrew shows them. A small <sup>+1</sup> means the next day. "–" means no actual time yet.</td></tr>
-        <tr><td>Out–In base / UTC <span class="tag">Logbook</span></td><td>The logbook's times in your base time, and the same times converted to UTC for LogTen.</td></tr>
-        <tr><td>Times <span class="tag">Logbook</span></td><td>Whether the leg's times are <strong>actual</strong> (flown, tail recorded) or <strong>scheduled</strong> (not yet flown when the report was run).</td></tr>
+        <tr><td>Scheduled / Actual</td><td>Out–in times, <strong>station local</strong> (Logbook: base time, plus the UTC times it sends).</td></tr>
         <tr><td>PIC / SIC / FA</td><td>Crew names as eCrew lists them (Logbook shows PIC only). Blank on deadheads and ground duties.</td></tr>
-        <tr><td>Cap</td><td>P1 or P2 for this leg, "–" if not set, or "logbook" when P1/P2 is set to Leave to logbook.</td></tr>
-        <tr><td>Duty on–off <span class="tag">Schedule</span></td><td>Report and release times. They appear only on the first and last checked leg of each duty day.</td></tr>
-        <tr><td>Tail · Ldg · Instr · Part <span class="tag">Logbook</span></td><td>Tail number, a landing (1) when you made it, instructor time, and Part 121 or 91.</td></tr>
-        <tr><td>Flt type <span class="tag">Logbook</span></td><td>The LogTen flight type number, with a Deadhead or Sim tag where it applies.</td></tr>
-        <tr><td>Type</td><td>Aircraft type to be sent, which depends on the Aircraft type switch.</td></tr>
-        <tr><td>flight_key</td><td>The ID LogTen uses to match the flight (date, flight number, route). Re-sending updates the same flight instead of adding a copy.</td></tr>
-        <tr><td>Notes</td><td>Warnings for that leg. Read these before sending.</td></tr>
+        <tr><td>P1/P2</td><td>Your capacity for the leg, or "logbook" when P1/P2 is set to Leave to logbook.</td></tr>
+        <tr><td>Duty on–off</td><td>Report and release times, on the first and last checked leg of each duty day.</td></tr>
+        <tr><td>Landing · Instructor · Part</td><td>Logbook only: your landing, instructor time, Part 121 or 91.</td></tr>
+        <tr><td>Match key</td><td>The ID LogTen uses to match the flight (date, flight number, route). Re-sending updates the same flight instead of adding a copy.</td></tr>
       </tbody>
     </table></div>
   </section>
@@ -221,7 +221,9 @@ code { font:.85rem var(--f-data); }
   <section id="send">
     <h2>Sending</h2>
     <ul>
-      <li><span class="btn">Send to LogTen</span> opens LogTen and imports the checked rows. LogTen adds new flights and updates ones it already has.</li>
+      <li><span class="btn">Send to LogTen</span> opens LogTen and imports the checked legs. LogTen adds new flights and updates ones it already has.</li>
+      <li>More than 100 legs (a year from Flighty, say) are split into <strong>parts</strong>, each with its date range. Send each part in turn and let LogTen finish before the next.</li>
+      <li>If LogTen doesn't open, tap <span class="btn">Copy LogTen URL</span>, paste it into Safari's address bar and tap Go.</li>
       <li>You can send the same report again at any time, for example after flying the trip. Flights are updated, not duplicated.</li>
       <li>Flights you've <strong>locked</strong> in LogTen are skipped without any message.</li>
       <li>Nothing reaches LogTen until you tap Send.</li>
@@ -286,8 +288,8 @@ code { font:.85rem var(--f-data); }
     </ul>
 
     <h3>Send to LogTen</h3>
-    <p>Each leg has a checkbox; uncheck any you don't want. <span class="btn">Send to LogTen</span> uses the same matching as Floggy-Go Schedule and Logbook (date + flight + route), so it updates the flights you already imported instead of adding copies. As with Schedule, send the Logbook import last: it is the record for P1/P2 and Part 121/91.</p>
-    <p><strong>Options</strong> (tap to open) holds the switches. The line beside it lists any you've changed from the defaults.</p>
+    <p>Legs are grouped by duty day; tap a leg for its crew, duty times and tail, and uncheck any you don't want. <span class="btn">Send to LogTen</span> uses the same matching as Floggy-Go Schedule and Logbook (date + flight + route), so it updates the flights you already imported instead of adding copies. As with Schedule, send the Logbook import last: it is the record for P1/P2 and Part 121/91.</p>
+    <p><strong>Options</strong> (tap to open) holds the switches, in the same order as every other import page (see <a href="#switches">Options</a>). The line beside it lists any you've changed from the defaults.</p>
     <div class="tablewrap"><table class="stack">
       <thead><tr><th>Option</th><th>What it does</th></tr></thead>
       <tbody>
@@ -295,9 +297,9 @@ code { font:.85rem var(--f-data); }
         <tr><td>Duty times</td><td>Send duty on/off on the first and last leg of each duty, or leave LogTen's alone.</td></tr>
         <tr><td>P1/P2</td><td>Mark you PIC or SIC by your seat, or leave it to the Logbook import.</td></tr>
         <tr><td>Tail</td><td><em>When flown</em> (default) sends the tail only for legs already flown, since a planned tail can change. <em>Always</em> or <em>Never</em> as named.</td></tr>
-        <tr><td>Aircraft type</td><td>Same as Floggy-Go Schedule: not sent, as reported, or E170.</td></tr>
-        <tr><td>Flight number</td><td>Same as Floggy-Go Schedule: no code, QX or AS in front of the number.</td></tr>
-        <tr><td>All columns</td><td>Shows the rest of the leg table: crew, P1/P2, duty times, where the crew came from and the match key.</td></tr>
+        <tr><td>Aircraft type</td><td>Not sent, as reported, or E170, as on every page.</td></tr>
+        <tr><td>Flight number</td><td>No code, QX or AS in front of the number, as on every page.</td></tr>
+        <tr><td>Show</td><td>All legs, or only legs with warnings (what you see, not what is sent).</td></tr>
       </tbody>
     </table></div>
     <p><strong>Crew:</strong> crew names come from the crew list eCrew saves with the page. That list only covers the month that was showing when you saved, so a trip in another month (or across a month end) may have legs with no crew; the Notes column says so. Import Floggy-Go Schedule for those.</p>
@@ -310,6 +312,36 @@ code { font:.85rem var(--f-data); }
       <li><strong>Trip</strong>: an all-day banner across the trip.</li>
     </ul>
     <p>On iPad and iPhone, tap a button, then <strong>Add All</strong> and pick the calendar. On a Mac the file downloads; open it to add it to Calendar. Times are written in UTC, so they show correctly in any time zone. Each event has the same ID Floggy gives it, so importing the same trip again, from here or from Floggy, updates the event instead of adding a second one. <em>Preview events</em> lists what's in each file.</p>
+    <p class="tip"><strong>Flighty users:</strong> put the <strong>Flights</strong> file in a calendar that Flighty watches, and Flighty picks up your trip by itself. See <a href="#circle">Closing the circle</a>.</p>
+  </section>
+
+  <section id="flighty">
+    <h2>Floggy-Go Flighty</h2>
+    <p><strong><a href="../flighty/">Floggy-Go Flighty</a></strong> reads the CSV that Flighty exports and sends your flights to LogTen: actual out and in times and the tail, one year at a time. It is the browser version of Floggy's Parse Flighty.</p>
+    <ol>
+      <li>In Flighty, go to <strong>Settings → Export Flights</strong> and save the CSV to Files.</li>
+      <li>In Floggy-Go Flighty, tap <span class="btn">Choose Flighty CSV</span> and pick it.</li>
+      <li>Tap a year (newest first). Uncheck any flight you don't want and tap <span class="btn">Send to LogTen</span>. A big year is sent in parts of 100; send each part in turn.</li>
+    </ol>
+    <ul>
+      <li><strong>Include scheduled times (STD/STA)</strong> is <strong>off</strong> by default, as in Flifo: Flighty has the airline's public (ORA) times, and eCrew's IBT contract times in LogTen stay put. Turn it on only for flights that aren't in your eCrew data.</li>
+      <li><strong>Include other airlines' flights, as deadheads</strong> is <strong>off</strong> by default. Turn it on to send United, Delta, SkyWest and other non-Horizon, non-Alaska flights to LogTen as deadheads.</li>
+      <li><strong>Options</strong> are the same as on the other pages: Flight number (other airlines get their own code, e.g. UA1164), Aircraft type, Tail and Show.</li>
+      <li>Canceled flights are left out. A diverted flight gets the remark "Diverted"; check its arrival.</li>
+      <li>Flighty's actual arrival is the <strong>gate arrival (In)</strong>, so there's no On-vs-In fix like Flifo's.</li>
+      <li>Matching is the same as everywhere else (date + flight + route), so flights already in LogTen are updated, not copied.</li>
+    </ul>
+
+    <h3 id="circle">Closing the circle: eCrew → calendar → Flighty → LogTen</h3>
+    <p>Flighty can watch your calendar and add any flight it finds there. Put your trips in that calendar and Flighty tracks every leg for you, then hands the actual times back through its export.</p>
+    <ol>
+      <li><strong>Make the Flights calendar file</strong> in <a href="#pairing">Floggy-Go Pairing</a> (<span class="btn">Flights</span> under Add to Calendar) or in Floggy (Cal &ndash; ICS, Flt Cal). It has one event per leg, like <code>✈ PDX FAT AS 2286</code>, which is the format Flighty reads best.</li>
+      <li><strong>Add it to its own calendar</strong>, for example "QX Flights", in Apple Calendar. Keep Duty and Trip in other calendars so Flighty only sees flights.</li>
+      <li><strong>Point Flighty at it once:</strong> in Flighty, <strong>Settings → Calendar Sync</strong>, turn on that calendar. Flighty checks it about every 30 minutes and whenever you open the app, and adds each flight it finds.</li>
+      <li><strong>Fly the trip.</strong> Flighty tracks each leg: gates, delays, tail, out and in times.</li>
+      <li><strong>Close the loop:</strong> export from Flighty and run <a href="#flighty">Floggy-Go Flighty</a>. The actual out/in times and tails land on the same LogTen flights your schedule or pairing import created.</li>
+    </ol>
+    <p class="sub">Flighty only reads Apple Calendar (and calendars added to it, such as iCloud or Google). For best results keep Background App Refresh on for Flighty and don't force-quit it. Flighty's free tier imports the last 365 days from your calendar; Pro goes back further.</p>
   </section>
 
   <section id="tips">
