@@ -21,7 +21,7 @@ Your files never leave your device. The pages read the report in your browser an
 
 ```
 index.html          home page
-img/                Floggy plane liveries (green home, red Schedule, blue Logbook, teal Flifo, pink Pairing, purple Help, orange Floggy)
+img/                Floggy plane liveries (green home, red Schedule, blue Logbook, teal Flifo, yellow Pairing, purple Help, orange Floggy)
 go/schedule/        Floggy-Go Schedule
 go/logbook/         Floggy-Go Logbook
 go/flifo/           Floggy-Go Flifo page (flifo.js kept for the earlier loader bookmark)
