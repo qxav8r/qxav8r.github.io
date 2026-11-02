@@ -6,11 +6,11 @@ eCrew to logbook. No retyping. Floggy-Go browser tools (iPad, iPhone, Mac) and t
 
 | Tool | What it does | Version |
 |---|---|---|
-| [Floggy-Go Schedule](https://qxav8r.github.io/go/schedule/) (beta) | eCrew Personal Crew Schedule CSV → LogTen | v1.0 |
-| [Floggy-Go Logbook](https://qxav8r.github.io/go/logbook/) (beta) | eCrew Pilot Logbook CSV → LogTen | v1.0 |
+| [Floggy-Go Schedule](https://qxav8r.github.io/go/schedule/) (beta) | eCrew Personal Crew Schedule CSV → LogTen, CSV for other logbooks, and Flights / Duty / Day calendar files (.ics) for upcoming legs | v1.1 |
+| [Floggy-Go Logbook](https://qxav8r.github.io/go/logbook/) (beta) | eCrew Pilot Logbook CSV → LogTen, and CSV for other logbooks | v1.1 |
 | [Floggy-Go Flifo](https://qxav8r.github.io/go/flifo/) (beta) | Look up a flight: actual out/in times and tail from Alaska flight status → LogTen (via a Cloudflare Worker relay) | v2.1 |
-| [Floggy-Go Pairing](https://qxav8r.github.io/go/pairing/) (beta) | eCrew Pairing Details web archive → trip rig (Calculate Rig), legs with crew → LogTen, and Flights / Duty / Trip calendar files (.ics) | v0.8 |
-| [Floggy-Go Flighty](https://qxav8r.github.io/go/flighty/) (beta) | Flighty "Export Flights" CSV → actual out/in times and tail → LogTen, one year at a time (other airlines optional, as deadheads) | v0.3 |
+| [Floggy-Go Pairing](https://qxav8r.github.io/go/pairing/) (beta) | eCrew Pairing Details web archive → trip rig (Calculate Rig), legs with crew → LogTen, CSV for other logbooks, and Flights / Duty / Trip calendar files (.ics) | v0.9 |
+| [Floggy-Go Flighty](https://qxav8r.github.io/go/flighty/) (beta) | Flighty "Export Flights" CSV → actual out/in times and tail → LogTen, one year at a time (other airlines optional, as deadheads), and CSV for other logbooks | v0.4 |
 | [Floggy-Go Help](https://qxav8r.github.io/go/help/) | Quick start and what every switch means | |
 | [Floggy](https://qxav8r.github.io/floggy/) | The Mac app: downloads, User Guide, Gatekeeper help. Builds live in [QXAV8R/floggy releases](https://github.com/QXAV8R/floggy/releases) | v2.6 |
 
@@ -29,6 +29,7 @@ go/flifo/           Floggy-Go Flifo page (flifo.js kept for the earlier loader b
 go/pairing/         Floggy-Go Pairing (rig, LogTen, calendar); go/rig/ redirects here
 go/flighty/         Floggy-Go Flighty
 go/help/            Floggy-Go Help
+go/shared/          source of the shared export folds (CSV, Calendar), inlined into the pages by build_exports.py
 floggy/             Floggy Mac app page, Interface Guide PDF
 floggy/help/        Floggy User Guide (2.6)
 floggy/gatekeeper/  First-launch / Gatekeeper guide
@@ -37,6 +38,7 @@ floggy-go-skd/, floggy-go-lbk/, help/, flifo-test/   old addresses: redirect to 
 
 ## Changes
 
+- **11/01/26** Export folds below the LogTen section. All four import pages (Schedule v1.1, Logbook v1.1, Pairing v0.9, Flighty v0.4) get **Export CSV for another logbook**: ForeFlight (draft layout), Logbook Pro, MyFlightbook or a plain spreadsheet, from the checked legs, with a preview, per-target columns and formats, UTC conversion by station, a note on what each report can’t supply, and settings remembered on the device. Schedule also gets **Add to Calendar**: Flights, Duty and Day (one all-day event per duty day, "PDX SEA") for upcoming legs only, with Floggy’s event IDs. Pairing keeps its own calendar (with Trip).
 - **11/01/26** Floggy-Go Flifo v2.1: every departed leg has an editable ATA (In) box (prefilled with Alaska's On time once landed, empty before), with the right date past midnight.
 - **11/01/26** All four import pages (Schedule v1.0, Logbook v1.0, Pairing v0.8, Flighty beta v0.3) share one layout: options folded under "Options" in the same order, collapsible leg cards grouped by trip / duty day / month, and big sends split into parts of 100. All Floggy-Go tools labelled beta; Flighty added to the landing page. Shared code lives in each page (inlined from one source). Logbook gets a Tail option; Flighty gets the Flight number code (other airlines keep their own code) and the same aircraft type choices.
 - **10/31/26** Floggy-Go Pairing v0.7 (beta): one eCrew pairing web archive → trip rig (port of Floggy's Calculate Rig, with the TAFB and late-leg fixes), legs with crew → LogTen, and Flights / Duty / Trip .ics files matching Floggy's Cal – ICS (same event IDs). Added to the home page and Help.
