@@ -1,0 +1,187 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>html,body{margin:0;background:transparent}canvas{display:block}</style>
+<script type="importmap">{ "imports": { "three": "./node_modules/three/build/three.module.js", "three/addons/": "./node_modules/three/examples/jsm/" } }</script>
+</head><body>
+<script type="module">
+import * as THREE from 'three';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+const BLUE = '#2d63b3', GOLD = '#e9b740', NAVY = '#1a2a44';
+const L = 32.8;
+
+// ---------------- data (meters; x aft from nose, y up, z to port/camera side)
+const NOSE_T = [[0, -0.3], [0.25, -0.02], [0.7, 0.22], [1.4, 0.44], [2.2, 0.6], [2.6, 0.7], [3.4, 1.1], [4.4, 1.3], [5.6, 1.345]];
+const NOSE_B = [[0, -0.36], [0.25, -0.62], [0.7, -0.82], [1.4, -0.98], [2.2, -1.1], [2.6, -1.15], [3.4, -1.24], [4.4, -1.31], [5.6, -1.345]];
+const FUS = [...NOSE_T.map(([x, t], i) => { const b = NOSE_B[i][1]; return [x, (t + b) / 2, Math.max((t - b) / 2, 0.02)]; }), [21.0, 0.0, 1.345],
+  [24.0, 0.18, 1.18], [27.0, 0.45, 0.88], [30.0, 0.72, 0.55], [32.0, 0.88, 0.30], [32.8, 0.92, 0.04]];
+const NAC = [[10.95, 0.62, 0.45], [11.4, 0.66, 0.64], [12.6, 0.70, 0.76], [15.5, 0.72, 0.76], [18.2, 0.85, 0.52], [20.6, 1.05, 0.08]];
+const SPIN = [[10.0, 0.62, 0.0], [10.15, 0.62, 0.16], [10.5, 0.62, 0.34], [10.95, 0.62, 0.45]];
+const WING = [[-14.2, 14.3, 15.75], [-4.5, 13.45, 16.2], [0, 13.4, 16.3], [4.5, 13.45, 16.2], [14.2, 14.3, 15.75]];
+const wingY = z => 1.45 + Math.max(Math.abs(z) - 4.5, 0) * 0.045;
+const FIN = [[0.95, 23.0, 32.35], [1.55, 25.0, 32.3], [2.4, 26.2, 32.2], [6.0, 29.1, 31.45]];
+const STAB = [[-4.3, 30.5, 31.75], [0, 29.45, 31.95], [4.3, 30.5, 31.75]];
+
+// smooth profile sampler: returns fn(x) -> [c, r]
+function profile(tab) {
+  const curve = new THREE.CatmullRomCurve3(tab.map(p => new THREE.Vector3(p[0], p[1], p[2])), false, 'centripetal');
+  const pts = curve.getPoints(600);
+  return x => { for (let i = 1; i < pts.length; i++) if (pts[i].x >= x) { const a = pts[i - 1], b = pts[i], t = (x - a.x) / ((b.x - a.x) || 1); return [a.y + (b.y - a.y) * t, a.z + (b.z - a.z) * t]; } const p = pts[pts.length - 1]; return [p.y, p.z]; };
+}
+// body of revolution; uv: u = x/L (or local), v = theta/2pi (theta 0 = top, pi/2 = +z side)
+function body(tab, z0, nx = 200, nt = 96, uScale) {
+  const f = profile(tab), x0 = tab[0][0], x1 = tab[tab.length - 1][0];
+  const pos = [], uv = [], idx = [];
+  for (let i = 0; i <= nx; i++) {
+    const s = i / nx, x = x0 + (x1 - x0) * (0.5 - 0.5 * Math.cos(Math.PI * s)); const [c, r] = f(x);
+    for (let j = 0; j <= nt; j++) { const t = j / nt * Math.PI * 2; pos.push(x, c + r * Math.cos(t), z0 + r * Math.sin(t)); uv.push(uScale ? uScale(x) : x / L, j / nt); }
+  }
+  for (let i = 0; i < nx; i++) for (let j = 0; j < nt; j++) { const a = i * (nt + 1) + j, b = a + nt + 1; idx.push(a, a + 1, b, a + 1, b + 1, b); }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); g.setIndex(idx); g.computeVertexNormals(); return g;
+}
+// airfoil loft. sec(i) -> {le, te, at: (xc, yt) => [X,Y,Z]} ; colors by chord position (boot)
+function airfoil(n = 48) { const pts = []; for (let k = 0; k <= n; k++) { const b = k / n * Math.PI * 2, xc = 0.5 + 0.5 * Math.cos(b), s = Math.sin(b) >= 0 ? 1 : -1;
+  const yt = 5 * (0.2969 * Math.sqrt(xc) - 0.126 * xc - 0.3516 * xc * xc + 0.2843 * xc ** 3 - 0.1036 * xc ** 4); pts.push([xc, s * yt]); } return pts; }
+const AF = airfoil();
+function loft(rows, place, boot, bootCol, baseCol) {
+  const pos = [], col = [], idx = [], n = AF.length, cB = new THREE.Color(bootCol), cA = new THREE.Color(baseCol);
+  rows.forEach(row => AF.forEach(([xc, yt]) => { pos.push(...place(row, xc, yt)); const c = xc < boot ? cB : cA; col.push(c.r, c.g, c.b); }));
+  for (let i = 0; i < rows.length - 1; i++) for (let k = 0; k < n - 1; k++) { const a = i * n + k, b = a + n; idx.push(a, b, a + 1, a + 1, b, b + 1); }
+  // end caps
+  [0, rows.length - 1].forEach((ri, e) => { const base = ri * n; for (let k = 1; k < n / 2 - 1; k++) { const a = base + k, b = base + n - 1 - k, a2 = a + 1, b2 = b - 1; e ? idx.push(a, a2, b, a2, b2, b) : idx.push(a, b, a2, a2, b, b2); } });
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3)); g.setIndex(idx); g.computeVertexNormals(); return g;
+}
+function fixSide(g) { // ensure outward winding
+  const p = g.attributes.position, ix = g.index.array; let v = 0; const A = new THREE.Vector3(), B = new THREE.Vector3(), C = new THREE.Vector3();
+  for (let k = 0; k < ix.length; k += 3) { A.fromBufferAttribute(p, ix[k]); B.fromBufferAttribute(p, ix[k + 1]); C.fromBufferAttribute(p, ix[k + 2]); v += A.dot(B.cross(C)); }
+  if (v < 0) { for (let k = 0; k < ix.length; k += 3) { const t = ix[k + 1]; ix[k + 1] = ix[k + 2]; ix[k + 2] = t; } g.index.needsUpdate = true; g.computeVertexNormals(); } return g;
+}
+
+// ---------------- fuselage livery texture
+function fuselageTex(o) {
+  const W = 8192, H = 2048, cv = document.createElement('canvas'); cv.width = W; cv.height = H; const g = cv.getContext('2d');
+  const f = profile(FUS), X = x => x / L * W, T = th => th / (Math.PI * 2) * H;
+  const thAt = (x, y) => { const [c, r] = f(x); return Math.acos(Math.max(-1, Math.min(1, (y - c) / Math.max(r, 0.05)))); };
+  g.fillStyle = '#f4f5f6'; g.fillRect(0, 0, W, H);
+  // belly + cheatline (both sides): y_cheat(x)
+  const yc = x => x < 20 ? -0.3 : -0.3 + 1.2 * Math.min((x - 20) / 10.5, 1) ** 2;
+  for (let px = 0; px < W; px++) {
+    const x = px / W * L, [c, r] = f(x), th = thAt(x, yc(x)), d = 0.13 / Math.max(r, 0.2), d2 = 0.05 / Math.max(r, 0.2);
+    g.fillStyle = o.color; g.fillRect(px, T(th + d + d2 * 1.6), 1, T(2 * Math.PI - 2 * (th + d + d2 * 1.6)));
+    g.fillStyle = GOLD; g.fillRect(px, T(th), 1, T(d)); g.fillRect(px, T(2 * Math.PI - th - d), 1, T(d));
+  }
+  // windows (near side)
+  const wins = []; for (let i = 0; i < 21; i++) { const x = 6.2 + i * 0.79; if (!(11.0 < x && x < 11.9)) wins.push(x); }
+  wins.forEach(x => { const th = thAt(x, 0.22), [c, r] = f(x), h = T(0.36 / r), w = X(0.25);
+    g.fillStyle = '#3b4656'; g.beginPath(); g.roundRect(X(x) - w / 2, T(th) - h / 2, w, h, w * 0.45); g.fill();
+    g.fillStyle = 'rgba(255,255,255,.18)'; g.beginPath(); g.roundRect(X(x) - w / 2 + 3, T(th) - h / 2 + 3, w * 0.4, h * 0.45, 6); g.fill(); });
+  // doors
+  g.strokeStyle = 'rgba(90,100,115,.55)'; g.lineWidth = 4;
+  [[4.25, 5.05, -0.85, 0.85], [24.0, 24.75, -0.6, 0.75]].forEach(([x0, x1, y0, y1]) => { const t0 = thAt((x0 + x1) / 2, y1), t1 = thAt((x0 + x1) / 2, y0);
+    g.beginPath(); g.roundRect(X(x0), T(t0), X(x1) - X(x0), T(t1) - T(t0), 18); g.stroke(); });
+  // cockpit windows
+  g.fillStyle = '#1e2733';
+  const pane = pts => { g.beginPath(); pts.forEach(([x, y], i) => { const p = [X(x), T(thAt(x, y))]; i ? g.lineTo(...p) : g.moveTo(...p); }); g.closePath(); g.fill(); };
+  pane([[2.32, 0.5], [2.62, 0.74], [3.28, 1.06], [3.3, 0.62]]);
+  pane([[3.4, 0.62], [3.38, 1.1], [4.15, 1.2], [4.15, 0.66]]); pane([[4.25, 0.68], [4.25, 1.18], [4.75, 1.22], [4.75, 0.7]]);
+  // windshield across the top (both sides)
+  for (const s of [1, -1]) { g.beginPath(); [[1.7, 0.05], [2.25, 0.25], [2.95, 0.35], [2.95, -0.35], [2.25, -0.25], [1.7, -0.05]].forEach(([x, a], i) => { const th = thAt(x, 0.9) * 0 + (Math.PI * (s > 0 ? 0 : 0)) + a; const p = [X(x), T((th + 2 * Math.PI) % (2 * Math.PI))]; i ? g.lineTo(...p) : g.moveTo(...p); }); }
+  { const yTop = x => T(0); }
+  // Floggy face (near side): eye in the first side window, smile on the chin, blush
+  if (o.face !== false) {
+    const ex = 3.78, ey = 0.86, [ec, er0] = f(ex), sy = H / (Math.PI * 2 * er0) / (W / L), R = 0.36 * W / L;
+    g.save(); g.translate(X(ex), T(thAt(ex, ey))); g.scale(1, sy);
+    g.fillStyle = '#ffffff'; g.strokeStyle = NAVY; g.lineWidth = 14; g.beginPath(); g.arc(0, 0, R, 0, Math.PI * 2); g.fill(); g.stroke();
+    g.fillStyle = NAVY; g.beginPath(); g.ellipse(-R * 0.3, R * 0.05, R * 0.5, R * 0.62, 0, 0, Math.PI * 2); g.fill();
+    g.fillStyle = '#ffffff'; g.beginPath(); g.arc(-R * 0.42, -R * 0.2, R * 0.17, 0, Math.PI * 2); g.fill(); g.restore();
+    g.strokeStyle = NAVY; g.lineWidth = 30; g.lineCap = 'round'; g.beginPath();
+    [[0.3, -0.24], [0.7, -0.4], [1.2, -0.44], [1.65, -0.34]].forEach(([x, y], i) => { const p = [X(x), T(thAt(x, y))]; i ? g.lineTo(...p) : g.moveTo(...p); }); g.stroke();
+    g.fillStyle = 'rgba(244,150,170,.95)'; g.beginPath(); g.ellipse(X(1.95), T(thAt(1.95, -0.1)), 80, 44, 0, 0, Math.PI * 2); g.fill();
+  }
+  // title
+  const tx = X(o.titleX), tth = thAt(o.titleX, o.titleY);
+  g.save(); g.translate(tx, T(tth)); g.scale(o.flip ? -1 : 1, (H / (Math.PI * 2 * 1.345)) / (W / L));
+  g.fillStyle = o.color; g.font = `italic 900 ${o.titleSize}px "Arial Black", Arial, sans-serif`; g.textAlign = 'center'; g.textBaseline = 'alphabetic'; g.fillText('Floggy', 0, 0); g.restore();
+  const t = new THREE.CanvasTexture(cv); t.flipY = false; t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t;
+}
+function finTex(o) { // planar map over the fin's x/y box
+  const W = 2048, H = 1024, cv = document.createElement('canvas'); cv.width = W; cv.height = H; const g = cv.getContext('2d');
+  g.fillStyle = o.finColor || '#21508f'; g.fillRect(0, 0, W, H);
+  // box x 21..32.8, y 0.9..6.2
+  const X = x => (x - 21) / 11.8 * W, Y = y => (6.2 - y) / 5.3 * H;
+  g.save(); g.translate(X(29.4), Y(3.0)); g.scale(o.flip ? -1 : 1, (H / 5.3) / (W / 11.8));
+  g.font = 'italic 900 330px "Arial Black", Arial'; g.textAlign = 'center'; g.lineWidth = 16; g.strokeStyle = NAVY; g.strokeText('F', 0, 0); g.fillStyle = GOLD; g.fillText('F', 0, 0); g.restore();
+  const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t;
+}
+function propTex() {
+  const S = 512, cv = document.createElement('canvas'); cv.width = cv.height = S; const g = cv.getContext('2d'), c = S / 2;
+  const rg = g.createRadialGradient(c, c, 10, c, c, c); rg.addColorStop(0, 'rgba(40,44,52,.55)'); rg.addColorStop(0.75, 'rgba(60,66,76,.28)'); rg.addColorStop(0.97, 'rgba(70,76,86,.18)'); rg.addColorStop(1, 'rgba(70,76,86,0)');
+  g.fillStyle = rg; g.beginPath(); g.arc(c, c, c, 0, Math.PI * 2); g.fill();
+  for (let b = 0; b < 6; b++) { const a0 = b * Math.PI / 3 + 0.3; for (let k = 0; k < 14; k++) { const a = a0 - k * 0.025; g.strokeStyle = `rgba(20,22,26,${0.5 * (1 - k / 14)})`; g.lineWidth = 9 - k * 0.4;
+    g.beginPath(); g.moveTo(c + Math.cos(a) * 40, c + Math.sin(a) * 40); g.lineTo(c + Math.cos(a) * (c - 8), c + Math.sin(a) * (c - 8)); g.stroke(); } }
+  const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; return t;
+}
+
+// ---------------- scene
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05;
+document.body.appendChild(renderer.domElement);
+window.renderPlane = (o) => {
+  o = Object.assign({ color: BLUE, w: 1800, h: 800, fov: 19, target: [16.5, 1.6, 0], off: [-14, -22, 48], titleX: 7.4, titleY: -0.62, titleSize: 165, mirror: false }, o);
+  renderer.setSize(o.w, o.h, false);
+  const scene = new THREE.Scene(), pm = new THREE.PMREMGenerator(renderer);
+  scene.environment = pm.fromScene(new RoomEnvironment(), 0.04).texture;
+  scene.add(new THREE.HemisphereLight('#e6efff', '#c9d2dc', 1.4));
+  const sun = new THREE.DirectionalLight('#fff6e8', 2.2); sun.position.set(-20, 40, 30); scene.add(sun);
+  const fill = new THREE.DirectionalLight('#e8f0ff', 1.8); fill.position.set(-12, -30, 45); scene.add(fill);
+  const paint = (c, extra) => new THREE.MeshStandardMaterial(Object.assign({ color: c, roughness: 0.32, metalness: 0.05, envMapIntensity: 0.9 }, extra));
+  const plane = new THREE.Group(); scene.add(plane);
+  // fuselage
+  plane.add(new THREE.Mesh(fixSide(body(FUS, 0, 260, 128)), paint('#ffffff', { map: fuselageTex(o) })));
+  // nacelles + spinners + props
+  const ptex = propTex();
+  for (const z of [-4.1, 4.1]) {
+    plane.add(new THREE.Mesh(fixSide(body(NAC, z, 80, 64)), paint('#f4f5f6')));
+    plane.add(new THREE.Mesh(fixSide(body(SPIN, z, 30, 48)), paint('#1b1d21', { roughness: 0.25, metalness: 0.3 })));
+    const disc = new THREE.Mesh(new THREE.CircleGeometry(2.05, 64), new THREE.MeshBasicMaterial({ map: ptex, transparent: true, depthWrite: false, side: THREE.DoubleSide }));
+    disc.rotation.y = Math.PI / 2; disc.position.set(10.75, 0.62, z); plane.add(disc);
+    // chin air intake under the spinner: scoop with a dark mouth
+    const iy = -0.12, INT = [[10.88, iy, 0.22], [11.0, iy, 0.29], [11.6, iy, 0.31], [12.9, iy + 0.18, 0.24], [14.0, iy + 0.45, 0.04]];
+    const ig = body(INT, 0, 40, 40); ig.translate(0, -iy, 0); ig.scale(1, 1.15, 1.3); ig.translate(0, iy, z);
+    plane.add(new THREE.Mesh(fixSide(ig), paint('#f4f5f6')));
+    const mouth = new THREE.Mesh(new THREE.CircleGeometry(0.2, 32), new THREE.MeshStandardMaterial({ color: '#111316', roughness: 0.9, side: THREE.DoubleSide }));
+    mouth.rotation.y = Math.PI / 2; mouth.scale.set(1.3, 1.15, 1); mouth.position.set(10.875, iy, z); plane.add(mouth);
+  }
+  // wing (white, black de-ice boot)
+  const wing = loft(WING, ([z, le, te], xc, yt) => { const ch = te - le, th = Math.abs(z) < 5 ? 0.16 : 0.16 - (Math.abs(z) - 5) / 9.2 * 0.04; return [le + xc * ch, wingY(z) + yt * ch * th, z]; }, 0.05, '#5a6069', '#f4f5f6');
+  plane.add(new THREE.Mesh(fixSide(wing), paint('#ffffff', { vertexColors: true })));
+  // stabilizer
+  const stab = loft(STAB, ([z, le, te], xc, yt) => { const ch = te - le; return [le + xc * ch, 6.0 + yt * ch * 0.11, z]; }, 0.06, '#5a6069', '#f4f5f6');
+  plane.add(new THREE.Mesh(fixSide(stab), paint('#ffffff', { vertexColors: true })));
+  // fin (blue, planar-mapped F)
+  const fin = loft(FIN, ([y, le, te], xc, yt) => { const ch = te - le, th = Math.min(0.12, 0.5 / ch); return [le + xc * ch, y, yt * ch * th]; }, 0.0, o.color, '#ffffff');
+  { const p = fin.attributes.position, uv = []; for (let i = 0; i < p.count; i++) uv.push((p.getX(i) - 21) / 11.8, (p.getY(i) - 0.9) / 5.3); fin.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); fin.deleteAttribute('color'); }
+  plane.add(new THREE.Mesh(fixSide(fin), paint('#ffffff', { map: finTex(o), roughness: 0.45, envMapIntensity: 0.5 })));
+  // bullet fairing on top of the T-tail, pointing forward
+  const BUL = [[27.4, 6.08, 0.0], [27.75, 6.08, 0.17], [28.5, 6.08, 0.32], [29.8, 6.08, 0.36], [31.6, 6.08, 0.3], [32.5, 6.08, 0.06]];
+  plane.add(new THREE.Mesh(fixSide(body(BUL, 0, 50, 40)), paint(o.finColor || '#21508f', { roughness: 0.45, envMapIntensity: 0.5 })));
+  // ventral strakes under the aft fuselage (pair, angled down and out)
+  { const f = profile(FUS);
+    for (const phi of [Math.PI - 0.72, Math.PI + 0.72]) {
+      const pos = [], idx = [], N = 24, x0 = 24.6, x1 = 28.6;
+      for (let i = 0; i <= N; i++) { const x = x0 + (x1 - x0) * i / N, [c, r] = f(x), s = i / N, h = 0.55 * Math.sin(Math.PI * Math.pow(s, 0.7)) * (1 - 0.25 * s);
+        const ry = Math.cos(phi), rz = Math.sin(phi), r0 = r * 0.97;
+        pos.push(x, c + r0 * ry, r0 * rz, x + 0.25 * h, c + (r0 + h) * ry, (r0 + h) * rz); }
+      for (let i = 0; i < N; i++) { const a = 2 * i; idx.push(a, a + 2, a + 1, a + 1, a + 2, a + 3); }
+      const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setIndex(idx); g.computeVertexNormals();
+      plane.add(new THREE.Mesh(g, paint(o.color, { side: THREE.DoubleSide })));
+    } }
+  // camera
+  const cam = new THREE.PerspectiveCamera(o.fov, o.w / o.h, 1, 500);
+  const T = new THREE.Vector3(...o.target); cam.position.copy(T).add(new THREE.Vector3(...o.off)); cam.lookAt(T);
+  plane.rotation.z = -(o.pitch || 0); plane.position.set(16, 1, 0); plane.children.forEach(m => m.position.x -= 16, 0); plane.children.forEach(m => m.position.y -= 1);
+  renderer.render(scene, cam);
+  return renderer.domElement.toDataURL('image/png');
+};
+window.ready = true;
+</script></body></html>
