@@ -58,7 +58,7 @@ label.btn { cursor:pointer; }
 .msg { color:var(--muted); min-height:1.3em; }
 .msg.err { color:var(--amber); }
 .pay { display:flex; flex-wrap:wrap; align-items:baseline; gap:6px 16px; }
-.pay .big { font:700 2.6rem/1 var(--f-data); color:var(--accent); }
+.pay .big { font:700 1.6rem/1 var(--f-data); color:var(--accent); }
 .pay .which { font:600 1.1rem var(--f-ui); }
 .warn { border:1px solid var(--amber); background:var(--amber-bg); border-radius:8px; padding:10px 14px; }
 .tablewrap { overflow-x:auto; }
@@ -193,7 +193,7 @@ details.fx-fold { margin:0; }
     <div>
       <h1>Floggy-Go <span class="sub" style="color:#fff">Pairing</span></h1>
       <p>eCrew pairing → rig, LogTen &amp; calendar</p>
-      <span class="ver">beta v1.1 · 11/02/26</span>
+      <span class="ver">beta v1.2 · 11/02/26</span>
     </div>
     <img class="plane" src="../../img/plane-yellow.webp" alt="Smiling E175 in Floggy livery">
   </header>
@@ -210,12 +210,11 @@ details.fx-fold { margin:0; }
     <section class="pg-summary">
       <p class="cap" id="cap"></p>
       <p class="sub" id="capTrip"></p>
-      <div class="pay"><span class="big" id="payHM"></span><span class="which" id="payWhich"></span></div>
       <div id="estWarn" class="warn" hidden></div>
       <div id="movedWarn" class="warn" hidden></div>
     </section>
 
-    <details class="pg-fold" id="imp" data-fold open><summary><span class="pg-t">Pairing legs</span> <span class="fl-os" id="legSum"></span></summary><div class="pg-b">
+    <details class="pg-fold" id="imp" data-fold><summary><span class="pg-t">Pairing legs</span> <span class="fl-os" id="legSum"></span></summary><div class="pg-b">
       <p class="sub" id="impInfo"></p>
         <details class="fl-opts" id="opts"><summary>Options <span class="fl-os" id="optSum"></span></summary>
         <div class="bar">
@@ -231,8 +230,9 @@ details.fx-fold { margin:0; }
       <div id="legs" class="fl-legs" style="margin-top:10px"></div>
     </div></details>
 
-    <details class="pg-fold" id="rig" data-fold open><summary><span class="pg-t">Rig</span> <span class="fl-os" id="rigSum"></span></summary><div class="pg-b">
-      <h3 style="margin-top:0">Trip rig · final credit</h3>
+    <details class="pg-fold" id="rig" data-fold><summary><span class="pg-t">Rig</span> <span class="fl-os" id="rigSum"></span></summary><div class="pg-b">
+      <div class="pay"><span class="big" id="payHM"></span><span class="which" id="payWhich"></span></div>
+      <h3>Trip rig · final credit</h3>
       <div class="tablewrap"><table id="finals"></table></div>
       <h3>Expected RainMaker REG bucket</h3>
       <div class="tablewrap"><table id="bucket"></table></div>
@@ -284,7 +284,7 @@ details.fx-fold { margin:0; }
         <p class="sub" id="dashNote" hidden></p>
     </div></details>
 
-    <details class="pg-fold" id="impSend" data-fold open><summary><span class="pg-t">Send to LogTen</span> <span class="fl-os" id="sendSum"></span></summary><div class="pg-b">
+    <details class="pg-fold" id="impSend" data-fold><summary><span class="pg-t">Send to LogTen</span> <span class="fl-os" id="sendSum"></span></summary><div class="pg-b">
       <div class="fl-sendbox" id="sendBox"></div>
       <p class="sub" id="sendMsg"></p>
       <p class="sub">Sends the legs checked above (the pairing, plus any you checked in the Dashboard). Updates the same LogTen flights as Floggy and the other Floggy-Go pages (matched by date + flight + route). Send the logbook last: it is the record for P1/P2. <a href="../help/#pairing">Help</a></p>
@@ -1933,7 +1933,7 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
   }
   // remember which page folds are open, per device
   (function () {
-    var KEY = 'floggyGo.pairing.folds.v1', mem = {};
+    var KEY = 'floggyGo.pairing.folds.v2', mem = {};
     try { mem = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { mem = {}; }
     Array.prototype.forEach.call(document.querySelectorAll('details[data-fold]'), function (d) {
       if (mem[d.id] != null) d.open = mem[d.id];
