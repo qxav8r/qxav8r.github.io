@@ -255,19 +255,22 @@ details.fx-fold { margin:0; }
   }
 
   // ---- day tree: [Month ›] Block › Day › legs ----
-  // el: container. m: { nodes:[{id,title,sub,level,children:[...] | items:[...]}], levels:['month'?,'block','day'], on(i), toggle(idxs,on) }
-  // The Show switch sets how far the tree is open: Blocks (default) · Days · All (every leg); any header can still be tapped.
+  // el: container. m: { nodes:[{id,title,sub,level,children:[...] | items:[...]}], levels:['month'?,'block'?,'day'], show?, on(i), toggle(idxs,on) }
+  // The Show switch sets how far the tree is open: Blocks · Days · All (every leg), offering only the levels the tree has;
+  // it starts at m.show, else the first one offered. Any header can still be tapped.
   var SHOW = [['blocks', 'Blocks'], ['days', 'Days'], ['all', 'All']];
   function tree(el, m) {
-    var S = el._fgt || (el._fgt = { leg: {}, open: {}, show: 'blocks' });
+    var S = el._fgt || (el._fgt = { leg: {}, open: {}, show: m.show || '' });
     S.m = m;
+    var shows = SHOW.filter(function (x) { return x[0] === 'all' || m.levels.indexOf(x[0] === 'blocks' ? 'block' : 'day') >= 0; });
+    if (!shows.some(function (x) { return x[0] === S.show; })) S.show = shows[0][0];
     var depthOf = { blocks: m.levels.indexOf('block'), days: m.levels.indexOf('day'), all: 99 };
     var all = [], onN = 0;
     function items(n) { return n.items || [].concat.apply([], n.children.map(items)); }
     m.nodes.forEach(function (n) { items(n).forEach(function (it) { all.push(it.i); if (m.on(it.i)) onN++; }); });
     var h = '<div class="fl-top"><label class="fl-all"><input type="checkbox" data-all' + (onN && onN === all.length ? ' checked' : '') + '> All</label>' +
       '<span class="fl-count">' + onN + ' of ' + all.length + ' checked</span>' +
-      '<span class="fl-show"><span class="fl-showl">Show</span><span class="seg" role="group" aria-label="Show">' + SHOW.map(function (x) {
+      '<span class="fl-show"><span class="fl-showl">Show</span><span class="seg" role="group" aria-label="Show">' + shows.map(function (x) {
         return '<button type="button" data-show="' + x[0] + '" aria-pressed="' + (S.show === x[0]) + '">' + x[1] + '</button>'; }).join('') + '</span></span></div>';
     if (!all.length) h += '<p class="fl-empty">No legs to show.</p>';
     var ind = [];

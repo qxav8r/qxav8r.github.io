@@ -215,7 +215,7 @@ code { font:.85rem var(--f-data); }
       <li><strong>Tap a leg</strong> to open its details: crew, P1/P2, duty times, tail, type, remarks, the match key and any warning in full. Legs with warnings start open.</li>
       <li><strong>Schedule and Logbook:</strong> legs are grouped by <strong>day</strong>, and days by <strong>block</strong>: days in a row, treated as a trip. A block ends after a day off or a day that ends at base, so back-to-back turns are separate blocks. Logbook puts months on top. Each day shows its date, number of legs and kinds of duty.</li>
       <li><strong>Show: Blocks · Days · All</strong> sets how far the list opens: just the blocks (the default), the days inside them, or every leg. You can still tap any header to open or close it.</li>
-      <li><strong>Pairing</strong> groups by duty day, <strong>Flighty</strong> by month (with <strong>Open all / Close all</strong> for the legs).</li>
+      <li><strong>Pairing</strong> groups by duty day (Show: Days · All), <strong>Flighty</strong> by month (with <strong>Open all / Close all</strong> for the legs).</li>
       <li><strong>Checkboxes</strong> on every header check or uncheck everything inside, so it's easy to pick one block or a single day. <strong>All</strong> at the top checks or unchecks everything; the count shows how many will be sent. A header in the warning color has a leg with a warning inside.</li>
       <li>Only <strong>checked</strong> legs are sent. A few start <strong>unchecked</strong> on their own: duty codes Floggy doesn't recognise, legs missing an airport, and (with Non-flying set to Leave out) ground, reserve and deadhead duties.</li>
     </ul>
@@ -355,7 +355,7 @@ code { font:.85rem var(--f-data); }
     </ul>
 
     <h3>Send to LogTen</h3>
-    <p>Legs are grouped by duty day; tap a leg for its crew, duty times and tail, and uncheck any you don't want. <span class="btn">Send to LogTen</span> uses the same matching as Floggy-Go Schedule and Logbook (date + flight + route), so it updates the flights you already imported instead of adding copies. As with Schedule, send the Logbook import last: it is the record for P1/P2 and Part 121/91.</p>
+    <p>The page opens with the trip summary (pairing number, dates, route and Trip Pay), then folds you can open and close: <strong>Pairing legs</strong>, <strong>Rig</strong>, <strong>Rest of the month (Dashboard)</strong>, <strong>Send to LogTen</strong>, <strong>Add to Calendar</strong> and <strong>Export CSV</strong>. Each fold's header shows a short summary, and the page remembers which ones you leave open. Legs are grouped by duty day; tap a leg for its crew, duty times and tail, and uncheck any you don't want. <span class="btn">Send to LogTen</span> uses the same matching as Floggy-Go Schedule and Logbook (date + flight + route), so it updates the flights you already imported instead of adding copies. As with Schedule, send the Logbook import last: it is the record for P1/P2 and Part 121/91.</p>
     <p><strong>Options</strong> (tap to open) holds the switches, in the same order as every other import page (see <a href="#switches">Options</a>). The line beside it lists any you've changed from the defaults.</p>
     <div class="tablewrap"><table class="stack">
       <thead><tr><th>Option</th><th>What it does</th></tr></thead>

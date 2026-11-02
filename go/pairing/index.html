@@ -70,6 +70,21 @@ details[open] summary { margin-bottom:8px; }
 .cap { font:600 1.05rem var(--f-ui); margin:0; }
 .sub { color:var(--muted); font-size:.92rem; }
 .defs p { margin:4px 0; font-size:.92rem; }
+/* page folds: summary card, then Pairing legs, Rig, Dashboard, Send, Calendar, Export */
+details.pg-fold, #csvBox > details.fx-fold { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:0 20px; min-width:0; }
+details.pg-fold > summary, #csvBox > details.fx-fold > summary { list-style:none; cursor:pointer; padding:14px 0; margin:0; display:flex; flex-wrap:wrap; align-items:baseline; gap:4px 10px;
+  font:600 1.3rem var(--f-brand); color:var(--accent); }
+details.pg-fold > summary::-webkit-details-marker, #csvBox > details.fx-fold > summary::-webkit-details-marker { display:none; }
+details.pg-fold > summary::before, #csvBox > details.fx-fold > summary::before { content:'▸'; font-size:.8em; color:var(--muted); display:inline-block; transition:transform .15s; }
+details.pg-fold[open] > summary::before, #csvBox > details.fx-fold[open] > summary::before { transform:rotate(90deg); }
+details.pg-fold[open] > summary, #csvBox > details.fx-fold[open] > summary { border-bottom:1px solid var(--line); margin-bottom:12px; }
+details.pg-fold > summary .fl-os, #csvBox > details.fx-fold > summary .fl-os { font:400 .95rem var(--f-ui); color:var(--muted); }
+.pg-t { font:inherit; }
+.pg-b { padding-bottom:16px; min-width:0; }
+.pg-sub { display:grid; gap:10px; margin-top:16px; }
+.pg-sub > details, .pg-sub > .defs > details { border-top:1px solid var(--line); padding-top:10px; }
+.pg-summary .pay { margin-top:6px; }
+#capTrip { margin:2px 0 0; }
 #out { display:grid; gap:18px; grid-template-columns:minmax(0,1fr); }
 #out > section { min-width:0; }
 .tablewrap { overflow-x:auto; max-width:100%; }
@@ -178,7 +193,7 @@ details.fx-fold { margin:0; }
     <div>
       <h1>Floggy-Go <span class="sub" style="color:#fff">Pairing</span></h1>
       <p>eCrew pairing → rig, LogTen &amp; calendar</p>
-      <span class="ver">beta v1.0 · 11/02/26</span>
+      <span class="ver">beta v1.1 · 11/02/26</span>
     </div>
     <img class="plane" src="../../img/plane-yellow.webp" alt="Smiling E175 in Floggy livery">
   </header>
@@ -192,56 +207,90 @@ details.fx-fold { margin:0; }
   </section>
 
   <div id="out" hidden>
-    <section>
+    <section class="pg-summary">
       <p class="cap" id="cap"></p>
+      <p class="sub" id="capTrip"></p>
       <div class="pay"><span class="big" id="payHM"></span><span class="which" id="payWhich"></span></div>
       <div id="estWarn" class="warn" hidden></div>
       <div id="movedWarn" class="warn" hidden></div>
     </section>
 
-    <section>
-      <h2>Trip rig · final credit</h2>
+    <details class="pg-fold" id="imp" data-fold open><summary><span class="pg-t">Pairing legs</span> <span class="fl-os" id="legSum"></span></summary><div class="pg-b">
+      <p class="sub" id="impInfo"></p>
+        <details class="fl-opts" id="opts"><summary>Options <span class="fl-os" id="optSum"></span></summary>
+        <div class="bar">
+          <div class="grp"><span class="lbl">Flight number</span><div class="seg" data-k="px"><button data-v="" aria-pressed="true">No code</button><button data-v="QX">QX</button><button data-v="AS">AS</button></div></div>
+          <div class="grp"><span class="lbl">Aircraft type</span><div class="seg" data-k="ty"><button data-v="none" aria-pressed="true">Not sent</button><button data-v="raw">As reported</button><button data-v="E170">E170</button></div></div>
+          <div class="grp"><span class="lbl">Tail</span><div class="seg" data-k="tail"><button data-v="flown" aria-pressed="true">When flown</button><button data-v="all">Always</button><button data-v="none">Never</button></div></div>
+          <div class="grp"><span class="lbl">Non-flying</span><div class="seg" data-k="nf"><button data-v="in" aria-pressed="true">Include</button><button data-v="out">Leave out</button></div></div>
+          <div class="grp"><span class="lbl">Duty times</span><div class="seg" data-k="duty"><button data-v="send" aria-pressed="true">Send</button><button data-v="out">Leave out</button></div></div>
+          <div class="grp"><span class="lbl">P1/P2</span><div class="seg" data-k="cap"><button data-v="send" aria-pressed="true">Send</button><button data-v="out">Leave to logbook</button></div></div>
+          <div class="grp"><span class="lbl">Show</span><div class="seg" data-k="sh"><button data-v="all" aria-pressed="true">All</button><button data-v="warn">Warnings only</button></div></div>
+        </div>
+        </details>
+      <div id="legs" class="fl-legs" style="margin-top:10px"></div>
+    </div></details>
+
+    <details class="pg-fold" id="rig" data-fold open><summary><span class="pg-t">Rig</span> <span class="fl-os" id="rigSum"></span></summary><div class="pg-b">
+      <h3 style="margin-top:0">Trip rig · final credit</h3>
       <div class="tablewrap"><table id="finals"></table></div>
       <h3>Expected RainMaker REG bucket</h3>
       <div class="tablewrap"><table id="bucket"></table></div>
-    </section>
-
-    <section>
-      <details><summary>Flights (LBase)</summary>
-      <div class="tablewrap"><table id="flts"></table></div>
-      <p class="sub">MBK is the greater of scheduled (SBK) and actual (ABK) block. Times are in the pilot's base time zone (LBase).</p>
-      </details>
-    </section>
-
-    <section id="imp">
-      <h2>Send to LogTen</h2>
-      <p class="sub" id="impInfo"></p>
-      <details class="fl-opts" id="opts"><summary>Options <span class="fl-os" id="optSum"></span></summary>
-      <div class="bar">
-        <div class="grp"><span class="lbl">Flight number</span><div class="seg" data-k="px"><button data-v="" aria-pressed="true">No code</button><button data-v="QX">QX</button><button data-v="AS">AS</button></div></div>
-        <div class="grp"><span class="lbl">Aircraft type</span><div class="seg" data-k="ty"><button data-v="none" aria-pressed="true">Not sent</button><button data-v="raw">As reported</button><button data-v="E170">E170</button></div></div>
-        <div class="grp"><span class="lbl">Tail</span><div class="seg" data-k="tail"><button data-v="flown" aria-pressed="true">When flown</button><button data-v="all">Always</button><button data-v="none">Never</button></div></div>
-        <div class="grp"><span class="lbl">Non-flying</span><div class="seg" data-k="nf"><button data-v="in" aria-pressed="true">Include</button><button data-v="out">Leave out</button></div></div>
-        <div class="grp"><span class="lbl">Duty times</span><div class="seg" data-k="duty"><button data-v="send" aria-pressed="true">Send</button><button data-v="out">Leave out</button></div></div>
-        <div class="grp"><span class="lbl">P1/P2</span><div class="seg" data-k="cap"><button data-v="send" aria-pressed="true">Send</button><button data-v="out">Leave to logbook</button></div></div>
-        <div class="grp"><span class="lbl">Show</span><div class="seg" data-k="sh"><button data-v="all" aria-pressed="true">All</button><button data-v="warn">Warnings only</button></div></div>
+      <div class="pg-sub">
+        <details><summary>Flights (LBase)</summary>
+        <div class="tablewrap"><table id="flts"></table></div>
+        <p class="sub">MBK is the greater of scheduled (SBK) and actual (ABK) block. Times are in the pilot's base time zone (LBase).</p>
+        </details>
+        <details><summary>How each rig was worked out</summary>
+          <h3>TAFB · 0.25</h3><div id="tafb"></div>
+          <h3>Duty · 0.50</h3><div id="duty"></div>
+          <h3>Min Daily Credit · 4:12 per LBase calendar day</h3><div class="tablewrap"><table id="mdcr"></table></div>
+          <h3>Flights with midnight overhangs</h3><div class="tablewrap"><table id="ovh"></table></div>
+        </details>
+        <details><summary>How trip pay works</summary>
+          <p class="sub">From the IBT contract, credit hours (CBA 5.C.2.a). Plain-language summary; the contract governs.</p>
+          <ul>
+            <li><strong>Each calendar day</strong> (00:00–23:59 LBase) earns the greater of the block flown in that day, including deadheads, or the <strong>4:12</strong> Minimum Daily Guarantee.</li>
+            <li><strong>The trip</strong> pays the greatest of: all its calendar days added up (<strong>MDCR</strong>), <strong>25% of TAFB</strong>, or <strong>50% of duty</strong>. That winner is <em>Trip Pay</em>.</li>
+            <li><strong>CBLK</strong> (total block) is shown for reference. It is not one of the contract's three methods and cannot beat MDCR.</li>
+            <li><strong>The 4:12 daily minimum does not apply</strong> to functional flights, training, company business, or trips split by the pilot (trades or drops). On those, this result can run high.</li>
+            <li><strong>Premium pay</strong> (for example time and a half) is applied after the trip value is set, and is not shown here.</li>
+            <li><strong>REG bucket</strong> is the daily credit RainMaker should show. If RainMaker differs, look closer at that day.</li>
+          </ul>
+          <h3>Irregular operations</h3>
+          <p>If a trip was affected by IRROPS (cancelled, added or rerouted legs, or a delay that moved a leg to another day) and was not flown as scheduled, this result reflects only the trip <em>as flown</em>. A more complete analysis is needed.</p>
+          <p>If you have the <strong>original trip</strong>, run it too and compare: that shows which version pays more. Tip: save the pairing's web archive when the trip is awarded, before anything changes, so you have the original to run later.</p>
+        </details>
+        <div class="defs">
+          <details><summary>Definitions</summary>
+            <p><strong>LBase:</strong> the pilot's base time zone. Block, TAFB, Duty and MDCR are all worked in LBase.</p>
+            <p><strong>Calendar day:</strong> 00:00 to 23:59 in LBase.</p>
+            <p><strong>CBLK:</strong> sum of every flight's MBK. <strong>Duty:</strong> sum of all duty periods × 0.50. <strong>TAFB:</strong> first duty start to last duty end × 0.25. <strong>MDCR:</strong> sum of each calendar day's block, at least 4:12 a day.</p>
+            <p><strong>Trip Pay:</strong> the highest of the four rigs.</p>
+            <p><strong>REG bucket:</strong> the daily credit RainMaker should show. TAFB trips are averaged across the trip's days, with any rounding remainder on the last day.</p>
+            <p><strong>Flights crossing midnight:</strong> each calendar day compares the scheduled block that falls in that day with the actual block that falls in that day, and takes the larger. A leg delayed past midnight can therefore count a little more across the two days than its own MBK.</p>
+            <p><strong>Legs flown on a different day than scheduled</strong> (delay or IRROPS): the scheduled block stays on the scheduled day and the actual block goes on the day it was flown; each day still gets at least 4:12.</p>
+            <p><strong>TAFB</strong> runs from the first duty's report to the last duty's release, using eCrew's own duty dates, so a release after midnight is handled.</p>
+            <p><strong>! / ?</strong> on a flight number: the leg was split or moved because it crosses LBase midnight. <strong>----</strong>: no scheduled or actual time on that piece.</p>
+            <p><strong>Estimated (E) times</strong> are used as actuals; the result is provisional until actuals post.</p>
+          </details>
+        </div>
       </div>
-      </details>
-      <div id="legs" class="fl-legs" style="margin-top:10px"></div>
-      <details class="fl-opts" id="dashBox" style="margin-top:10px" hidden><summary>Rest of the month (Dashboard) <span class="fl-os" id="dashSum"></span></summary>
+    </div></details>
+
+    <details class="pg-fold" id="dashBox" data-fold hidden><summary><span class="pg-t">Rest of the month (Dashboard)</span> <span class="fl-os" id="dashSum"></span></summary><div class="pg-b">
         <p class="sub" style="margin:0 0 8px">Your other duties in the month eCrew had open when you saved the page, from the eCrew dashboard: one time per leg (actual once flown, otherwise scheduled), station local, no tails. Unchecked to start: check what you want to send, export or add to the calendar. Legs that are in the pairing above are left out here; the pairing has the fuller data.</p>
         <div id="dashLegs" class="fl-legs" style="margin-bottom:10px"></div>
         <p class="sub" id="dashNote" hidden></p>
-      </details>
-      <div class="fl-sendbox" id="sendBox" style="margin-top:12px"></div>
+    </div></details>
+
+    <details class="pg-fold" id="impSend" data-fold open><summary><span class="pg-t">Send to LogTen</span> <span class="fl-os" id="sendSum"></span></summary><div class="pg-b">
+      <div class="fl-sendbox" id="sendBox"></div>
       <p class="sub" id="sendMsg"></p>
-      <p class="sub">Updates the same LogTen flights as Floggy and the other Floggy-Go pages (matched by date + flight + route). Send the logbook last: it is the record for P1/P2. <a href="../help/#pairing">Help</a></p>
-    </section>
+      <p class="sub">Sends the legs checked above (the pairing, plus any you checked in the Dashboard). Updates the same LogTen flights as Floggy and the other Floggy-Go pages (matched by date + flight + route). Send the logbook last: it is the record for P1/P2. <a href="../help/#pairing">Help</a></p>
+    </div></details>
 
-    <div id="csvBox"></div>
-
-    <section id="cal">
-      <h2>Add to Calendar</h2>
+    <details class="pg-fold" id="cal" data-fold><summary><span class="pg-t">Add to Calendar</span> <span class="fl-os" id="calSum"></span></summary><div class="pg-b">
       <div class="btns" id="calBtns">
         <button class="btn" type="button" data-cal="Flights">Flights</button>
         <button class="btn" type="button" data-cal="Duty">Duty</button>
@@ -250,48 +299,9 @@ details.fx-fold { margin:0; }
       <p class="sub" id="calMsg"></p>
       <details><summary>Preview events</summary><div class="tablewrap"><table id="calPrev"></table></div></details>
       <p class="sub">Checked legs only, same events as Floggy's Cal &ndash; ICS. Importing again updates events, no duplicates. <a href="../help/#pairing">Help</a></p>
-    </section>
+    </div></details>
 
-    <section>
-      <details><summary>How each rig was worked out</summary>
-        <h3>TAFB · 0.25</h3><div id="tafb"></div>
-        <h3>Duty · 0.50</h3><div id="duty"></div>
-        <h3>Min Daily Credit · 4:12 per LBase calendar day</h3><div class="tablewrap"><table id="mdcr"></table></div>
-        <h3>Flights with midnight overhangs</h3><div class="tablewrap"><table id="ovh"></table></div>
-      </details>
-    </section>
-
-    <section>
-      <details><summary>How trip pay works</summary>
-        <p class="sub">From the IBT contract, credit hours (CBA 5.C.2.a). Plain-language summary; the contract governs.</p>
-        <ul>
-          <li><strong>Each calendar day</strong> (00:00–23:59 LBase) earns the greater of the block flown in that day, including deadheads, or the <strong>4:12</strong> Minimum Daily Guarantee.</li>
-          <li><strong>The trip</strong> pays the greatest of: all its calendar days added up (<strong>MDCR</strong>), <strong>25% of TAFB</strong>, or <strong>50% of duty</strong>. That winner is <em>Trip Pay</em>.</li>
-          <li><strong>CBLK</strong> (total block) is shown for reference. It is not one of the contract's three methods and cannot beat MDCR.</li>
-          <li><strong>The 4:12 daily minimum does not apply</strong> to functional flights, training, company business, or trips split by the pilot (trades or drops). On those, this result can run high.</li>
-          <li><strong>Premium pay</strong> (for example time and a half) is applied after the trip value is set, and is not shown here.</li>
-          <li><strong>REG bucket</strong> is the daily credit RainMaker should show. If RainMaker differs, look closer at that day.</li>
-        </ul>
-        <h3>Irregular operations</h3>
-        <p>If a trip was affected by IRROPS (cancelled, added or rerouted legs, or a delay that moved a leg to another day) and was not flown as scheduled, this result reflects only the trip <em>as flown</em>. A more complete analysis is needed.</p>
-        <p>If you have the <strong>original trip</strong>, run it too and compare: that shows which version pays more. Tip: save the pairing's web archive when the trip is awarded, before anything changes, so you have the original to run later.</p>
-      </details>
-    </section>
-
-    <section class="defs">
-      <details><summary>Definitions</summary>
-        <p><strong>LBase:</strong> the pilot's base time zone. Block, TAFB, Duty and MDCR are all worked in LBase.</p>
-        <p><strong>Calendar day:</strong> 00:00 to 23:59 in LBase.</p>
-        <p><strong>CBLK:</strong> sum of every flight's MBK. <strong>Duty:</strong> sum of all duty periods × 0.50. <strong>TAFB:</strong> first duty start to last duty end × 0.25. <strong>MDCR:</strong> sum of each calendar day's block, at least 4:12 a day.</p>
-        <p><strong>Trip Pay:</strong> the highest of the four rigs.</p>
-        <p><strong>REG bucket:</strong> the daily credit RainMaker should show. TAFB trips are averaged across the trip's days, with any rounding remainder on the last day.</p>
-        <p><strong>Flights crossing midnight:</strong> each calendar day compares the scheduled block that falls in that day with the actual block that falls in that day, and takes the larger. A leg delayed past midnight can therefore count a little more across the two days than its own MBK.</p>
-        <p><strong>Legs flown on a different day than scheduled</strong> (delay or IRROPS): the scheduled block stays on the scheduled day and the actual block goes on the day it was flown; each day still gets at least 4:12.</p>
-        <p><strong>TAFB</strong> runs from the first duty's report to the last duty's release, using eCrew's own duty dates, so a release after midnight is handled.</p>
-        <p><strong>! / ?</strong> on a flight number: the leg was split or moved because it crosses LBase midnight. <strong>----</strong>: no scheduled or actual time on that piece.</p>
-        <p><strong>Estimated (E) times</strong> are used as actuals; the result is provisional until actuals post.</p>
-      </details>
-    </section>
+    <div id="csvBox"></div>
   </div>
 
   <p class="foot">Floggy-Go Pairing is a beta port of Floggy's Calculate Rig and Parse Archive. Check important results against Floggy or RainMaker. · <a href="../../">All tools</a> · Not affiliated with or endorsed by Alaska Airlines or Horizon Air.</p>
@@ -319,19 +329,22 @@ details.fx-fold { margin:0; }
   }
 
   // ---- day tree: [Month ›] Block › Day › legs ----
-  // el: container. m: { nodes:[{id,title,sub,level,children:[...] | items:[...]}], levels:['month'?,'block','day'], on(i), toggle(idxs,on) }
-  // The Show switch sets how far the tree is open: Blocks (default) · Days · All (every leg); any header can still be tapped.
+  // el: container. m: { nodes:[{id,title,sub,level,children:[...] | items:[...]}], levels:['month'?,'block'?,'day'], show?, on(i), toggle(idxs,on) }
+  // The Show switch sets how far the tree is open: Blocks · Days · All (every leg), offering only the levels the tree has;
+  // it starts at m.show, else the first one offered. Any header can still be tapped.
   var SHOW = [['blocks', 'Blocks'], ['days', 'Days'], ['all', 'All']];
   function tree(el, m) {
-    var S = el._fgt || (el._fgt = { leg: {}, open: {}, show: 'blocks' });
+    var S = el._fgt || (el._fgt = { leg: {}, open: {}, show: m.show || '' });
     S.m = m;
+    var shows = SHOW.filter(function (x) { return x[0] === 'all' || m.levels.indexOf(x[0] === 'blocks' ? 'block' : 'day') >= 0; });
+    if (!shows.some(function (x) { return x[0] === S.show; })) S.show = shows[0][0];
     var depthOf = { blocks: m.levels.indexOf('block'), days: m.levels.indexOf('day'), all: 99 };
     var all = [], onN = 0;
     function items(n) { return n.items || [].concat.apply([], n.children.map(items)); }
     m.nodes.forEach(function (n) { items(n).forEach(function (it) { all.push(it.i); if (m.on(it.i)) onN++; }); });
     var h = '<div class="fl-top"><label class="fl-all"><input type="checkbox" data-all' + (onN && onN === all.length ? ' checked' : '') + '> All</label>' +
       '<span class="fl-count">' + onN + ' of ' + all.length + ' checked</span>' +
-      '<span class="fl-show"><span class="fl-showl">Show</span><span class="seg" role="group" aria-label="Show">' + SHOW.map(function (x) {
+      '<span class="fl-show"><span class="fl-showl">Show</span><span class="seg" role="group" aria-label="Show">' + shows.map(function (x) {
         return '<button type="button" data-show="' + x[0] + '" aria-pressed="' + (S.show === x[0]) + '">' + x[1] + '</button>'; }).join('') + '</span></span></div>';
     if (!all.length) h += '<p class="fl-empty">No legs to show.</p>';
     var ind = [];
@@ -1753,6 +1766,7 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
     $('cap').textContent = r.caption || ('Pairing ' + r.route);
     $('payHM').textContent = r.win.creditHM;
     $('payWhich').textContent = 'Trip Pay · ' + NAMES[r.win.code] + ' rig (' + r.win.code + ')';
+    $('rigSum').textContent = '· Trip Pay ' + r.win.creditHM + ' (' + NAMES[r.win.code] + ')';
     if (r.est.length) {
       $('estWarn').hidden = false;
       $('estWarn').innerHTML = '<strong>Provisional:</strong> eCrew showed estimated times on ' + r.est.length + ' leg' + (r.est.length > 1 ? 's' : '') + ' (' +
@@ -1791,8 +1805,8 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
   }
   function impRender() {
     var r = IM.res;
-    if (!r || !r.ok) { $('imp').hidden = true; return; }
-    $('imp').hidden = false;
+    if (!r || !r.ok) { $('imp').hidden = $('impSend').hidden = true; $('capTrip').textContent = ''; return; }
+    $('imp').hidden = $('impSend').hidden = false;
     var pl = r.legs.filter(function (L) { return L.src !== 'dash'; }), withCrew = pl.filter(function (L) { return L.crewSrc; }).length;
     $('impInfo').textContent = (r.me.name ? r.me.name + ' · ' + r.me.id + ' · ' : '') + 'Pairing ' + r.route + ': ' + pl.length + ' legs, crew found for ' + withCrew + '.' +
       (r.dashN ? ' Dashboard: ' + r.dashN + ' more legs this month, below.' : '');
@@ -1812,10 +1826,22 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
     });
     var dashItems = items.filter(function (it) { return r.legs[it.i].src === 'dash'; });
     items = items.filter(function (it) { return r.legs[it.i].src !== 'dash'; });
-    var day = 0;
-    var groups = FGO.groupBy(items, function (it) { return it._d; }, function (it, n) { return 'Day ' + (n + 1) + ' · ' + it._d.slice(0, 5); });
-    groups.forEach(function (g) { var st = [g.items[0].route.split('–')[0]]; g.items.forEach(function (it) { st.push(it.route.split('–')[1]); }); g.sub = st.join('–'); });
-    FGO.legs($('legs'), { groups: groups, on: function (i) { return !IM.off[i]; }, toggle: function (ids, on) { ids.forEach(function (i) { if (on) delete IM.off[i]; else IM.off[i] = 1; }); impRender(); } });
+    // Day › legs, same look as Schedule and Logbook; one trip, so it opens all the way
+    var WD = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    var nodes = FGO.groupBy(items, function (it) { return it._d; }, function () { return ''; }).map(function (g, n) {
+      var d = g.items[0]._d, p = d.split('/').map(Number), wd = WD[new Date(Date.UTC(p[2], p[0] - 1, p[1])).getUTCDay()];
+      var st = [g.items[0].route.split('–')[0]], kinds = [];
+      g.items.forEach(function (it) { st.push(it.route.split('–')[1]); var k = KIND[r.legs[it.i].ftype] || 'Other'; if (kinds.indexOf(k) < 0) kinds.push(k); });
+      return { id: 'p' + d, level: 'day', title: 'Day ' + (n + 1) + ' · ' + wd + ' ' + d.slice(0, 5), sub: st.join('–') + ' · ' + g.items.length + ' leg' + (g.items.length === 1 ? '' : 's') + ' · ' + kinds.join(', '), items: g.items };
+    });
+    FGO.tree($('legs'), { nodes: nodes, levels: ['day'], show: 'all', on: function (i) { return !IM.off[i]; }, toggle: function (ids, on) { ids.forEach(function (i) { if (on) delete IM.off[i]; else IM.off[i] = 1; }); impRender(); } });
+    // trip line in the summary card
+    var a = pl[0], z = pl[pl.length - 1], days = {}; pl.forEach(function (L) { days[L.date] = 1; });
+    var stops = [a.dep]; pl.forEach(function (L) { if (L.dep !== stops[stops.length - 1]) stops.push(L.dep); stops.push(L.arv); });
+    $('capTrip').textContent = 'Pairing ' + r.route + ' · ' + a.date.slice(0, 5) + (z.date !== a.date ? '–' + z.date.slice(0, 5) : '') + ' · ' + Object.keys(days).length + ' day' + (Object.keys(days).length === 1 ? '' : 's') + ' · ' +
+      (stops.length > 8 ? stops.slice(0, 4).join('–') + '…' + stops[stops.length - 1] : stops.join('–'));
+    var plOn = pl.filter(function (L) { return !IM.off[r.legs.indexOf(L)]; }).length;
+    $('legSum').textContent = '· ' + plOn + ' of ' + pl.length + ' checked';
     dashRender(r, dashItems);
     impUpdate();
   }
@@ -1850,6 +1876,7 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
       { flown: '', all: 'tail always', none: 'no tail' }[o.tail], o.nf === 'out' ? 'non-flying left out' : '', o.duty === 'out' ? 'no duty times' : '', o.cap === 'out' ? 'P1/P2 to logbook' : '', o.sh === 'warn' ? 'warnings only' : '']);
     var po = { duty: o.duty === 'send', capacity: o.cap === 'send', tail: o.tail };
     FGO.send($('sendBox'), { legs: sel, noun: 'leg', msgEl: $('sendMsg'), url: function (part) { return 'logten://v2/addEntities?package=' + encodeURIComponent(JSON.stringify(FloggyPairing.buildPackage(part, po))); } });
+    $('sendSum').textContent = '· ' + sel.length + ' leg' + (sel.length === 1 ? '' : 's') + ' checked';
     calRender();
     FGOCSV.refresh($('csvBox'));
   }
@@ -1902,7 +1929,17 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
       ev.forEach(function (e) { rows += '<tr><td>' + esc(k) + '</td><td>' + esc(e.summary) + '</td><td class="m">' + esc(e.when) + '</td><td class="m">' + esc(e.location) + '</td></tr>'; });
     });
     $('calPrev').innerHTML = '<thead><tr><th>Calendar</th><th>Event</th><th>When (local)</th><th>Location</th></tr></thead><tbody>' + rows + '</tbody>';
+    $('calSum').textContent = '· ' + CALS.map(function (k) { return k + ' ' + FloggyPairing.calEvents(legs, k).length; }).join(' · ');
   }
+  // remember which page folds are open, per device
+  (function () {
+    var KEY = 'floggyGo.pairing.folds.v1', mem = {};
+    try { mem = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { mem = {}; }
+    Array.prototype.forEach.call(document.querySelectorAll('details[data-fold]'), function (d) {
+      if (mem[d.id] != null) d.open = mem[d.id];
+      d.addEventListener('toggle', function () { mem[d.id] = d.open; try { localStorage.setItem(KEY, JSON.stringify(mem)); } catch (e) { } });
+    });
+  })();
   Array.prototype.forEach.call(document.querySelectorAll('[data-cal]'), function (b) {
     b.addEventListener('click', function () {
       var k = b.dataset.cal, r = FloggyPairing.buildICS(calLegs(), k);
