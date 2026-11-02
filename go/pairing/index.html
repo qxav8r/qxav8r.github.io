@@ -1305,6 +1305,7 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
       L.src = 'pairing';
       legs.push(L);
     });
+    turnCrew(legs);
     finish(legs, opts.prefix);
     // the rest of the month from the Dashboard (aux data: the pairing wins), then training codes on both
     var dash = dashboard(text, opts, dc, tree, me);
@@ -1332,6 +1333,20 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
       if (r.warn.length) L.warnings.push('Crew list: ' + r.warn.join('; ') + ' (seat left blank).');
       if (r.selfDH) { L.ftype = '1'; L.remarks = 'Dead Head'; L.pic = L.sic = L.fa1 = L.fa2 = ''; L.p1 = L.p2 = false; }
     } else L.warnings.push(noCrewMsg);
+  }
+
+  // Floggy's addCrewToFlts / flipcrew: eCrew's crew list has one entry per flight number per day, so the return leg
+  // of a turn flown under the same number (SFO-SNA-SFO on 2418) comes without crew. A leg with no crew whose previous
+  // leg has the same date and flight number and the reverse city pair gets that leg's crew: same crew, same airplane.
+  function turnCrew(legs) {
+    for (var i = 1; i < legs.length; i++) {
+      var L = legs[i], B = legs[i - 1];
+      if (L.ftype !== '0' || L.crewSrc || !B.crewSrc) continue;
+      if (B.date !== L.date || fltDigits(B.flt) !== fltDigits(L.flt) || B.dep !== L.arv || B.arv !== L.dep) continue;
+      L.pic = B.pic; L.sic = B.sic; L.fa1 = B.fa1; L.fa2 = B.fa2; L.p1 = B.p1; L.p2 = B.p2;
+      L.crewSrc = 'turn (from ' + B.dep + '–' + B.arv + ')';
+      L.warnings = L.warnings.filter(function (w) { return !/^No crew /.test(w); });
+    }
   }
 
   // A/B/C/D suffix (same rule as Floggy-Go Schedule), match key and flight number to send
@@ -1458,6 +1473,7 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
         legs.push(L);
       });
     });
+    turnCrew(legs);
     return { legs: legs, notes: notes };
   }
   // Dashboard legs that are also in the opened pairing: the pairing wins. Dashboard only fills a blank time, and a
