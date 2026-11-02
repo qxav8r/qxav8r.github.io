@@ -141,21 +141,20 @@ def pairing(s):
     FGOCSV.refresh($('csvBox'));
   }''', 'pairing')
     s = rep(s, '''  // ---------- Add to Calendar ----------''', '''  // ---------- Export CSV ----------
-  // checked legs -> export rows; duty on/off on the first/last checked leg of each duty; tails per the Tail option
+  // checked legs -> export rows; duty on/off where eCrew puts them (first/last leg of each duty); tails per the Tail option
   function csvRows() {
     if (!IM.res || !IM.res.ok) return [];
     var at = function (d, t, s) { return t ? { date: d, time: t, stn: s } : null; };
-    var sel = IM.res.legs.filter(function (L, i) { return !IM.off[i]; }), first = {}, last = {};
-    sel.forEach(function (L, i) { var k = L.dutySDate + ' ' + L.dutyS; if (!L.dutyS) return; if (first[k] == null) first[k] = i; last[k] = i; });
-    return sel.map(function (L, i) {
-      var k = L.dutySDate + ' ' + L.dutyS, flown = !!L.atd;
+    var sel = IM.res.legs.filter(function (L, i) { return !IM.off[i]; });
+    return sel.map(function (L) {
+      var flown = !!L.atd;
       var tail = IM.o.tail === 'none' ? '' : (IM.o.tail === 'flown' && !flown ? '' : (L.tail || ''));
       return { date: L.date, flt: L.fltSend, dep: L.dep, arv: L.arv, kind: L.ftype, tail: tail, type: L.ac || '',
         pic: L.pic, sic: L.sic, fa1: L.fa1, fa2: L.fa2, p1: !!L.p1, p2: !!L.p2, pt121: null,
         out: at(L.actDepDate, L.atd, L.dep), inn: at(L.actArrDate, L.ata, L.arv),
         sOut: flown ? null : at(L.depDate, L.std, L.dep), sIn: flown ? null : at(L.arrDate, L.sta, L.arv),
-        dOn: L.dutyS && first[k] === i ? at(L.dutySDate, L.dutyS, L.dep) : null, dOff: L.dutyE && last[k] === i ? at(L.dutyEDate, L.dutyE, L.arv) : null,
-        zulu: false, remarks: L.remarks || '', trg: '', key: L.key };
+        dOn: L.dutyS ? at(L.dutySDate, L.dutyS, L.dep) : null, dOff: L.dutyE ? at(L.dutyEDate, L.dutyE, L.arv) : null,
+        zulu: false, remarks: L.remarks || '', trg: L.trg || '', key: L.key };
     });
   }
   var LIMITS = {
