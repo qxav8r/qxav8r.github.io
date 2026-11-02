@@ -170,7 +170,7 @@ code { font:.85rem var(--f-data); }
       <li><strong>Info banner</strong> shows the report period and how times are read. Logbook reminds you that logbook times are in <strong>base time</strong>: if you changed bases, pull a separate report for each base.</li>
       <li><strong>Summary boxes</strong> show the pilot, base and seat, when the report was generated, and counts of flights, deadheads, sims, ground, reserve and warnings. Check that the name and dates are what you expect.</li>
       <li><strong>Options ▸</strong> (tap to open) holds the switches that control what gets sent (next section). The line beside it lists anything changed from the defaults.</li>
-      <li><strong>Leg cards</strong>: one line per leg or duty, grouped by trip (Schedule), duty day (Pairing) or month (Logbook, Flighty). Checked legs are sent. Tap a leg to see its details.</li>
+      <li><strong>Leg cards</strong>: one line per leg or duty, grouped by block and day (Schedule; Logbook also by month), duty day (Pairing) or month (Flighty). Checked legs are sent. Tap a leg to see its details.</li>
       <li><strong>Send box</strong> holds <span class="btn">Send to LogTen</span> and <span class="btn">Copy LogTen URL</span>. A big send comes in parts of 100.</li>
       <li><strong>LogTen package</strong> (tap to open) shows exactly what Send passes to LogTen. You can ignore it unless you're curious.</li>
     </ol>
@@ -213,8 +213,10 @@ code { font:.85rem var(--f-data); }
     <p>Each leg is one line: checkbox, date, flight, route and times. <strong>Scheduled → actual</strong> appear together once the leg has flown (a small <sup>+1</sup> means the next day). A tag shows anything that isn't a normal flight, and <span style="color:var(--amber)">⚠</span> marks a leg with a warning.</p>
     <ul>
       <li><strong>Tap a leg</strong> to open its details: crew, P1/P2, duty times, tail, type, remarks, the match key and any warning in full. Legs with warnings start open.</li>
-      <li><strong>Groups:</strong> Schedule groups legs by trip (from leaving base to the duty that gets you home), Pairing by duty day, Logbook and Flighty by month. Tap a group header to fold it; its checkbox checks or unchecks the whole group.</li>
-      <li><strong>All</strong> at the top checks or unchecks everything; <strong>Open all / Close all</strong> opens or closes every leg. The count shows how many will be sent.</li>
+      <li><strong>Schedule and Logbook:</strong> legs are grouped by <strong>day</strong>, and days by <strong>block</strong>: days in a row, treated as a trip. A block ends after a day off or a day that ends at base, so back-to-back turns are separate blocks. Logbook puts months on top. Each day shows its date, number of legs and kinds of duty.</li>
+      <li><strong>Show: Blocks · Days · All</strong> sets how far the list opens: just the blocks (the default), the days inside them, or every leg. You can still tap any header to open or close it.</li>
+      <li><strong>Pairing</strong> groups by duty day, <strong>Flighty</strong> by month (with <strong>Open all / Close all</strong> for the legs).</li>
+      <li><strong>Checkboxes</strong> on every header check or uncheck everything inside, so it's easy to pick one block or a single day. <strong>All</strong> at the top checks or unchecks everything; the count shows how many will be sent. A header in the warning color has a leg with a warning inside.</li>
       <li>Only <strong>checked</strong> legs are sent. A few start <strong>unchecked</strong> on their own: duty codes Floggy doesn't recognise, legs missing an airport, and (with Non-flying set to Leave out) ground, reserve and deadhead duties.</li>
     </ul>
     <h3>Tags</h3>

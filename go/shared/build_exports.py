@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Wire the shared CSV export (all four pages) and Calendar fold (Schedule) into the Floggy-Go import pages.
+"""Wire the shared CSV export (all four pages) and Calendar fold (Schedule) into the Floggy-Go import pages,
+and refresh the shared leg cards / day tree (go/shared/fgo-ui.*) on every page.
 Run from the go/ folder on the pages as they are in the repo (each page is patched once; rerunning on a
 patched page refreshes the inlined shared blocks only)."""
 import re, sys
@@ -7,6 +8,14 @@ import re, sys
 CSS = open('shared/fgo-csv.css', encoding='utf-8').read()
 CSV = open('shared/fgo-csv.js', encoding='utf-8').read()
 CAL = open('shared/fgo-cal.js', encoding='utf-8').read()
+UI_JS = open('shared/fgo-ui.js', encoding='utf-8').read()
+UI_CSS = open('shared/fgo-ui.css', encoding='utf-8').read()
+
+
+def refresh_ui(s):
+    """Shared leg cards / day tree (go/shared/fgo-ui.*), the same on every page."""
+    s = re.sub(r'<style id="fgo-ui-css">.*?</style>', lambda m: '<style id="fgo-ui-css">\n' + UI_CSS + '</style>', s, count=1, flags=re.S)
+    return re.sub(r'<script id="fgo-ui-js">.*?</script>', lambda m: '<script id="fgo-ui-js">\n' + UI_JS + '</script>', s, count=1, flags=re.S)
 
 
 def rep(s, a, b, page):
@@ -219,5 +228,5 @@ def bump(v):
 for name, fn in [('schedule', schedule), ('logbook', logbook), ('pairing', pairing), ('flighty', flighty)]:
     path = f'{name}/index.html'
     src = open(path, encoding='utf-8').read()
-    open(path, 'w', encoding='utf-8').write(fn(src))
+    open(path, 'w', encoding='utf-8').write(refresh_ui(fn(src)))
     print('patched', path)
