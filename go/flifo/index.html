@@ -84,7 +84,7 @@ button.btn:disabled, a.btn[aria-disabled="true"] { opacity:.45; pointer-events:n
     <div>
       <h1>Floggy-Go <span class="sub">Flifo</span></h1>
       <p>Alaska flight status → LogTen</p>
-      <span class="ver">beta v2.1 · 11/01/26</span>
+      <span class="ver">beta v2.2 · 11/02/26</span>
     </div>
     <img class="plane" src="../../img/plane-teal.webp" alt="Smiling E175 in Floggy livery">
   </header>
@@ -95,7 +95,7 @@ button.btn:disabled, a.btn[aria-disabled="true"] { opacity:.45; pointer-events:n
       <label>Date<input id="date" type="date"></label>
       <button class="btn" id="get" type="button">Get Status</button>
     </div>
-    <p class="msg" id="msg">Alaska keeps about 3 days either side of today. Check the date late at night or away from base.</p>
+    <p class="msg" id="msg">Alaska shows flights from a few days back to about 2 days ahead. Check the date late at night or away from base.</p>
   </section>
 
   <section id="results" hidden>
@@ -136,7 +136,9 @@ button.btn:disabled, a.btn[aria-disabled="true"] { opacity:.45; pointer-events:n
   var $ = function (id) { return document.getElementById(id); };
   function pad(n) { return (n < 10 ? '0' : '') + n; }
   function ymd(off) { var d = new Date(); d.setDate(d.getDate() + off); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
-  $('date').value = ymd(0); $('date').min = ymd(-4); $('date').max = ymd(4);
+  $('date').value = ymd(0); $('date').min = ymd(-4); $('date').max = ymd(2);
+  var AHEAD = 2;   // Alaska shows about 2 days ahead; past that it falls back to today's flight
+  function us(iso) { var p = iso.split('-'); return p[1] + '/' + p[2] + '/' + p[0]; }
 
   // "10/31/2026 16:45:00 PM" -> "10/31/2026 16:45"
   function disp(e) { var t = (e || '').match(/^(\d{2}\/\d{2}\/\d{4}) (\d{1,2}):(\d{2})/); return t ? t[1] + ' ' + pad(+t[2]) + ':' + t[3] : ''; }
@@ -260,12 +262,21 @@ button.btn:disabled, a.btn[aria-disabled="true"] { opacity:.45; pointer-events:n
     var flt = ($('flt').value || '').replace(/\D/g, ''), date = $('date').value;
     if (!flt || parseInt(flt, 10) < 1) { msg('Enter a flight number.', true); $('flt').focus(); return; }
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) { msg('Pick a date.', true); return; }
+    // iOS ignores the date picker's min/max, so check here and don't ask Alaska for a date it doesn't have yet
+    if (date > ymd(AHEAD)) {
+      var p = date.split('-'), from = new Date(+p[0], p[1] - 1, +p[2] - AHEAD);
+      msg('Alaska only shows flights about ' + AHEAD + ' days ahead, so ' + us(date).slice(0, 5) + ' isn\'t there yet. Try again on ' + pad(from.getMonth() + 1) + '/' + pad(from.getDate()) + '.', true);
+      return;
+    }
     $('get').disabled = true; $('results').hidden = true; msg('Getting flight ' + parseInt(flt, 10) + '…');
     fetch(RELAY + '/?flt=' + encodeURIComponent(flt) + '&date=' + encodeURIComponent(date), { cache: 'no-store' })
       .then(function (r) { return r.json(); })
       .then(function (d) {
         if (!d.ok) { msg('Could not get flight status: ' + (d.error || 'unknown error') + '.', true); return; }
-        if (!d.legs || !d.legs.length) { msg('No flight data for ' + d.flt + ' on ' + date + '. Flight not found, more than about 3 days away, or Alaska changed its page.', true); return; }
+        if (!d.legs || !d.legs.length) { msg('No flight data for ' + d.flt + ' on ' + us(date) + '. Flight not found, outside what Alaska shows (a few days back to about ' + AHEAD + ' days ahead), or Alaska changed its page.', true); return; }
+        // Alaska answers a date it doesn't have with another day's flight: the first leg's own date must match
+        var got = disp(d.legs[0].atd).slice(0, 10);
+        if (got && got !== us(date)) { msg('Alaska sent flight ' + d.flt + ' for ' + got.slice(0, 5) + ', not ' + us(date).slice(0, 5) + ': it doesn\'t have that date. Nothing loaded.', true); return; }
         cur = { flt: d.flt, date: d.date, legs: d.legs }; msg('');
         render(); $('results').hidden = false; $('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
       })
