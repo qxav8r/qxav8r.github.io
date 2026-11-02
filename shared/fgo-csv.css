@@ -1,0 +1,25 @@
+/* Floggy-Go shared export folds (CSV, Calendar): self-contained so every page looks the same */
+details.fx-fold { margin:0; }
+.fx-box { display:grid; gap:10px; padding-bottom:14px; }
+.fx-head { display:flex; flex-wrap:wrap; align-items:center; gap:8px 14px; }
+.fx-head select { font:600 .95rem var(--f-ui); background:var(--panel); color:var(--ink); border:1px solid var(--line); border-radius:6px; padding:.4rem .6rem; }
+.fx-box .lbl { font:500 .7rem var(--f-ui); text-transform:uppercase; letter-spacing:.08em; color:var(--muted); }
+.fx-note { margin:0; font-size:.85rem; color:var(--muted); max-width:80ch; }
+.fx-lim { margin:0; padding:8px 10px; border-left:3px solid var(--accent); background:var(--sel, rgba(11,110,138,.08)); border-radius:0 6px 6px 0; font-size:.85rem; max-width:80ch; }
+.fx-grid { display:flex; flex-wrap:wrap; gap:10px 22px; align-items:flex-start; }
+.fx-col { display:grid; gap:4px; min-width:0; }
+.fx-col label.opt { font-size:.92rem; margin:0; }
+.fx-col input[type=text] { font:500 .95rem var(--f-data); background:var(--panel); color:var(--ink); border:1px solid var(--line); border-radius:6px; padding:.35rem .5rem; width:9rem; text-transform:uppercase; }
+.fx-col input[type=text]::placeholder { text-transform:none; }
+.fx-warn { margin:0; padding:8px 10px; border:1px solid var(--amber); background:var(--amber-bg); border-radius:6px; font-size:.85rem; color:var(--ink); }
+.fx-warn ul { margin:4px 0 0; padding-left:1.2rem; }
+.fx-table { max-height:340px; overflow:auto; border:1px solid var(--line); border-radius:8px; background:var(--panel); }
+.fx-table table { border-collapse:collapse; width:100%; font:.8rem var(--f-ui); font-variant-numeric:tabular-nums; }
+.fx-table th, .fx-table td { padding:5px 8px; border-bottom:1px solid var(--line); text-align:left; white-space:nowrap; vertical-align:top; }
+.fx-table th { position:sticky; top:0; background:var(--panel); font:600 .7rem var(--f-ui); text-transform:uppercase; letter-spacing:.06em; color:var(--muted); }
+.fx-table td { font-family:var(--f-data); font-size:.78rem; }
+.fx-act { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+.fx-act .btn small { display:block; font:400 .72rem var(--f-data); opacity:.85; }
+.fx-act .btn[disabled] { opacity:.45; cursor:default; }
+.fx-msg { font:.85rem var(--f-ui); color:var(--muted); }
+.fx-hist { font-size:.8rem; color:var(--muted); margin:0; }

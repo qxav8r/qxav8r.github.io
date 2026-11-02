@@ -1,0 +1,1441 @@
+<!doctype html><html><head><meta charset=utf8><title>Floggy-Go Schedule</title><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Floggy-Go Schedule"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@400;500;600&family=IBM+Plex+Sans:wght@400;600&display=swap">
+<style>
+/* Layout (Skd): one working column — flight strip header, controls bar, leg table that scrolls sideways on its own */
+:root {
+  --bg: #f3f5f7; --panel: #ffffff; --ink: #18212b; --muted: #5b6875; --line: #d6dde4;
+  --accent: #0b6e8a; --accent-ink: #ffffff; --amber: #a8620a; --amber-bg: #fdf1e0;
+  --ok: #1f7a4a; --ok-bg: #e4f3ea; --dh: #6a4fa3; --dh-bg: #efeafa; --sel: #e6f2f6;
+  --hero: #0f1e3a; --hero-ink: #ffffff; --hero-muted: #c9d6ec; --gold: #f5b841;
+  --f-brand: "Fredoka", "Arial Rounded MT Bold", system-ui, sans-serif;
+  --f-ui: "IBM Plex Sans Condensed", "Arial Narrow", system-ui, sans-serif;
+  --f-body: "IBM Plex Sans", system-ui, sans-serif;
+  --f-data: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f151b; --panel: #161e26; --ink: #e3e9ef; --muted: #93a1ae; --line: #2a3540;
+  --hero: #0b1628; --accent: #4fb3cf; --accent-ink: #06222b; --amber: #f0ad4e; --amber-bg: #33260f;
+  --ok: #5fc98f; --ok-bg: #12301f; --dh: #b49cf0; --dh-bg: #251d3a; --sel: #13303b; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0f151b; --panel: #161e26; --ink: #e3e9ef; --muted: #93a1ae; --line: #2a3540;
+  --hero: #0b1628; --accent: #4fb3cf; --accent-ink: #06222b; --amber: #f0ad4e; --amber-bg: #33260f;
+  --ok: #5fc98f; --ok-bg: #12301f; --dh: #b49cf0; --dh-bg: #251d3a; --sel: #13303b; color-scheme: dark }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 15px; line-height: 1.45; }
+.wrap { max-width: 1280px; margin: 0 auto; padding-block: 20px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 16px; }
+.hero { background: var(--hero); color: var(--hero-ink); border-radius: 12px; padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; gap: 8px 20px; flex-wrap: wrap; overflow: hidden; }
+.hero-text { display: grid; gap: 2px; min-width: 0; }
+.hero h1 { font-family: var(--f-brand); font-weight: 700; font-size: clamp(2.2rem, 6vw, 3.4rem); line-height: 1; margin: 0; color: var(--gold); letter-spacing: -.01em; }
+.hero h1 .sub { color: var(--hero-ink); font-size: .55em; font-weight: 600; letter-spacing: .02em; }
+.hero .tag { margin: 0; font-family: var(--f-brand); font-weight: 600; font-size: 1.15rem; }
+.hero .ver { color: var(--hero-muted); }
+.plane { width: min(100%, 380px); height: auto; filter: drop-shadow(0 10px 14px rgba(0,0,0,.35)); }
+.top { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; }
+.pick { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.btn { font: 600 .9rem var(--f-ui); letter-spacing: .02em; border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink);
+  border-radius: 6px; padding: .5rem .9rem; cursor: pointer; }
+.btn.ghost { background: transparent; color: var(--accent); }
+.btn:focus-visible, .seg button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+input[type=file] { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.banner { border: 1px solid var(--line); background: var(--panel); border-radius: 8px; padding: 12px 14px; display: grid; gap: 6px; }
+.banner.example { border-color: var(--amber); background: var(--amber-bg); }
+.banner.error { border-color: var(--amber); background: var(--amber-bg); }
+.banner p { margin: 0; max-width: 75ch; }
+.strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1px; background: var(--line);
+  border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.strip > div { background: var(--panel); padding: 10px 12px; min-width: 0; }
+.lbl { font: 500 .7rem var(--f-ui); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.val { font: 500 1rem var(--f-data); overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+.val select { font: inherit; background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 4px; padding: 2px 4px; max-width: 100%; }
+.bar { display: flex; flex-wrap: wrap; gap: 10px 20px; align-items: center; }
+.bar .grp { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.seg button { font: 500 .85rem var(--f-ui); background: var(--panel); color: var(--ink); border: 0; padding: .4rem .75rem; cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.count { font: .85rem var(--f-ui); color: var(--muted); }
+.tablebox { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); }
+table { border-collapse: collapse; width: 100%; font: .85rem var(--f-ui); font-variant-numeric: tabular-nums; }
+th, td { padding: 6px 8px; border-bottom: 1px solid var(--line); text-align: left; white-space: nowrap; vertical-align: top; }
+th { position: sticky; top: 0; background: var(--panel); font-weight: 600; font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+tbody tr:hover { background: var(--sel); }
+td.mono { font-family: var(--f-data); font-size: .8rem; }
+td.dim { color: var(--muted); }
+td.warn { white-space: normal; min-width: 14rem; color: var(--amber); font-size: .8rem; }
+.chip { display: inline-block; font: 600 .7rem var(--f-ui); letter-spacing: .05em; text-transform: uppercase; padding: 1px 6px; border-radius: 4px; }
+.chip.act { background: var(--ok-bg); color: var(--ok); }
+.chip.skd { background: var(--sel); color: var(--accent); }
+.chip.dh { background: var(--dh-bg); color: var(--dh); }
+.chip.sim { background: var(--amber-bg); color: var(--amber); }
+.sendbar { display: grid; gap: 8px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; }
+.sendrow { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+a.btn { text-decoration: none; display: inline-block; }
+a.btn.send { font-size: 1rem; padding: .6rem 1.1rem; }
+a.btn[aria-disabled="true"] { opacity: .45; pointer-events: none; }
+.sendbar .note { margin: 0; font-size: .82rem; color: var(--muted); max-width: 80ch; }
+.ver { font: .75rem var(--f-data); color: var(--muted); }
+.chip.gnd { background: var(--sel); color: var(--muted); }
+.chip.rsv { background: var(--amber-bg); color: var(--amber); }
+.nd { color: var(--amber); font-size: .7rem; vertical-align: super; }
+details.pkg { border: 1px solid var(--line); border-radius: 8px; background: var(--panel); }
+details.pkg summary { cursor: pointer; padding: 10px 14px; font: 600 .9rem var(--f-ui); }
+details.pkg .inner { padding: 0 14px 14px; display: grid; gap: 8px; }
+pre { margin: 0; max-height: 420px; overflow: auto; background: var(--bg); border: 1px solid var(--line); border-radius: 6px;
+  padding: 10px; font: .75rem/1.4 var(--f-data); white-space: pre; }
+.foot { font-size: .8rem; color: var(--muted); max-width: 80ch; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+.homelink { justify-self:start; font:600 .95rem var(--f-ui); color:var(--accent); text-decoration:none; padding:.2rem 0; }
+.homelink:hover { text-decoration:underline; }
+</style>
+<style id="fgo-ui-css">
+/* Floggy-Go shared UI: options panel, leg cards, send parts (inlined by build.py) */
+details.fl-opts { border:1px solid var(--line); border-radius:8px; background:var(--panel); padding:0 14px; }
+details.fl-opts > summary { cursor:pointer; padding:10px 0; font:600 .95rem var(--f-ui); color:var(--accent); }
+details.fl-opts > summary .fl-os { font-weight:400; color:var(--muted); }
+details.fl-opts[open] > summary { border-bottom:1px solid var(--line); margin-bottom:10px; }
+details.fl-opts .bar { padding-bottom:12px; display:flex; flex-wrap:wrap; gap:10px 20px; align-items:center; }
+label.opt { display:flex; align-items:center; gap:8px; font:600 1rem var(--f-ui); margin:6px 0 0; cursor:pointer; }
+label.opt input { width:1.15rem; height:1.15rem; accent-color:var(--accent); }
+.opt-note { margin:2px 0 6px 1.9rem; font-size:.85rem; color:var(--muted); }
+.fl-legs { border:1px solid var(--line); border-radius:8px; background:var(--panel); overflow:hidden; }
+.fl-top { display:flex; flex-wrap:wrap; align-items:center; gap:6px 14px; padding:8px 12px; border-bottom:1px solid var(--line); font:.9rem var(--f-ui); }
+.fl-all { display:flex; align-items:center; gap:6px; font-weight:600; cursor:pointer; }
+.fl-count { color:var(--muted); }
+.fl-link { background:none; border:0; color:var(--accent); font:600 .85rem var(--f-ui); cursor:pointer; padding:2px 4px; }
+.fl-top .fl-link:first-of-type { margin-left:auto; }
+.fl-empty { padding:12px; color:var(--muted); margin:0; }
+.fl-gh { display:flex; align-items:center; gap:8px; padding:6px 12px; background:var(--bg); border-bottom:1px solid var(--line); }
+.fl-gt { flex:1; text-align:left; background:none; border:0; color:var(--ink); font:.95rem var(--f-ui); cursor:pointer; padding:4px 0; min-width:0; }
+.fl-gs { color:var(--muted); }
+.fl-grp:not(.open) > .fl-gb { display:none; }
+.fl-chev { display:inline-block; color:var(--muted); transition:transform .15s; font-size:.8em; }
+.fl-grp.open > .fl-gh .fl-chev, .fl-leg.open > .fl-sum .fl-chev { transform:rotate(90deg); }
+.fl-leg { display:grid; grid-template-columns:auto 1fr; align-items:start; column-gap:8px; padding:0 12px; border-bottom:1px solid var(--line); }
+.fl-leg > input { margin-top:12px; width:1.1rem; height:1.1rem; accent-color:var(--accent); }
+.fl-leg.off > .fl-sum { opacity:.5; }
+.fl-sum { display:flex; flex-wrap:wrap; align-items:center; gap:2px 12px; background:none; border:0; color:var(--ink); text-align:left; padding:9px 0; cursor:pointer; font:.95rem var(--f-data); font-variant-numeric:tabular-nums; min-width:0; }
+.fl-d { color:var(--muted); } .fl-f { font-weight:600; } .fl-t { color:var(--muted); font-size:.88rem; }
+.fl-sum .chip { font-family:var(--f-ui); }
+.fl-sum .fl-chev { margin-left:auto; }
+.fl-w { color:var(--amber); }
+.fl-det { display:none; grid-column:2; padding:0 0 10px; font-size:.9rem; }
+.fl-leg.open > .fl-det { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:6px 16px; }
+.fl-det > div { min-width:0; } .fl-dl { display:block; font:600 .68rem var(--f-ui); text-transform:uppercase; letter-spacing:.06em; color:var(--muted); }
+.fl-dv { font-family:var(--f-data); font-size:.85rem; overflow-wrap:anywhere; }
+.fl-wt { grid-column:1/-1; margin:2px 0 0; color:var(--amber); font-size:.85rem; }
+.fl-sendbox { display:grid; gap:8px; }
+.fl-part { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+.fl-part .btn small { display:block; font-weight:400; font-size:.78rem; opacity:.85; }
+.btn.send[aria-disabled="true"], span.btn.send { opacity:.45; pointer-events:none; display:inline-block; }
+.fl-sum .chip { display:inline-block; font:600 .68rem var(--f-ui); letter-spacing:.05em; text-transform:uppercase; padding:1px 6px; border-radius:4px; }
+.fl-sum .chip.dh { background:var(--dh-bg, rgba(106,79,163,.14)); color:var(--dh, #8a6fd0); }
+.fl-sum .chip.gnd, .fl-sum .chip.skd { background:var(--sel, rgba(120,140,160,.16)); color:var(--muted); }
+.fl-sum .chip.sim, .fl-sum .chip.rsv { background:var(--amber-bg); color:var(--amber); }
+.fl-sum .chip.act { background:var(--ok-bg, rgba(31,122,74,.14)); color:var(--ok, #2f9a62); }
+.nd { color:var(--amber); font-size:.7rem; vertical-align:super; }
+</style>
+
+<style id="fgo-csv-css">
+/* Floggy-Go shared export folds (CSV, Calendar): self-contained so every page looks the same */
+details.fx-fold { margin:0; }
+.fx-box { display:grid; gap:10px; padding-bottom:14px; }
+.fx-head { display:flex; flex-wrap:wrap; align-items:center; gap:8px 14px; }
+.fx-head select { font:600 .95rem var(--f-ui); background:var(--panel); color:var(--ink); border:1px solid var(--line); border-radius:6px; padding:.4rem .6rem; }
+.fx-box .lbl { font:500 .7rem var(--f-ui); text-transform:uppercase; letter-spacing:.08em; color:var(--muted); }
+.fx-note { margin:0; font-size:.85rem; color:var(--muted); max-width:80ch; }
+.fx-lim { margin:0; padding:8px 10px; border-left:3px solid var(--accent); background:var(--sel, rgba(11,110,138,.08)); border-radius:0 6px 6px 0; font-size:.85rem; max-width:80ch; }
+.fx-grid { display:flex; flex-wrap:wrap; gap:10px 22px; align-items:flex-start; }
+.fx-col { display:grid; gap:4px; min-width:0; }
+.fx-col label.opt { font-size:.92rem; margin:0; }
+.fx-col input[type=text] { font:500 .95rem var(--f-data); background:var(--panel); color:var(--ink); border:1px solid var(--line); border-radius:6px; padding:.35rem .5rem; width:9rem; text-transform:uppercase; }
+.fx-col input[type=text]::placeholder { text-transform:none; }
+.fx-warn { margin:0; padding:8px 10px; border:1px solid var(--amber); background:var(--amber-bg); border-radius:6px; font-size:.85rem; color:var(--ink); }
+.fx-warn ul { margin:4px 0 0; padding-left:1.2rem; }
+.fx-table { max-height:340px; overflow:auto; border:1px solid var(--line); border-radius:8px; background:var(--panel); }
+.fx-table table { border-collapse:collapse; width:100%; font:.8rem var(--f-ui); font-variant-numeric:tabular-nums; }
+.fx-table th, .fx-table td { padding:5px 8px; border-bottom:1px solid var(--line); text-align:left; white-space:nowrap; vertical-align:top; }
+.fx-table th { position:sticky; top:0; background:var(--panel); font:600 .7rem var(--f-ui); text-transform:uppercase; letter-spacing:.06em; color:var(--muted); }
+.fx-table td { font-family:var(--f-data); font-size:.78rem; }
+.fx-act { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+.fx-act .btn small { display:block; font:400 .72rem var(--f-data); opacity:.85; }
+.fx-act .btn[disabled] { opacity:.45; cursor:default; }
+.fx-msg { font:.85rem var(--f-ui); color:var(--muted); }
+.fx-hist { font-size:.8rem; color:var(--muted); margin:0; }
+</style>
+<div class="wrap">
+  <a class="homelink" href="../../">‹ All Tools / Home</a>
+  <header class="hero">
+    <div class="hero-text">
+      <h1>Floggy-Go <span class="sub">Schedule</span></h1>
+      <p class="tag">eCrew Crew Schedule → LogTen</p>
+      <span class="ver">beta v1.1 · 11/01/26</span>
+    </div>
+    <img class="plane" alt="Smiling E175 in Floggy livery" src="../../img/plane-red.webp">
+  </header>
+  <div class="top">
+    <div class="pick">
+      <label class="btn" for="file">Choose schedule CSV</label>
+      <input id="file" type="file" accept=".csv,text/csv,text/plain">
+      <span id="fname" class="count"></span>
+    </div>
+  </div>
+
+  <div id="notice" class="banner example">
+    <p><strong>Example file loaded.</strong> These duties are made up to show how each rule works. Choose your own eCrew Personal Crew Schedule Report CSV to preview it. The file stays on this device.</p>
+  </div>
+
+  <div id="baseNote" class="banner"><p id="baseText"></p></div>
+
+  <div class="strip" id="strip"></div>
+
+  <details class="fl-opts" id="opts"><summary>Options <span class="fl-os" id="optSum"></span></summary>
+  <div class="bar">
+    <div class="grp"><span class="lbl">Flight number</span>
+      <div class="seg" role="group" aria-label="Airline code before the flight number">
+        <button type="button" data-px="" aria-pressed="true">No code</button>
+        <button type="button" data-px="QX" aria-pressed="false">QX</button>
+        <button type="button" data-px="AS" aria-pressed="false">AS</button>
+      </div>
+    </div>
+    <div class="grp"><span class="lbl">Aircraft type</span>
+      <div class="seg" role="group" aria-label="Aircraft type">
+        <button type="button" data-ty="none" aria-pressed="true">Not sent</button>
+        <button type="button" data-ty="raw" aria-pressed="false">As reported</button>
+        <button type="button" data-ty="E170" aria-pressed="false">E170</button>
+      </div>
+    </div>
+    <div class="grp"><span class="lbl">Non-flying (ground, reserve, deadhead)</span>
+      <div class="seg" role="group" aria-label="Non-flying duties">
+        <button type="button" data-nf="in" aria-pressed="true">Include</button>
+        <button type="button" data-nf="out" aria-pressed="false">Leave out</button>
+      </div>
+    </div>
+    <div class="grp"><span class="lbl">Duty times</span>
+      <div class="seg" role="group" aria-label="Duty times">
+        <button type="button" data-du="send" aria-pressed="true">Send</button>
+        <button type="button" data-du="out" aria-pressed="false">Leave out</button>
+      </div>
+    </div>
+    <div class="grp"><span class="lbl">P1/P2</span>
+      <div class="seg" role="group" aria-label="Capacity P1 and P2">
+        <button type="button" data-cap="send" aria-pressed="true">Send</button>
+        <button type="button" data-cap="out" aria-pressed="false">Leave to logbook</button>
+      </div>
+    </div>
+    <div class="grp"><span class="lbl">Show</span>
+      <div class="seg" role="group" aria-label="Show">
+        <button type="button" data-sh="all" aria-pressed="true">All</button>
+        <button type="button" data-sh="warn" aria-pressed="false">Warnings only</button>
+      </div>
+    </div>
+  </div>
+  </details>
+
+  <div id="legs" class="fl-legs"></div>
+  <div id="notesBox" class="banner error" hidden><p id="notesText"></p></div>
+
+  <div class="sendbar">
+    <div class="fl-sendbox" id="sendBox"></div>
+    <span class="count" id="sendMsg"></span>
+    <p class="note">Updates the same LogTen flights as Floggy and the other Floggy-Go pages (matched by date + flight + route); locked flights are skipped. Send the logbook last: it is the record for P1/P2 and Part 121/91. <a href="../help/#send">Help</a></p>
+  </div>
+
+  <details class="pkg" id="pkgBox">
+    <summary>LogTen package for the checked legs (what Send passes)</summary>
+    <div class="inner">
+      <div class="pick"><button type="button" class="btn ghost" id="copy">Copy JSON</button><span class="count" id="copyMsg"></span></div>
+      <pre id="pkg"></pre>
+    </div>
+  </details>
+
+  <div id="csvBox"></div>
+  <div id="calBox"></div>
+
+  <p class="foot">Nothing reaches LogTen until you tap Send. Rules match Floggy 2.6 Parse Schedule and Log10 Export, with the duty code list built in. Part 121/91 is not sent: the schedule can’t tell them apart, so it comes from the logbook. Times are station local, as eCrew shows them, each with its own date: <span class="nd">+1</span> marks a time on the day after the duty date. Duty on goes on the first checked leg of each duty day and duty off on the last.</p>
+</div>
+
+<script id="fgo-ui-js">
+// Floggy-Go shared UI (leg cards, options summary, send-in-parts). Inlined into each import page by build.py.
+(function (root) {
+  'use strict';
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+  // ---- leg cards ----
+  // el: container. m: { groups:[{id,title,sub,items:[...]}], on(i)->bool, toggle(idxs, on) }
+  // item: { i, key, date, flt, route, sched, actual, chip:{text,cls}, warn:[...], details:[[label, html]] }
+  function legs(el, m) {
+    var S = el._fgo || (el._fgo = { leg: {}, grp: {} });
+    S.m = m;
+    var all = [], onN = 0;
+    m.groups.forEach(function (g) { g.items.forEach(function (it) { all.push(it.i); if (m.on(it.i)) onN++; }); });
+    var h = '<div class="fl-top"><label class="fl-all"><input type="checkbox" data-all' + (onN && onN === all.length ? ' checked' : '') + '> All</label>' +
+      '<span class="fl-count">' + onN + ' of ' + all.length + ' checked</span>' +
+      '<button type="button" class="fl-link" data-expand="1">Open all</button><button type="button" class="fl-link" data-expand="0">Close all</button></div>';
+    if (!all.length) h += '<p class="fl-empty">No legs to show.</p>';
+    m.groups.forEach(function (g) {
+      var gOn = g.items.filter(function (it) { return m.on(it.i); }).length;
+      var gOpen = S.grp[g.id] !== false;
+      var gw = g.items.filter(function (it) { return it.warn && it.warn.length; }).length;
+      h += '<div class="fl-grp' + (gOpen ? ' open' : '') + '" data-gid="' + esc(g.id) + '"><div class="fl-gh">' +
+        '<input type="checkbox" data-g="' + esc(g.id) + '"' + (gOn === g.items.length && gOn ? ' checked' : '') + ' aria-label="Check all in ' + esc(g.title) + '">' +
+        '<button type="button" class="fl-gt" data-gt="' + esc(g.id) + '" aria-expanded="' + gOpen + '"><span class="fl-chev">▸</span> <strong>' + esc(g.title) + '</strong>' +
+        (g.sub ? ' <span class="fl-gs">' + esc(g.sub) + '</span>' : '') + ' <span class="fl-gs">· ' + gOn + '/' + g.items.length + '</span>' + (gw ? ' <span class="fl-w" title="Has warnings">⚠</span>' : '') + '</button></div><div class="fl-gb">';
+      g.items.forEach(function (it) {
+        var on = m.on(it.i), hasW = it.warn && it.warn.length;
+        var open = S.leg[it.key] != null ? S.leg[it.key] : !!hasW;
+        h += '<div class="fl-leg' + (on ? '' : ' off') + (open ? ' open' : '') + '">' +
+          '<input type="checkbox" data-i="' + it.i + '"' + (on ? ' checked' : '') + ' aria-label="Include ' + esc(it.date + ' ' + it.flt) + '">' +
+          '<button type="button" class="fl-sum" data-k="' + esc(it.key) + '" aria-expanded="' + open + '">' +
+          '<span class="fl-d">' + esc(it.date) + '</span><span class="fl-f">' + esc(it.flt) + '</span><span class="fl-r">' + esc(it.route) + '</span>' +
+          '<span class="fl-t">' + (it.times || '') + '</span>' +
+          (it.chip ? '<span class="chip ' + esc(it.chip.cls || '') + '">' + esc(it.chip.text) + '</span>' : '') +
+          (hasW ? '<span class="fl-w" title="Warning">⚠</span>' : '') + '<span class="fl-chev">▸</span></button>' +
+          '<div class="fl-det">' + (it.details || []).filter(function (d) { return d[1] !== '' && d[1] != null; }).map(function (d) { return '<div><span class="fl-dl">' + esc(d[0]) + '</span><span class="fl-dv">' + d[1] + '</span></div>'; }).join('') +
+          (hasW ? '<p class="fl-wt">' + esc(it.warn.join(' ')) + '</p>' : '') + '</div></div>';
+      });
+      h += '</div></div>';
+    });
+    el.innerHTML = h;
+    var a = el.querySelector('[data-all]'); if (a) a.indeterminate = onN > 0 && onN < all.length;
+    m.groups.forEach(function (g) {
+      var gOn = g.items.filter(function (it) { return m.on(it.i); }).length, c = el.querySelector('[data-g="' + g.id.replace(/"/g, '\\"') + '"]');
+      if (c) c.indeterminate = gOn > 0 && gOn < g.items.length;
+    });
+    if (S.bound) return;
+    S.bound = true;
+    el.addEventListener('change', function (e) {
+      var t = e.target, M = S.m;
+      if (t.dataset.i != null) M.toggle([+t.dataset.i], t.checked);
+      else if (t.dataset.g != null) { var g = M.groups.filter(function (x) { return x.id === t.dataset.g; })[0]; if (g) M.toggle(g.items.map(function (it) { return it.i; }), t.checked); }
+      else if (t.hasAttribute('data-all')) { var ids = []; M.groups.forEach(function (g) { g.items.forEach(function (it) { ids.push(it.i); }); }); M.toggle(ids, t.checked); }
+    });
+    el.addEventListener('click', function (e) {
+      var b = e.target.closest('button'); if (!b || !el.contains(b)) return;
+      if (b.dataset.k != null) { var leg = b.parentNode, o = !leg.classList.contains('open'); leg.classList.toggle('open', o); b.setAttribute('aria-expanded', o); S.leg[b.dataset.k] = o; }
+      else if (b.dataset.gt != null) { var g = b.closest('.fl-grp'), go = !g.classList.contains('open'); g.classList.toggle('open', go); b.setAttribute('aria-expanded', go); S.grp[b.dataset.gt] = go; }
+      else if (b.dataset.expand != null) {
+        var o2 = b.dataset.expand === '1';
+        Array.prototype.forEach.call(el.querySelectorAll('.fl-leg'), function (l) { l.classList.toggle('open', o2); var s = l.querySelector('.fl-sum'); s.setAttribute('aria-expanded', o2); S.leg[s.dataset.k] = o2; });
+        if (o2) Array.prototype.forEach.call(el.querySelectorAll('.fl-grp'), function (g) { g.classList.add('open'); S.grp[g.dataset.gid] = true; });
+      }
+    });
+  }
+
+  // ---- grouping ----
+  // trips: a trip starts when a flying leg leaves base and ends when one arrives at base; other duties group alone.
+  // trips: a trip starts when a flying leg leaves base and ends with the duty in which it gets back to base;
+  // other duties (ground, reserve, sim) inside a trip stay with it, otherwise they group alone.
+  function groupTrips(items, base, isFlying, label) {
+    var out = [], cur = null;
+    items.forEach(function (it) {
+      if (cur && cur.home != null && it._duty !== cur.home) cur.closed = true;   // the duty that brought us home has ended
+      var fly = isFlying(it);
+      if (!fly && (!cur || cur.closed)) { out.push({ id: 'g' + out.length, items: [it], title: label(it), sub: '', closed: true }); cur = null; return; }
+      if (fly && (!cur || cur.closed)) { cur = { id: 'g' + out.length, items: [], first: it.date, closed: false, home: null }; out.push(cur); }
+      cur.items.push(it); cur.end = it.date;
+      if (fly && it._arv === base) cur.home = it._duty; else if (fly) cur.home = null;
+    });
+    out.forEach(function (g) {
+      if (g.title) return;
+      var fl = g.items.filter(isFlying), stops = [fl[0]._dep];
+      fl.forEach(function (it) { if (it._dep !== stops[stops.length - 1]) stops.push(it._dep); stops.push(it._arv); });
+      g.title = 'Trip ' + g.first.slice(0, 5) + (g.end && g.end !== g.first ? '–' + g.end.slice(0, 5) : '');
+      g.sub = stops.length > 7 ? stops.slice(0, 3).join('–') + '…' + stops[stops.length - 1] : stops.join('–');
+    });
+    return out;
+  }
+  function groupMonths(items) {
+    var out = [], idx = {};
+    items.forEach(function (it) {
+      var p = it.date.split('/'), k = p[2] + p[0];
+      if (!idx[k]) { idx[k] = { id: 'm' + k, title: MONTHS[+p[0] - 1] + ' ' + p[2], items: [] }; out.push(idx[k]); }
+      idx[k].items.push(it);
+    });
+    return out;
+  }
+  function groupBy(items, keyFn, titleFn) {
+    var out = [], idx = {};
+    items.forEach(function (it) { var k = keyFn(it); if (!idx[k]) { idx[k] = { id: 'k' + out.length, title: titleFn(it, out.length), items: [] }; out.push(idx[k]); } idx[k].items.push(it); });
+    return out;
+  }
+
+  // ---- options summary ----
+  function optSum(el, parts) { var t = parts.filter(Boolean); el.textContent = t.length ? '· ' + t.join(', ') : '· defaults'; }
+
+  // ---- send in parts ----
+  // el: container. o: { legs, url(partLegs), max, noun, disabledText, msg(el) }
+  function send(el, o) {
+    var max = o.max || 100, legs = o.legs, noun = o.noun || 'flight';
+    var plural = function (n) { return n + ' ' + noun + (n === 1 ? '' : 's'); };
+    el.innerHTML = '';
+    var msg = o.msgEl;
+    if (o.disabledText || !legs.length) {
+      el.innerHTML = '<span class="btn send" aria-disabled="true">' + esc(o.disabledText || 'Nothing checked') + '</span>';
+      if (msg) msg.textContent = ''; return;
+    }
+    var n = Math.ceil(legs.length / max);
+    for (var b = 0; b < n; b++) {
+      var part = legs.slice(b * max, (b + 1) * max), url = o.url(part);
+      var row = document.createElement('div'); row.className = 'fl-part';
+      var a = document.createElement('a'); a.className = 'btn send'; a.href = url;
+      a.innerHTML = n === 1 ? 'Send ' + plural(part.length) + ' to LogTen' : 'Send part ' + (b + 1) + ' of ' + n + '<small>' + esc(part[0].date + ' – ' + part[part.length - 1].date) + ' · ' + plural(part.length) + '</small>';
+      var c = document.createElement('button'); c.type = 'button'; c.className = 'btn ghost'; c.textContent = n === 1 ? 'Copy LogTen URL' : 'Copy URL';
+      (function (u, btn) {
+        a.addEventListener('click', function () { if (msg) { msg.textContent = 'Opening LogTen…'; setTimeout(function () { msg.textContent = 'If LogTen didn’t open, use Copy' + (n === 1 ? ' LogTen URL' : ' URL') + ' and paste it into Safari’s address bar.'; }, 2500); } });
+        btn.addEventListener('click', function () {
+          var done = function () { if (msg) msg.textContent = 'URL copied. Paste it into Safari’s address bar and tap Go.'; };
+          if (navigator.clipboard) navigator.clipboard.writeText(u).then(done, fallback); else fallback();
+          function fallback() { var ta = document.createElement('textarea'); ta.value = u; ta.readOnly = true; ta.rows = 2; ta.style.width = '100%'; row.appendChild(ta); ta.focus(); ta.select(); if (msg) msg.textContent = 'Selected. Use Copy, then paste into Safari.'; }
+        });
+      })(url, c);
+      row.appendChild(a); row.appendChild(c); el.appendChild(row);
+    }
+    if (msg) msg.textContent = n > 1 ? plural(legs.length) + ' in ' + n + ' parts of up to ' + max + '. Send each part in turn, letting LogTen finish before the next.' : '';
+  }
+
+  // ---- shared aircraft type names ----
+  // eCrew-style short code -> "E170" mode name (same as Floggy-Go Schedule/Logbook mapType)
+  function typeName(code, mode) {
+    if (mode === 'none' || !code) return '';
+    if (mode === 'raw') return code;
+    return { E75: 'E170', DH4: 'DH8D' }[code] || code;
+  }
+
+  root.FGO = { legs: legs, groupTrips: groupTrips, groupMonths: groupMonths, groupBy: groupBy, optSum: optSum, send: send, typeName: typeName, esc: esc };
+})(this);
+</script>
+<script id="fgo-csv-js">
+// Floggy-Go shared CSV export (target presets, preview, download). Inlined into each import page.
+// Page calls FGOCSV.mount(el, { page, header, rows() }) once and FGOCSV.refresh(el) after every render.
+// Row shape (one per checked leg), all strings unless noted:
+//   date 'MM/dd/yyyy', flt, dep, arv, kind ('0' flight,'1' deadhead,'2' ground,'3' sim,'4' other,'6' reserve)
+//   tail, type ('E75' style), pic, sic, fa1, fa2, p1 (bool), p2 (bool), pt121 (bool|null when unknown)
+//   out/inn/sOut/sIn/dOn/dOff: { date:'MM/dd/yyyy', time:'HH:mm', stn } or null — actual, scheduled, duty
+//   zulu (bool): times are already UTC (Logbook page) instead of station local (Schedule page)
+//   remarks, trg, key
+(function (root) {
+  'use strict';
+  var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+  var pad = function (n) { return String(n).padStart(2, '0'); };
+
+  // ---------- station time zones (browser applies DST rules) ----------
+  var ZONE = {};
+  function z(name, list) { list.split(' ').forEach(function (c) { ZONE[c] = name; }); }
+  z('America/Los_Angeles', 'PDX SEA GEG PAE BLI EUG MFR RDM PSC YKM ALW LWS PUW EAT SFO OAK SJC SMF STS MRY FAT SBA SBP SAN LAX BUR ONT SNA LGB PSP LAS RNO ACV CEC RDD OTH');
+  z('America/Boise', 'BOI SUN TWF');
+  z('America/Denver', 'MSO BZN BIL GTF HLN FCA SLC IDA ABQ ELP DEN COS ASE JAC GJT');
+  z('America/Phoenix', 'PHX TUS FLG');
+  z('America/Chicago', 'ICT OKC TUL OMA MCI STL MSP DFW AUS ORD IAH MKE');
+  z('America/New_York', 'ATL JFK EWR BOS DCA IAD MCO TPA FLL');
+  z('America/Anchorage', 'ANC FAI JNU KTN SIT');
+  z('America/Vancouver', 'YVR YLW YYJ');
+  z('America/Edmonton', 'YYC YEG');
+  z('Pacific/Honolulu', 'HNL OGG KOA LIH');
+  // BC and Alberta stay on daylight time from 11/01/2026 (Floggy airportdata); fixed here in case the browser's tables are older
+  var PERM = { 'America/Vancouver': { from: Date.UTC(2026, 10, 1, 9), off: -420 }, 'America/Edmonton': { from: Date.UTC(2026, 10, 1, 8), off: -360 } };
+  var fmts = {};
+  function tzOff(zone, ms) {
+    if (PERM[zone] && ms >= PERM[zone].from) return PERM[zone].off;
+    var f = fmts[zone] || (fmts[zone] = new Intl.DateTimeFormat('en-US', { timeZone: zone, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }));
+    var p = {}; f.formatToParts(new Date(ms)).forEach(function (x) { p[x.type] = x.value; });
+    return Math.round((Date.UTC(+p.year, +p.month - 1, +p.day, (+p.hour) % 24, +p.minute) - Math.floor(ms / 60000) * 60000) / 60000);
+  }
+  // { date, time, stn } -> ms (UTC) or null when the station isn't in the list
+  function ms(t, zulu) {
+    if (!t || !t.date || !t.time) return null;
+    var d = t.date.split('/').map(Number), h = t.time.split(':').map(Number);
+    var wall = Date.UTC(d[2], d[0] - 1, d[1], h[0], h[1]);
+    if (zulu) return wall;
+    var zone = ZONE[t.stn]; if (!zone) return null;
+    var o = tzOff(zone, wall), u = wall - o * 60000, o2 = tzOff(zone, u);
+    return o2 === o ? u : wall - o2 * 60000;
+  }
+
+  // ---------- formatting ----------
+  function dParts(mdY) { var p = mdY.split('/'); return { m: +p[0], d: +p[1], y: +p[2] }; }
+  function fDate(mdY, f) {
+    if (!mdY) return ''; var p = dParts(mdY);
+    if (f === 'iso') return p.y + '-' + pad(p.m) + '-' + pad(p.d);
+    if (f === 'dmy') return p.d + '/' + p.m + '/' + p.y;
+    return p.m + '/' + p.d + '/' + p.y;
+  }
+  function msDate(v) { var t = new Date(v); return pad(t.getUTCMonth() + 1) + '/' + pad(t.getUTCDate()) + '/' + t.getUTCFullYear(); }
+  function msTime(v) { var t = new Date(v); return pad(t.getUTCHours()) + ':' + pad(t.getUTCMinutes()); }
+  // clock time in the chosen zone: returns { date, time } or null
+  function clock(t, row, zone) {
+    if (!t || !t.time) return null;
+    if (zone === 'utc') { var v = ms(t, row.zulu); return v == null ? null : { date: msDate(v), time: msTime(v) }; }
+    if (row.zulu) { var v2 = ms(t, true), zn = ZONE[t.stn]; if (!zn) return null; var lo = v2 + tzOff(zn, v2) * 60000; return { date: msDate(lo), time: msTime(lo) }; }
+    return { date: t.date, time: t.time };
+  }
+  function fTime(c, f) { if (!c) return ''; return f === 'hhmm' ? c.time.replace(':', '') : c.time; }
+  function fDur(min, f) {
+    if (min == null) return '';
+    if (f === 'dec') return (min / 60).toFixed(2);
+    if (f === 'min') return String(min);
+    return Math.floor(min / 60) + ':' + pad(min % 60);
+  }
+  function block(row) { var a = ms(row.out, row.zulu), b = ms(row.inn, row.zulu); if (a == null || b == null) return null; var m = Math.round((b - a) / 60000); return m >= 0 && m < 24 * 60 ? m : null; }
+  var MODEL = { E75: 'ERJ-175', E7W: 'ERJ-175', E170: 'ERJ-175', DH4: 'DHC-8-400', DH8D: 'DHC-8-400', CR7: 'CRJ-700', CRJ7: 'CRJ-700' };
+  var ICAOTYPE = { E75: 'E75L', E7W: 'E75L', E170: 'E75L', DH4: 'DH8D', DH8D: 'DH8D', CR7: 'CRJ7', CRJ7: 'CRJ7' };
+  var MAKE = { E: 'Embraer', D: 'De Havilland', C: 'Bombardier' };
+
+  // ---------- targets ----------
+  // col: { h: header, v: function(row, c), opt: switch key (optional) }
+  // c (context per row): { blk, ctx (settings), tail }
+  var TARGETS = {
+    foreflight: {
+      name: 'ForeFlight', tag: 'ForeFlight',
+      note: 'Draft layout from ForeFlight’s published field list. Compare with the template from ForeFlight on the Web (Logbook › Import) before a real import. Dates YYYY-MM-DD, clock times hhmm, total time decimal.',
+      fixed: { date: 'iso', dur: 'dec', clock: 'hhmm' }, zone: 'utc', zoneChoice: true, needsTail: true,
+      opts: [['flt', 'Flight number (custom field)', true], ['crew', 'Crew names (Person fields)', true], ['dh', 'Deadhead flag (custom field)', true], ['duty', 'Duty on/off', true], ['trg', 'Training code in comments', true]],
+      cols: [
+        { h: 'Date', v: function (r, c) { return fDate(r.date, 'iso'); } },
+        { h: 'AircraftID', v: function (r, c) { return c.tail; } },
+        { h: 'From', v: function (r) { return r.dep; } },
+        { h: 'To', v: function (r) { return r.arv; } },
+        { h: 'Route' }, { h: 'TimeOut', v: function (r, c) { return fTime(clock(r.out, r, c.ctx.zone), 'hhmm'); } },
+        { h: 'TimeOff' }, { h: 'TimeOn' },
+        { h: 'TimeIn', v: function (r, c) { return fTime(clock(r.inn, r, c.ctx.zone), 'hhmm'); } },
+        { h: 'OnDuty', opt: 'duty', v: function (r, c) { return fTime(clock(r.dOn, r, c.ctx.zone), 'hhmm'); } },
+        { h: 'OffDuty', opt: 'duty', v: function (r, c) { return fTime(clock(r.dOff, r, c.ctx.zone), 'hhmm'); } },
+        { h: 'TotalTime', v: function (r, c) { return r.kind === '1' ? '0.00' : fDur(c.blk, 'dec'); } },
+        { h: 'PIC', v: function (r, c) { return r.p1 && r.kind === '0' ? fDur(c.blk, 'dec') : ''; } },
+        { h: 'SIC', v: function (r, c) { return r.p2 && r.kind === '0' ? fDur(c.blk, 'dec') : ''; } },
+        { h: 'Night' }, { h: 'Solo' }, { h: 'CrossCountry' }, { h: 'PICUS' },
+        { h: 'MultiPilot', v: function (r, c) { return r.kind === '0' ? fDur(c.blk, 'dec') : ''; } },
+        { h: 'IFR' }, { h: 'Examiner' }, { h: 'NVG' }, { h: 'NVGOps' }, { h: 'Distance' },
+        { h: 'DayTakeoffs' }, { h: 'DayLandingsFullStop' }, { h: 'NightTakeoffs' }, { h: 'NightLandingsFullStop' }, { h: 'AllLandings' },
+        { h: 'ActualInstrument' }, { h: 'SimulatedInstrument' }, { h: 'GroundTraining' }, { h: 'GroundTrainingGiven' },
+        { h: 'HobbsStart' }, { h: 'HobbsEnd' }, { h: 'TachStart' }, { h: 'TachEnd' }, { h: 'Holds' },
+        { h: 'Approach1' }, { h: 'Approach2' }, { h: 'Approach3' }, { h: 'Approach4' }, { h: 'Approach5' }, { h: 'Approach6' },
+        { h: 'DualGiven' }, { h: 'DualReceived' },
+        { h: 'SimulatedFlight', v: function (r, c) { return r.kind === '3' ? fDur(c.blk, 'dec') : ''; } },
+        { h: 'InstructorName' }, { h: 'InstructorComments' },
+        { h: 'Person1', opt: 'crew', v: function (r, c) { return person(r.pic, 'PIC', c.ctx); } },
+        { h: 'Person2', opt: 'crew', v: function (r, c) { return person(r.sic, 'SIC', c.ctx); } },
+        { h: 'Person3', opt: 'crew', v: function (r, c) { return person(r.fa1, 'Flight Attendant', c.ctx); } },
+        { h: 'Person4', opt: 'crew', v: function (r, c) { return person(r.fa2, 'Flight Attendant', c.ctx); } },
+        { h: 'Person5' }, { h: 'Person6' },
+        { h: 'PilotComments', v: function (r, c) { return comments(r, c.ctx); } },
+        { h: 'FlightReview' }, { h: 'IPC' }, { h: 'CheckRide' }, { h: 'FAA61.58' }, { h: 'NVGProficiency' },
+        { h: '[Text]FlightNumber', opt: 'flt', v: function (r) { return r.flt; } },
+        { h: '[Text]Deadhead', opt: 'dh', v: function (r) { return r.kind === '1' ? 'Yes' : ''; } }
+      ],
+      aircraft: ['AircraftID', 'EquipmentType', 'TypeCode', 'Year', 'Make', 'Model', 'Category / Class', 'GearType', 'EngineType', 'Complex', 'HighPerformance', 'Pressurized', 'TAA']
+    },
+    logbookpro: {
+      name: 'Logbook Pro', tag: 'LogbookPro',
+      note: 'No fixed column names: map each column once in Logbook Pro’s Import Wizard (File › Import Wizard) and save the mapping as a template. Create custom fields first for anything beyond the standard ones (flight number, crew, deadhead), and make sure the aircraft type exists in Options.',
+      fixed: {}, zone: 'local', zoneChoice: true, needsTail: true,
+      fmts: { dur: 'hm', date: 'mdy' },
+      opts: [['flt', 'Flight number', false], ['crew', 'Crew names', false], ['dh', 'Deadhead', false], ['duty', 'Duty on/off', false], ['trg', 'Training code in remarks', true]],
+      cols: [
+        { h: 'Date', v: function (r, c) { return fDate(r.date, c.ctx.date); } },
+        { h: 'Aircraft Ident', v: function (r, c) { return c.tail; } },
+        { h: 'Aircraft Type', v: function (r) { return r.type; } },
+        { h: 'Route', v: function (r) { return r.dep + '-' + r.arv; } },
+        { h: 'Out', v: function (r, c) { return fTime(clock(r.out, r, c.ctx.zone), 'hh:mm'); } },
+        { h: 'In', v: function (r, c) { return fTime(clock(r.inn, r, c.ctx.zone), 'hh:mm'); } },
+        { h: 'Duration', v: function (r, c) { return r.kind === '1' ? '' : fDur(c.blk, c.ctx.dur); } },
+        { h: 'PIC', v: function (r, c) { return r.p1 && r.kind === '0' ? fDur(c.blk, c.ctx.dur) : ''; } },
+        { h: 'SIC', v: function (r, c) { return r.p2 && r.kind === '0' ? fDur(c.blk, c.ctx.dur) : ''; } },
+        { h: 'Simulator', v: function (r, c) { return r.kind === '3' ? fDur(c.blk, c.ctx.dur) : ''; } },
+        { h: 'Flight Number', opt: 'flt', v: function (r) { return r.flt; } },
+        { h: 'Captain', opt: 'crew', v: function (r) { return r.pic; } },
+        { h: 'First Officer', opt: 'crew', v: function (r) { return r.sic; } },
+        { h: 'Flight Attendants', opt: 'crew', v: function (r) { return [r.fa1, r.fa2].filter(Boolean).join('; '); } },
+        { h: 'Deadhead', opt: 'dh', v: function (r) { return r.kind === '1' ? 'Yes' : ''; } },
+        { h: 'Duty On', opt: 'duty', v: function (r, c) { var k = clock(r.dOn, r, c.ctx.zone); return k ? fDate(k.date, c.ctx.date) + ' ' + k.time : ''; } },
+        { h: 'Duty Off', opt: 'duty', v: function (r, c) { var k = clock(r.dOff, r, c.ctx.zone); return k ? fDate(k.date, c.ctx.date) + ' ' + k.time : ''; } },
+        { h: 'Remarks', v: function (r, c) { return comments(r, c.ctx); } }
+      ]
+    },
+    myflightbook: {
+      name: 'MyFlightbook', tag: 'MyFlightbook',
+      note: 'Column names match MyFlightbook’s import list exactly (Logbook › Import). Block, scheduled and duty times are UTC; total time decimal. Importing adds new flights only, so export each month once.',
+      fixed: { date: 'mdy', dur: 'dec' }, zone: 'utc', zoneChoice: false, needsTail: true,
+      opts: [['flt', 'Flight Number', true], ['crew', 'Name of PIC / SIC', true], ['fa', 'Flight Attendant Name(s)', true], ['dh', 'Deadhead', true], ['sched', 'Scheduled times', true], ['duty', 'Duty times', true], ['pt121', 'Part 121 Flight', true], ['trg', 'Training code in comments', true]],
+      cols: [
+        { h: 'Date', v: function (r) { return fDate(r.date, 'mdy'); } },
+        { h: 'Tail Number', v: function (r, c) { return c.tail; } },
+        { h: 'Model', v: function (r) { return MODEL[r.type] || r.type; } },
+        { h: 'From', v: function (r) { return r.dep; } },
+        { h: 'To', v: function (r) { return r.arv; } },
+        { h: 'Total Flight Time', v: function (r, c) { return r.kind === '1' ? '0' : fDur(c.blk, 'dec'); } },
+        { h: 'PIC', v: function (r, c) { return r.p1 && r.kind === '0' ? fDur(c.blk, 'dec') : ''; } },
+        { h: 'SIC', v: function (r, c) { return r.p2 && r.kind === '0' ? fDur(c.blk, 'dec') : ''; } },
+        { h: 'Ground Simulator', v: function (r, c) { return r.kind === '3' ? fDur(c.blk, 'dec') : ''; } },
+        { h: 'Block Out Time', v: function (r) { return mfbStamp(r.out, r); } },
+        { h: 'Block In Time', v: function (r) { return mfbStamp(r.inn, r); } },
+        { h: 'Flight Number', opt: 'flt', v: function (r) { return r.flt; } },
+        { h: 'Name of PIC', opt: 'crew', v: function (r) { return r.pic; } },
+        { h: 'Name of SIC', opt: 'crew', v: function (r) { return r.sic; } },
+        { h: 'Flight Attendant Name(s)', opt: 'fa', v: function (r) { return [r.fa1, r.fa2].filter(Boolean).join('; '); } },
+        { h: 'Deadhead', opt: 'dh', v: function (r) { return r.kind === '1' ? 'Yes' : ''; } },
+        { h: 'Scheduled Departure Time', opt: 'sched', v: function (r) { return mfbStamp(r.sOut, r); } },
+        { h: 'Scheduled Arrival Time', opt: 'sched', v: function (r) { return mfbStamp(r.sIn, r); } },
+        { h: 'Duty Time Start (UTC)', opt: 'duty', v: function (r) { return mfbStamp(r.dOn, r); } },
+        { h: 'Duty Time End (UTC)', opt: 'duty', v: function (r) { return mfbStamp(r.dOff, r); } },
+        { h: 'Part 121 Flight', opt: 'pt121', v: function (r) { return r.pt121 === true && r.kind === '0' ? 'Yes' : ''; } },
+        { h: 'Comments', v: function (r, c) { return comments(r, c.ctx); } }
+      ]
+    },
+    sheet: {
+      name: 'Spreadsheet', tag: 'Spreadsheet',
+      note: 'Plain columns for Excel, Numbers or any logbook with a column-mapping import (Safelog, mccPilotLog and others).',
+      fixed: {}, zone: 'local', zoneChoice: true, needsTail: false, fmts: { dur: 'hm', date: 'iso' },
+      opts: [['crew', 'Crew names', true], ['duty', 'Duty on/off', true], ['sched', 'Scheduled times', true], ['key', 'LogTen match key', false]],
+      cols: [
+        { h: 'Date', v: function (r, c) { return fDate(r.date, c.ctx.date); } },
+        { h: 'Flight', v: function (r) { return r.flt; } },
+        { h: 'From', v: function (r) { return r.dep; } },
+        { h: 'To', v: function (r) { return r.arv; } },
+        { h: 'Kind', v: function (r) { return KIND[r.kind] || ''; } },
+        { h: 'Type', v: function (r) { return r.type; } },
+        { h: 'Tail', v: function (r) { return r.tail; } },
+        { h: 'Sched Out', opt: 'sched', v: function (r, c) { return stamp(r.sOut, r, c.ctx); } },
+        { h: 'Sched In', opt: 'sched', v: function (r, c) { return stamp(r.sIn, r, c.ctx); } },
+        { h: 'Out', v: function (r, c) { return stamp(r.out, r, c.ctx); } },
+        { h: 'In', v: function (r, c) { return stamp(r.inn, r, c.ctx); } },
+        { h: 'Block', v: function (r, c) { return fDur(c.blk, c.ctx.dur); } },
+        { h: 'P1', v: function (r) { return r.p1 ? 'Yes' : ''; } },
+        { h: 'P2', v: function (r) { return r.p2 ? 'Yes' : ''; } },
+        { h: 'Part 121', v: function (r) { return r.pt121 === true ? 'Yes' : r.pt121 === false ? 'No' : ''; } },
+        { h: 'Captain', opt: 'crew', v: function (r) { return r.pic; } },
+        { h: 'First Officer', opt: 'crew', v: function (r) { return r.sic; } },
+        { h: 'FA1', opt: 'crew', v: function (r) { return r.fa1; } },
+        { h: 'FA2', opt: 'crew', v: function (r) { return r.fa2; } },
+        { h: 'Duty On', opt: 'duty', v: function (r, c) { return stamp(r.dOn, r, c.ctx); } },
+        { h: 'Duty Off', opt: 'duty', v: function (r, c) { return stamp(r.dOff, r, c.ctx); } },
+        { h: 'Training', v: function (r) { return r.trg; } },
+        { h: 'Remarks', v: function (r) { return r.remarks; } },
+        { h: 'Match Key', opt: 'key', v: function (r) { return r.key; } }
+      ]
+    }
+  };
+  var KIND = { '0': 'Flight', '1': 'Deadhead', '2': 'Ground', '3': 'Sim', '4': 'Other', '6': 'Reserve' };
+  function mfbStamp(t, r) { var k = clock(t, r, 'utc'); return k ? fDate(k.date, 'mdy') + ' ' + k.time : ''; }
+  function stamp(t, r, ctx) { var k = clock(t, r, ctx.zone); return k ? fDate(k.date, ctx.date) + ' ' + k.time : ''; }
+  // ForeFlight Person fields are the OTHER people on board, so the pilot exporting is left out
+  function person(name, role, ctx) { return name && name.trim().replace(/\s+/g, ' ').toUpperCase() !== ctx.self ? name + ';' + role + ';' : ''; }
+  function comments(r, ctx) {
+    var p = [];
+    if (r.remarks && r.remarks !== 'Dead Head') p.push(r.remarks);
+    if (ctx.on.trg && r.trg) p.push('Training: ' + r.trg);
+    return p.join('; ');
+  }
+
+  // ---------- settings memory (this device only) ----------
+  var KEY = 'floggyGo.csv.v1';
+  function load() { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; } }
+  function save(m) { try { localStorage.setItem(KEY, JSON.stringify(m)); } catch (e) { /* storage off: settings just aren't kept */ } }
+
+  function settings(mem, id) {
+    var T = TARGETS[id], s = (mem.t && mem.t[id]) || {}, on = {};
+    T.opts.forEach(function (o) { on[o[0]] = s.on && s.on[o[0]] != null ? s.on[o[0]] : o[2]; });
+    var rowsDef = id === 'sheet' ? { dh: true, sim: true, gnd: true } : { dh: true, sim: false, gnd: false };
+    return {
+      on: on,
+      zone: T.zoneChoice ? (s.zone || T.zone) : T.zone,
+      dur: T.fixed.dur || s.dur || (T.fmts && T.fmts.dur) || 'hm',
+      date: T.fixed.date || s.date || (T.fmts && T.fmts.date) || 'mdy',
+      rows: Object.assign(rowsDef, s.rows || {})
+    };
+  }
+
+  // ---------- build ----------
+  function build(id, rows, ctx, tail) {
+    var T = TARGETS[id], warn = { zone: {}, unflown: 0, tail: 0, cap: 0 };
+    var keep = rows.filter(function (r) {
+      if (r.kind === '0') return true;
+      if (r.kind === '1') return ctx.rows.dh;
+      if (r.kind === '3') return ctx.rows.sim;
+      return ctx.rows.gnd;
+    });
+    var cols = T.cols.filter(function (c) { return !c.opt || ctx.on[c.opt]; });
+    var out = keep.map(function (r) {
+      // ground, reserve and other duties have duty time, not block time
+      var blk = (r.kind === '2' || r.kind === '6' || r.kind === '4') ? null : block(r);
+      // ...and no block out/in either, except in the plain spreadsheet
+      if (blk == null && id !== 'sheet' && (r.kind === '2' || r.kind === '6' || r.kind === '4')) r = Object.assign({}, r, { out: null, inn: null });
+      [r.out, r.inn].forEach(function (t) { if (t && t.time && !r.zulu && !ZONE[t.stn]) warn.zone[t.stn] = 1; });
+      if ((r.kind === '0' || r.kind === '3') && blk == null) warn.unflown++;
+      var tl = r.tail || tail || '';
+      if (T.needsTail && !tl && r.kind !== '2' && r.kind !== '6') warn.tail++;
+      if (r.kind === '0' && !r.p1 && !r.p2) warn.cap++;
+      var c = { blk: blk, ctx: ctx, tail: tl };
+      return cols.map(function (col) { return col.v ? (col.v(r, c) || '') : ''; });
+    });
+    return { cols: cols, data: out, rows: keep, warn: warn };
+  }
+  function csvCell(v) { v = String(v == null ? '' : v); return /[",\n\r]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }
+  function csvLine(a) { return a.map(csvCell).join(','); }
+  function toCSV(id, b, tail) {
+    var lines = [];
+    if (id === 'foreflight') {
+      var T = TARGETS.foreflight, tails = {};
+      b.rows.forEach(function (r) { var t = r.tail || tail; if (t) tails[t] = tails[t] || r.type; });
+      lines.push(csvLine(['ForeFlight Logbook Import', 'This row is required for importing into ForeFlight. Do not delete or modify.']));
+      lines.push('');
+      lines.push('Aircraft Table');
+      lines.push(csvLine(T.aircraft));
+      Object.keys(tails).forEach(function (t) {
+        var ty = tails[t] || 'E75';
+        lines.push(csvLine([t, 'aircraft', ICAOTYPE[ty] || ty, '', MAKE[ty.charAt(0)] || '', MODEL[ty] || ty, '', '', '', '', '', '', '']));
+      });
+      lines.push('');
+      lines.push('Flights Table');
+      lines.push(csvLine(TARGETS.foreflight.cols.map(function (c) { return c.h; })));
+      // ForeFlight wants every column, filled or not
+      var all = TARGETS.foreflight.cols, used = b.cols;
+      b.data.forEach(function (d) { lines.push(csvLine(all.map(function (c) { var i = used.indexOf(c); return i >= 0 ? d[i] : ''; }))); });
+    } else {
+      lines.push(csvLine(b.cols.map(function (c) { return c.h; })));
+      b.data.forEach(function (d) { lines.push(csvLine(d)); });
+    }
+    return lines.join('\r\n') + '\r\n';
+  }
+  function fileName(hdr, id, rows) {
+    var ds = rows.map(function (r) { return fDate(r.date, 'iso'); }).sort();
+    var last = (hdr.name || '').split(/\s+/)[0].replace(/[^A-Za-z-]/g, '').toUpperCase() || 'PILOT';
+    var who = last + (hdr.crewId ? '-' + hdr.crewId : '');
+    return who + '_' + TARGETS[id].tag + '_' + (ds.length ? ds[0] + '_to_' + ds[ds.length - 1] : 'empty') + '.csv';
+  }
+
+  // ---------- UI ----------
+  function seg(label, key, choices, cur) {
+    return '<div class="fx-col"><span class="lbl">' + esc(label) + '</span><div class="seg" role="group" aria-label="' + esc(label) + '">' +
+      choices.map(function (c) { return '<button type="button" data-fx="' + key + '" data-v="' + c[0] + '" aria-pressed="' + (c[0] === cur) + '">' + esc(c[1]) + '</button>'; }).join('') + '</div></div>';
+  }
+  function chk(key, label, on) { return '<label class="opt"><input type="checkbox" data-fxo="' + key + '"' + (on ? ' checked' : '') + '> ' + esc(label) + '</label>'; }
+
+  function mount(el, o) {
+    var S = el._fx = { o: o, mem: load() };
+    el.innerHTML = '<details class="fl-opts fx-fold"><summary>Export CSV for another logbook <span class="fl-os" id="fxSum"></span></summary><div class="fx-box"></div></details>';
+    S.det = el.firstChild; S.body = S.det.lastChild;
+    S.det.open = !!S.mem.open;   // closed until the pilot opens it; remembered on this device
+    S.det.addEventListener('toggle', function () { S.mem.open = S.det.open; save(S.mem); });
+    el.addEventListener('change', function (e) {
+      var t = e.target, id = S.mem.target; if (!id && t.id !== 'fxTarget') return;
+      if (t.id === 'fxTarget') { S.mem.target = t.value; save(S.mem); refresh(el); return; }
+      var st = cur(S);
+      if (t.dataset.fxo) st.on[t.dataset.fxo] = t.checked;
+      if (t.dataset.fxr) st.rows[t.dataset.fxr] = t.checked;
+      store(S, st); refresh(el);
+    });
+    el.addEventListener('input', function (e) { if (e.target.id === 'fxTail') { S.mem.tail = e.target.value.toUpperCase().trim(); save(S.mem); clearTimeout(S.tm); S.tm = setTimeout(function () { refresh(el, true); }, 400); } });
+    el.addEventListener('click', function (e) {
+      var b = e.target.closest('button'); if (!b) return;
+      if (b.dataset.fx) { var st = cur(S); st[b.dataset.fx] = b.dataset.v; store(S, st); refresh(el); }
+      else if (b.id === 'fxDown') download(S);
+      else if (b.id === 'fxCopy') copy(S);
+    });
+    refresh(el);
+  }
+  function cur(S) { return settings(S.mem, S.mem.target); }
+  // page callbacks never take the page down: no file parsed yet just means no rows / no pilot
+  function safe(fn, dflt) { try { var v = fn ? fn() : dflt; return v == null ? dflt : v; } catch (e) { return dflt; } }
+  function store(S, st) { S.mem.t = S.mem.t || {}; S.mem.t[S.mem.target] = st; save(S.mem); }
+
+  function refresh(el, keepFocus) {
+    var S = el._fx; if (!S) return;
+    var o = S.o, id = S.mem.target && TARGETS[S.mem.target] ? S.mem.target : '';
+    var sum = el.querySelector('#fxSum'); if (sum) sum.textContent = '· ' + (id ? TARGETS[id].name : 'choose a logbook');
+    var h = '<div class="fx-head"><select id="fxTarget" aria-label="Target logbook"><option value="">Choose a logbook…</option>' +
+      Object.keys(TARGETS).map(function (k) { return '<option value="' + k + '"' + (k === id ? ' selected' : '') + '>' + esc(TARGETS[k].name) + '</option>'; }).join('') + '</select></div>';
+    if (!id) {
+      S.body.innerHTML = h + '<p class="fx-note">For pilots who keep ForeFlight, Logbook Pro, MyFlightbook or a spreadsheet instead of (or as well as) LogTen. Pick one to preview the file; it uses the legs checked above.</p>';
+      S.last = null; return;
+    }
+    var T = TARGETS[id], ctx = settings(S.mem, id), rows = safe(o.rows, []), tail = S.mem.tail || '', hdr = safe(o.header, {});
+    ctx.self = String(hdr.name || '').trim().replace(/\s+/g, ' ').toUpperCase();
+    var b = build(id, rows, ctx, tail);
+    S.last = { id: id, b: b, tail: tail };
+    h += '<p class="fx-note">' + esc(T.note) + '</p>';
+    var lim = safe(o.limits && function () { return o.limits(id); }, '');
+    if (lim) h += '<p class="fx-lim"><strong>From this report:</strong> ' + esc(lim) + '</p>';
+    h += '<div class="fx-grid">';
+    h += '<div class="fx-col"><span class="lbl">Columns</span>' + T.opts.filter(function (x) { return x[0] !== 'pt121' || o.has121; }).map(function (x) { return chk(x[0], x[1], ctx.on[x[0]]); }).join('') + '</div>';
+    h += '<div class="fx-col"><span class="lbl">Rows</span>' + '<label class="opt"><input type="checkbox" disabled checked> Flights</label>' +
+      '<label class="opt"><input type="checkbox" data-fxr="dh"' + (ctx.rows.dh ? ' checked' : '') + '> Deadheads</label>' +
+      '<label class="opt"><input type="checkbox" data-fxr="sim"' + (ctx.rows.sim ? ' checked' : '') + '> Sims</label>' +
+      '<label class="opt"><input type="checkbox" data-fxr="gnd"' + (ctx.rows.gnd ? ' checked' : '') + '> Ground &amp; reserve</label></div>';
+    h += '<div class="fx-col" style="gap:10px">';
+    if (T.zoneChoice) h += seg('Clock times', 'zone', [['local', 'Station local'], ['utc', 'UTC']], ctx.zone);
+    if (!T.fixed.dur) h += seg('Durations', 'dur', [['hm', 'h:mm'], ['dec', 'Decimal'], ['min', 'Minutes']], ctx.dur);
+    if (!T.fixed.date) h += seg('Dates', 'date', [['mdy', 'M/D/Y'], ['iso', 'Y-M-D'], ['dmy', 'D/M/Y']], ctx.date);
+    if (T.needsTail && !o.hasTail) h += '<div class="fx-col"><span class="lbl">Tail number</span><input type="text" id="fxTail" value="' + esc(tail) + '" placeholder="e.g. N401QX" autocomplete="off" spellcheck="false"><span class="fx-note" style="font-size:.78rem">This report has no tails; used for every leg.</span></div>';
+    h += '</div></div>';
+    // warnings
+    var w = [], zs = Object.keys(b.warn.zone);
+    if (zs.length) w.push('No time zone for ' + zs.join(', ') + ': ' + (ctx.zone === 'utc' ? 'UTC' : 'converted') + ' times and block left blank for those legs. Tell Bill so the station gets added.');
+    if (b.warn.unflown) w.push(b.warn.unflown + ' flight' + (b.warn.unflown === 1 ? '' : 's') + ' not flown yet (no actual out and in): total time left blank. Uncheck them above or export after they fly.');
+    if (b.warn.tail) w.push('No tail number for ' + b.warn.tail + ' leg' + (b.warn.tail === 1 ? '' : 's') + '. ' + T.name + ' needs one' + (o.hasTail ? '.' : ': enter it above.'));
+    if (b.warn.cap && id !== 'sheet') w.push(b.warn.cap + ' flight' + (b.warn.cap === 1 ? '' : 's') + ' with no P1/P2: PIC and SIC left blank.');
+    if (w.length) h += '<div class="fx-warn"><strong>Check before exporting</strong><ul>' + w.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul></div>';
+    // preview: filled columns only
+    var fill = b.cols.map(function (c, i) { return b.data.some(function (d) { return d[i] !== ''; }); });
+    var show = b.cols.map(function (c, i) { return i; }).filter(function (i) { return fill[i]; });
+    h += '<div class="fx-table"><table><thead><tr>' + show.map(function (i) { return '<th>' + esc(b.cols[i].h) + '</th>'; }).join('') + '</tr></thead><tbody>' +
+      (b.data.length ? b.data.map(function (d) { return '<tr>' + show.map(function (i) { return '<td>' + esc(d[i]) + '</td>'; }).join('') + '</tr>'; }).join('') : '<tr><td>No legs checked.</td></tr>') + '</tbody></table></div>';
+    var hidden = b.cols.length - show.length + (id === 'foreflight' ? TARGETS.foreflight.cols.length - b.cols.length : 0);
+    if (hidden || id === 'foreflight') h += '<p class="fx-note">' + (hidden ? hidden + ' empty column' + (hidden === 1 ? '' : 's') + ' not shown' : '') + (id === 'foreflight' ? (hidden ? '; ' : '') + 'the file also has the Aircraft table and every template column.' : '.') + '</p>';
+    var fn = fileName(hdr, id, b.rows), dis = safe(o.disabled, '');
+    h += '<div class="fx-act">' + (dis || !b.data.length
+      ? '<span class="btn send" aria-disabled="true">' + esc(dis || 'Nothing to export') + '</span>'
+      : '<button type="button" class="btn" id="fxDown">Download ' + b.data.length + ' row' + (b.data.length === 1 ? '' : 's') + '<small>' + esc(fn) + '</small></button><button type="button" class="btn ghost" id="fxCopy">Copy CSV</button>') +
+      '<span class="fx-msg" id="fxMsg"></span></div>';
+    var hist = (S.mem.hist || []).filter(function (x) { return x.target === id; })[0];
+    if (hist) h += '<p class="fx-hist">Last ' + esc(T.name) + ' export on this device: ' + esc(hist.file) + ' (' + hist.n + ' rows) on ' + esc(hist.when) + '.</p>';
+    var focusTail = keepFocus && document.activeElement && document.activeElement.id === 'fxTail', pos = focusTail ? document.activeElement.selectionStart : 0;
+    S.body.innerHTML = h;
+    if (focusTail) { var ti = el.querySelector('#fxTail'); ti.focus(); ti.setSelectionRange(pos, pos); }
+    S.file = fn;
+  }
+  function note(S, t) { var m = document.getElementById('fxMsg'); if (m) m.textContent = t; }
+  function remember(S) {
+    var L = S.last, now = new Date();
+    S.mem.hist = [{ target: L.id, file: S.file, n: L.b.data.length, when: (now.getMonth() + 1) + '/' + now.getDate() + '/' + now.getFullYear() }].concat(S.mem.hist || []).slice(0, 20);
+    save(S.mem);
+  }
+  function download(S) {
+    var L = S.last; if (!L) return;
+    var blob = new Blob([toCSV(L.id, L.b, L.tail)], { type: 'text/csv' }), u = URL.createObjectURL(blob);
+    var a = document.createElement('a'); a.href = u; a.download = S.file; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(u); }, 4000);
+    remember(S); note(S, 'Saved to Downloads.');
+  }
+  function copy(S) {
+    var L = S.last; if (!L) return; var t = toCSV(L.id, L.b, L.tail);
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(function () { remember(S); note(S, 'CSV copied.'); }, function () { note(S, 'Copy blocked; use Download.'); });
+    else note(S, 'Copy not available; use Download.');
+  }
+
+  root.FGOCSV = { mount: mount, refresh: function (el) { refresh(el); }, utc: function (t, zulu) { return ms(t, zulu); }, hasZone: function (stn) { return !!ZONE[stn]; }, _t: { ms: ms, tzOff: tzOff, ZONE: ZONE, build: build, toCSV: toCSV, settings: settings, TARGETS: TARGETS, fileName: fileName } };
+})(this);
+</script>
+<script id="fgo-cal-js">
+// Floggy-Go shared "Add to Calendar" fold: Flights, Duty and Day events for UPCOMING legs only.
+// Ported from Floggy-Go Pairing's calendar (Floggy's Build ICS / Write ICS Files): timed events in UTC ("Z"),
+// UID = SUMMARY + DTSTART + LOCATION + "@floggyxt", so re-importing updates events instead of duplicating them.
+// Needs FGOCSV (station time zones). Page calls FGOCAL.mount(el, { legs() }) once and FGOCAL.refresh(el) after each render.
+// Leg: { date, flt, dep, arv, kind, std, sta, atd, depDate, arrDate, dutyS, dutySDate, dutyE, dutyEDate, pic, sic, fa1, fa2, remarks }
+(function (root) {
+  'use strict';
+  var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+  var pad = function (n) { return String(n).padStart(2, '0'); };
+  var KEY = 'floggyGo.cal.v1';
+  function load() { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; } }
+  function save(m) { try { localStorage.setItem(KEY, JSON.stringify(m)); } catch (e) { } }
+
+  function zt(ms) { return new Date(ms).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, ''); }
+  function ymd(mdy) { var p = mdy.split('/'); return p[2] + p[0] + p[1]; }
+  function nextYmd(mdy) { var p = mdy.split('/').map(Number), d = new Date(Date.UTC(p[2], p[0] - 1, p[1] + 1)); return d.toISOString().slice(0, 10).replace(/-/g, ''); }
+  function dnum(mdy) { var p = mdy.split('/').map(Number); return p[2] * 10000 + p[0] * 100 + p[1]; }
+  function today() { var d = new Date(); return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate(); }
+  function u(date, time, stn) { return time && date ? FGOCSV.utc({ date: date, time: time, stn: stn }, false) : null; }
+
+  function dutyGroups(legs) {            // like Floggy getDutyCal: from a leg with duty on to the next leg with duty off
+    var out = [], start = -1;
+    legs.forEach(function (L, i) {
+      if (L.dutyS) start = i;
+      if (L.dutyE && start >= 0) { out.push(legs.slice(start, i + 1)); start = -1; }
+    });
+    return out;
+  }
+  function legLine(L) { return L.flt + '\n' + L.dep + ' ' + L.arv + ' ' + (L.std || '') + ' ' + (L.sta || '') + ' \n\n'; }
+  function tripDesc(legs) {              // like Floggy getTripdesc
+    var d = '';
+    dutyGroups(legs).forEach(function (g) {
+      d += g[0].date + '\n' + 'Report - ' + g[0].dutyS + '\n\n';
+      g.forEach(function (L) { d += legLine(L); });
+      d += 'Release - ' + g[g.length - 1].dutyE + '\n\n---------\n\n';
+    });
+    return d;
+  }
+
+  // returns { ev:[...], skipped: n } ; noZone collects stations with no time zone
+  function events(legs, kind, noZone) {
+    var ev = [];
+    if (kind === 'Flights') legs.forEach(function (L) {
+      if (!/\d/.test(L.flt) || !L.std || !L.sta || L.atd) return;
+      var a = u(L.depDate, L.std, L.dep), b = u(L.arrDate, L.sta, L.arv);
+      if (a == null || b == null) { [L.dep, L.arv].forEach(function (s) { if (!FGOCSV.hasZone(s)) noZone[s] = 1; }); return; }
+      ev.push({ summary: '\u2708 ' + L.dep + ' ' + L.arv + ' AS ' + L.flt, start: zt(a), end: zt(b), allDay: false,
+        location: L.dep + ' ' + L.arv, desc: 'CA- ' + (L.pic || '') + '\nFO- ' + (L.sic || '') + '\nFA- ' + (L.fa1 || '') + '\nFA- ' + (L.fa2 || ''),
+        when: L.date + ' ' + L.std + '\u2013' + L.sta });
+    });
+    if (kind === 'Duty') dutyGroups(legs).forEach(function (g) {
+      var A = g[0], B = g[g.length - 1], a = u(A.dutySDate, A.dutyS, A.dep), b = u(B.dutyEDate, B.dutyE, B.arv);
+      if (a == null || b == null) { [A.dep, B.arv].forEach(function (s) { if (!FGOCSV.hasZone(s)) noZone[s] = 1; }); return; }
+      ev.push({ summary: A.dep + ' ' + B.arv, start: zt(a), end: zt(b), allDay: false, location: A.dep + ' ' + B.arv,
+        desc: tripDesc(g), when: A.dutySDate + ' ' + A.dutyS + '\u2013' + B.dutyE });
+    });
+    if (kind === 'Day') {
+      // one all-day event per duty day: first departure to last arrival, or the duty code on a ground/reserve/sim-only day
+      var days = [], idx = {};
+      legs.forEach(function (L) { if (!idx[L.date]) days.push(idx[L.date] = { date: L.date, legs: [] }); idx[L.date].legs.push(L); });
+      days.forEach(function (d) {
+        var fl = d.legs.filter(function (L) { return L.kind === '0' || L.kind === '1'; });
+        // first departure and last arrival, like Floggy's Duty titles ("PDX SEA"); duty code on a ground/reserve/sim-only day
+        var name = fl.length ? fl[0].dep + ' ' + fl[fl.length - 1].arv : d.legs.map(function (L) { return L.flt; }).filter(function (x, i, a) { return a.indexOf(x) === i; }).join(' ');
+        var desc = d.legs.map(function (L) { return (L.kind === '0' || L.kind === '1') ? legLine(L) : L.flt + (L.remarks ? ' ' + L.remarks : '') + (L.std ? ' ' + L.std + '\u2013' + (L.sta || '') : '') + '\n\n'; }).join('');
+        ev.push({ summary: name, start: ymd(d.date), end: nextYmd(d.date), allDay: true, location: d.legs[0].dep, desc: desc, when: d.date + ' (all day)' });
+      });
+    }
+    return ev;
+  }
+  function icsEsc(t) { return String(t).replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n'); }
+  function fold(line) {                  // RFC 5545: lines over 75 octets continue on the next line after a space
+    var out = '', cur = '', n = 0;
+    Array.from(line).forEach(function (ch) {
+      var b = unescape(encodeURIComponent(ch)).length;
+      if (n + b > 75) { out += cur + '\r\n '; cur = ''; n = 1; }
+      cur += ch; n += b;
+    });
+    return out + cur;
+  }
+  function ics(ev, kind) {
+    var L = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//FloggyXT//EN', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH', 'X-WR-CALNAME:' + kind], stamp = zt(Date.now());
+    ev.forEach(function (e) {
+      L.push('BEGIN:VEVENT', 'UID:' + e.summary + e.start + e.location + '@floggyxt', 'DTSTAMP:' + stamp, 'SUMMARY:' + icsEsc(e.summary));
+      if (e.allDay) L.push('DTSTART;VALUE=DATE:' + e.start, 'DTEND;VALUE=DATE:' + e.end);
+      else L.push('DTSTART:' + e.start, 'DTEND:' + e.end);
+      L.push('DESCRIPTION:' + icsEsc(e.desc), 'LOCATION:' + icsEsc(e.location), 'END:VEVENT');
+    });
+    L.push('END:VCALENDAR');
+    return L.map(fold).join('\r\n') + '\r\n';
+  }
+
+  var KINDS = ['Flights', 'Duty', 'Day'];
+  var touch = typeof navigator !== 'undefined' && (/iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1));
+  function mount(el, o) {
+    var S = el._cal = { o: o, mem: load(), ev: {} };
+    el.innerHTML = '<details class="fl-opts fx-fold"><summary>Add to Calendar <span class="fl-os" id="calSum"></span></summary><div class="fx-box"></div></details>';
+    S.det = el.firstChild; S.body = S.det.lastChild; S.det.open = !!S.mem.open;
+    S.det.addEventListener('toggle', function () { S.mem.open = S.det.open; save(S.mem); });
+    el.addEventListener('click', function (e) {
+      var b = e.target.closest('button[data-calk]'); if (!b) return;
+      var k = b.dataset.calk, ev = S.ev[k]; if (!ev || !ev.length) return;
+      var d = new Date(), name = k + ' ' + (d.getMonth() + 1) + '-' + d.getDate() + '-' + String(d.getFullYear()).slice(2) + '.ics';
+      var url = URL.createObjectURL(new Blob([ics(ev, k)], { type: 'text/calendar;charset=utf-8' }));
+      if (touch) location.href = url;
+      else { var a = document.createElement('a'); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove(); }
+      setTimeout(function () { URL.revokeObjectURL(url); }, 60000);
+      var m = el.querySelector('#calMsg'); if (m) m.textContent = k + ': ' + ev.length + (ev.length === 1 ? ' event' : ' events') + (touch ? ' opened.' : ' saved as ' + name + '.');
+    });
+    refresh(el);
+  }
+  function refresh(el) {
+    var S = el._cal; if (!S) return;
+    var all = []; try { all = S.o.legs() || []; } catch (e) { all = []; }
+    var t = today();
+    var up = all.filter(function (L) { return dnum(L.date) >= t; }), past = all.length - up.length, noZone = {};
+    var rows = '', h = '';
+    KINDS.forEach(function (k) {
+      var ev = S.ev[k] = events(up, k, noZone);
+      ev.forEach(function (e) { rows += '<tr><td>' + esc(k) + '</td><td>' + esc(e.summary) + '</td><td>' + esc(e.when) + '</td><td>' + esc(e.location) + '</td></tr>'; });
+    });
+    var sum = el.querySelector('#calSum'); if (sum) sum.textContent = '· ' + up.length + ' upcoming leg' + (up.length === 1 ? '' : 's');
+    h += '<p class="fx-note">Upcoming legs only (today on), from the legs checked above' + (past ? '; ' + past + ' earlier leg' + (past === 1 ? '' : 's') + ' skipped' : '') +
+      '. Same events as Floggy’s Cal–ICS, so importing again updates them instead of adding copies. Flights use scheduled times; a leg already flown is left out. Day is one all-day event per duty day.</p>';
+    var nz = Object.keys(noZone);
+    if (nz.length) h += '<div class="fx-warn">No time zone for ' + esc(nz.join(', ')) + ': events at those stations left out. Tell Bill so the station gets added.</div>';
+    var dis = ''; try { dis = S.o.disabled ? S.o.disabled() || '' : ''; } catch (e) { }
+    h += '<div class="fx-act">' + KINDS.map(function (k) { var n = S.ev[k].length; return '<button type="button" class="btn" data-calk="' + k + '"' + (n && !dis ? '' : ' disabled') + '>' + k + ' (' + n + ')</button>'; }).join('') +
+      '<span class="fx-msg" id="calMsg">' + esc(dis) + '</span></div>';
+    h += rows ? '<details><summary class="fx-note" style="cursor:pointer">Preview events</summary><div class="fx-table" style="margin-top:6px"><table><thead><tr><th>Calendar</th><th>Event</th><th>When (local)</th><th>Location</th></tr></thead><tbody>' + rows + '</tbody></table></div></details>' : '<p class="fx-note">No upcoming events in the checked legs.</p>';
+    S.body.innerHTML = h;
+  }
+  root.FGOCAL = { mount: mount, refresh: refresh, _t: { events: events, ics: ics } };
+})(this);
+</script>
+<script>
+// Floggy duty codes (Floggy 2.6 dutycodes field, 10/29/26). category: G ground, P positioning, R reserve, S sim, F, X excluded
+window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return to Field or Gate"],"C":["F","Return to Field or Gate"],"GMOV":["F","Taxi"],"AD":["G","Office Admin Day"],"AG":["G","AQP Ground School"],"CM":["G","CRM"],"CQ":["G","AQP Ground School Extended time"],"DD":["G","Duty Day"],"DO":["G","Duty Officer"],"DOFF":["G","Duty Officer Day"],"DT":["G","Duty Time"],"FM":["G","FMS"],"FMD":["G","Instr FMS"],"FODO":["G","FLIGHT OPS DUTY OFFICER"],"FP":["G","FltPath or Beyond Sv Co Required Trng"],"GI":["G","Ground Instructor"],"GS":["G","Ground School"],"IB":["G","IBT Union Business Union Requested"],"IL":["G","Intermittent Leave"],"IU":["G","IBT Union Business QX Requested"],"JCQ":["G","Jet AQP Ground School extended time"],"JLC":["G","Line Check"],"JMT":["G","Jet Meeting Day"],"JTV":["G","Jet Travel Day"],"LB":["G","IBT Line Building"],"LC":["G","Line Check"],"MT":["G","Meeting Day"],"OE":["G","Operating Experience"],"OPVI":["G","Instructor Open VPT"],"OR":["G","Oral"],"QCQ":["G","Q400 AQP Ground School Extended Time"],"QFM":["G","Q400 FMS Lab"],"QGI":["G","Q400 Ground Instr"],"QLC":["G","Q400 Line Check"],"QMT":["G","Q400 Meeting Day"],"QSP":["G","Q400 SPT training"],"QTV":["G","Q400 Travel Day"],"QVI":["G","VPT Instructor"],"RG":["G","Recurrent Ground School"],"SFTY":["G","Flight Ops Quality Assurance"],"SP":["G","Special Procedures Training"],"TD":["G","Duty Day Training"],"VI":["G","VPT Instructor"],"VI1":["G","Q400 Instructor VPT"],"VI2":["G","VPT Instructor"],"VP":["G","VPT Student"],"VT":["G","VT Student"],"AS":["P","Dead Head Alaska"],"DH":["P","Dead Head"],"DHA":["P","Dead Head"],"GT":["P","Ground Transport"],"LIMO":["P","Limo"],"LM":["P","Limo"],"LMO":["P","Limo"],"AA":["R","Airport Reserve AM"],"AKA":["R","AM Short Call Reserve"],"AKM":["R","AM Airport Reserve"],"AKN":["R","PM Airport Reserve"],"AKP":["R","PM Short Call Reserve"],"AR":["R","Composite Reserve AM"],"AZ":["R","BOI AM Composite Reserve"],"BA":["R","Airport Reserve AM 10 Hours"],"BAA":["R","BOI Airport Reserve AM"],"BER":["R","Long Call Early"],"BP":["R","Airport Reserve PM 10 Hours"],"BRA":["R","BOI Reserve Line AM"],"BRL":["R","Long Call Reserve"],"BRP":["R","BOI Reserve Line PM"],"BVA":["R","AM Short Call Reserve"],"BVP":["R","BOI Reserve"],"EEA":["R","AM Short Call Reserve"],"EEP":["R","PM Short Call Reserve"],"ER":["R","Long Call Early"],"ERA":["R","PAE AM Reserve"],"ERL":["R","Long Call Reserve"],"ERP":["R","PAE PM Reserve"],"GAA":["R","GEG Airport Reserve AM"],"GRA":["R","GEG Reserve Line AM"],"GRL":["R","GEG Long Call Reserve"],"GRP":["R","GEG Reserve Line PM"],"GVA":["R","AM Short Call Reserve"],"GVP":["R","PM Short Call Reserve"],"JOEL":["R","Jet Operating experience Long Call"],"MAA":["R","MFR Airport Reserve AM"],"MRA":["R","MFR Reserve Line AM"],"MRL":["R","Long Call Reserve"],"MRP":["R","MFR Reserve Line PM"],"MTA":["R","MFR PILOT RESERVE AM AIRPORT"],"MVA":["R","AM Short Call Reserve"],"MVP":["R","PM Short Call Reserve"],"PA":["R","Airport Reserve PM"],"PAA":["R","PDX Airport Reserve AM"],"PEA":["R","AM Short Call Reserve"],"PEM":["R","AM Airport Reserve"],"PEN":["R","PM Airport Reserve"],"PEP":["R","PM Short Call Reserve"],"PPA":["R","PDX Airport Reserve PM"],"PR":["R","Composite Reserve PM"],"PRA":["R","PDX Reserve Line AM"],"PRL":["R","Long Call Reserve"],"PRP":["R","PDX Composite Reserve PM"],"PTA":["R","AM Airport Reserve"],"PTP":["R","PM Airport Reserve"],"PVA":["R","AM Short Call Reserve"],"PVP":["R","PDX Reserve"],"PZ":["R","BOI PM Composite Reserve"],"RA":["R","Reserve Line AM"],"RE":["R","Coverage Short Call Early Reserve"],"RL":["R","Long Call Reserve"],"RO":["R","CDO Reserve"],"RP":["R","Reserve Line PM"],"RT":["R","Trip Time Reserve"],"SAA":["R","SEA Airport Reserve AM"],"SEA":["R","AM Short Call Reserve"],"SEM":["R","AM Airport Reserve"],"SEN":["R","E175 SEA PILOT RESERVE PM AIRPORT"],"SEP":["R","E175 SEA PILOT RESERVE PM HOME"],"SKA":["R","AM Short Call Reserve"],"SKL":["R","Long Call Reserve"],"SKP":["R","E175 SEA AK PILOT RESERVE PM HOME"],"SPA":["R","SEA Airport Reserve PM"],"SRA":["R","SEA Reserve Line AM"],"SRL":["R","Long Call Reserve"],"SRP":["R","SEA Reserve Line PM"],"STA":["R","AM Airport Reserve"],"STP":["R","PM Airport Reserve"],"SVA":["R","AM Short Call Reserve"],"SVP":["R","PM Short Call Reserve"],"ZA":["R","BOI AM Reserve Line"],"ZP":["R","BOI PM Reserve Line"],"CK":["S","Simm Check"],"JSCQ":["S","CQ SM Resets Recency"],"JSI":["S","Jet Sim CKA Instructor"],"JSM":["S","Pilot receiving Sim"],"JSMQ":["S","Maneuvers QUAL"],"JSP":["S","E175 Special Training"],"OL":["S","Other Landings Not PC"],"OPSI":["S","Sim/CKA Instructor Open Sim"],"QSCQ":["S","Q400 SIM LOE"],"QSI":["S","Q400 Sim CKA Instructor"],"QSM":["S","Pilot receiving Sim"],"QSMQ":["S","Maneuvers QUAL"],"SC":["S","Simm Check"],"SI":["S","Simm Instructor or Check Pilot"],"SM":["S","Pilot receiving Sim"],"SU":["S","Sim Support"],"SUP":["S","Sim Support"],"SUPI":["S","Sim Support Instructor"],"TK":["S","Other Take off Recency"],"AV":["X","Available Day"],"CO":["X","Commuter"],"DF":["X","Bereavement"],"FG":["X","Pilot Fatigue"],"FLT":["X","Flight Duty Uploaded"],"GF":["X","PILOT FATIGUE"],"GL":["X","Golden Day"],"IN":["X","Incentive Line"],"JANAN":["X","JET Termination Resign Retire"],"JD":["X","Jury Duty"],"JMI":["X","Jet Military"],"JNAN":["X","Jet Termination Resign/Retire"],"JPD":["X","Jet Person Day Off"],"JSLN":["X","Jet Medical Leave"],"LA":["X","Personal/Family Leave"],"LS":["X","Late Show"],"NS":["X","No Show"],"OD":["X","Office Day"],"OFF":["X","Day off"],"OFF.":["X","OFF REST Day Not counted to Days OFF"],"OS":["X","Crewmember on Furlough"],"OWN":["X","Own Way Travel"],"PD":["X","Personal Day Off"],"QIL":["X","Q400 Intermittent Leave"],"QLA":["X","Personal Family Leave"],"QMI":["X","Q400 Military Leave"],"QPD":["X","Q400 Personal Day Off"],"QSL":["X","Q400 Medical Leave"],"REST":["X","Required Rest FAR 117"],"SK":["X","Sick"],"SL":["X","Medical Leave"],"T":["X","Reserve Cancelled Route Credit"],"TAXI":["X","Taxi Credit point 25 SCH for Pilots"],"TB":["X","Training Break Planning use"],"TV":["X","Travel Day"],"UT":["X","Uncontactable"],"V":["X","Vacation 3 hour credit"],"VA":["X","Bid Vacation"],"VB":["X","DAT Vacation"],"VC":["X","CP Line Transition Vacation"],"VJM":["X","Volunteer Junior Man Pilots"],"WFLY":["X","Volunteer to fly on day off"],"WP":["X","Without Pay"],"WPRD":["X","Without Pay Reserve"]};
+
+</script>
+<script>
+// Floggy-Go Skd core — eCrew Personal Crew Schedule Report CSV -> LogTen entities.
+// Mirrors Floggy 2.6 Parse Schedule (normalizeScheduleRow, parseCrewBlock,
+// buildFlightRecords, getTrainingData) and cleanfltdata, then the Log10
+// Export JSON shape. Times are station local (timesAreZulu false), each with
+// its true calendar date (an arrival or debrief after midnight gets the next
+// day). Needs window.FLOGGY_DUTY_CODES (dutycodes.js).
+(function (root) {
+  'use strict';
+  const pad = n => String(n).padStart(2, '0');
+  const trim = s => (s == null ? '' : String(s).trim());
+
+  // eCrew quoted multi-line CSV -> rows; newlines inside quotes become "|",
+  // commas inside quotes become "|" (flattenQuotedCommas + parseCSV).
+  function parseCSV(text) {
+    text = text.replace(/\t/g, '').replace(/\r\n?/g, '\n');
+    const rows = []; let row = []; let cell = ''; let q = false;
+    for (let i = 0; i < text.length; i++) {
+      const c = text[i];
+      if (c === '"') { q = !q; continue; }
+      if (q) { cell += (c === '\n' || c === ',') ? '|' : c; continue; }
+      if (c === ',') { row.push(cell); cell = ''; continue; }
+      if (c === '\n') { row.push(cell); if (row.join('') !== '') rows.push(row); row = []; cell = ''; continue; }
+      cell += c;
+    }
+    row.push(cell); if (row.join('') !== '') rows.push(row);
+    return rows;
+  }
+
+  function cleanIndicators(blob) {
+    blob = trim(blob); if (!blob) return '';
+    return blob.split('|').map(trim).filter(t => t && !(t.length === 1 && /[A-Za-z]/.test(t))).join('|');
+  }
+
+  // Crew block always ends up in column 9 (index 8).
+  function normalizeRow(r) {
+    r = r.slice();
+    const i9 = trim(r[8]);
+    if (/^(CA|FO|FA)/.test(i9)) return r;
+    const all = r.join(',');
+    if (!/(CA|FO|FA) - /.test(all)) { r[6] = cleanIndicators(r[6]); return r; }
+    const blob = r.slice(7).join(',');
+    let start = -1;
+    for (const s of ['CA - ', 'FO - ', 'FA - ']) { const p = blob.indexOf(s); if (p >= 0 && (start < 0 || p < start)) start = p; }
+    if (start < 0) return r;
+    return r.slice(0, 7).concat([cleanIndicators(blob.slice(0, start)), blob.slice(start)]);
+  }
+
+  function stripCrewSuffix(n) { const p = n.indexOf('('); return p >= 0 ? trim(n.slice(0, p)) : n; }
+
+  function parseCrewBlock(block, myId) {
+    const CA = [], FO = [], FA = []; let selfSeat = '', selfName = '', selfDH = false;
+    for (const raw of (block || '').split('|')) {
+      const m = trim(raw); if (!m) continue;
+      const isDH = m.indexOf('DH') >= 0;
+      const parts = m.split(' - ');
+      const seat = trim(parts[0]);
+      const name = stripCrewSuffix(trim(parts[parts.length - 1]));
+      const id = trim(parts[parts.length - 2]);
+      if (myId && id === myId) { selfSeat = seat; selfName = name; selfDH = isDH; continue; }
+      if (isDH) continue;
+      if (seat === 'CA') CA.push(name); else if (seat === 'FO') FO.push(name); else if (seat === 'FA') FA.push(name);
+    }
+    const warn = [];
+    let capt = '', first = '', fa1 = '', fa2 = '';
+    if (CA.length === 1) capt = CA[0]; else if (CA.length) warn.push('CA: expected 1, found ' + CA.length);
+    if (FO.length === 1) first = FO[0]; else if (FO.length) warn.push('FO: expected 1, found ' + FO.length);
+    if (FA.length === 2) { fa1 = FA[0]; fa2 = FA[1]; } else if (FA.length) warn.push('FA: expected 2, found ' + FA.length);
+    if (selfSeat === 'CA' && !selfDH) capt = selfName;
+    if (selfSeat === 'FO' && !selfDH) first = selfName;
+    // doubled: another non-DH crew member listed in the pilot's own seat
+    const doubled = !selfDH && ((selfSeat === 'CA' && CA.length > 0) || (selfSeat === 'FO' && FO.length > 0));
+    return { capt, first, fa1, fa2, selfSeat, selfDH, warn, doubled };
+  }
+
+  const toMin = t => { const m = /^(\d{1,2}):(\d{2})$/.exec(t || ''); return m ? (+m[1]) * 60 + (+m[2]) : null; };
+  function addDays(mdY, n) {
+    const [m, d, y] = mdY.split('/').map(Number);
+    const t = new Date(Date.UTC(y, m - 1, d + n));
+    return pad(t.getUTCMonth() + 1) + '/' + pad(t.getUTCDate()) + '/' + t.getUTCFullYear();
+  }
+  function cleanTime(s) { s = trim(s); const q = s.indexOf('?'); if (q >= 0) s = s.slice(0, q); return s; }
+
+  function mapType(raw, mode) {
+    if (mode === 'none') return '';
+    if (mode === 'raw') return raw;
+    if (raw === 'E75') return 'E170';
+    if (raw === 'DH4') return 'DH8D';
+    return raw;
+  }
+
+  function readHeader(text) {
+    const lines = text.replace(/\r\n?/g, '\n').split('\n');
+    const h = { ok: false, errors: [] };
+    if (!lines[0] || lines[0].indexOf('Personal Crew Schedule Report') < 0) {
+      h.errors.push('This is not an eCrew Personal Crew Schedule Report (line 1).'); return h;
+    }
+    const pm = (lines[1] || '').match(/(\d{2}\/\d{2}\/\d{4})\s*-\s*(\d{2}\/\d{2}\/\d{4})/);
+    h.period = pm ? { start: pm[1], end: pm[2] } : null;
+    const words = trim(lines[2]).split(/\s+/);
+    const hi = words.findIndex(w => w.indexOf('-') >= 0);
+    if (hi < 1) { h.errors.push('Could not read the crew line (line 3): ' + lines[2]); return h; }
+    h.crewId = words[0]; h.name = words.slice(1, hi).join(' ');
+    const bp = words[hi].split('-'); h.base = bp[0]; h.seat = bp[1] || ''; h.equip = bp[2] || '';
+    const g = text.match(/Generated on\s+([A-Za-z]{3})[A-Za-z]*\.?\s+(\d{1,2}),?\s+(\d{4})\s+(\d{1,2}):(\d{2})/);
+    h.generated = g ? g[1] + ' ' + g[2] + ', ' + g[3] + ' ' + g[4] + ':' + g[5] : null;
+    h.ok = true;
+    return h;
+  }
+
+  // opts: { typeMode, prefix, duty: true|false, capacity: true|false }
+  function parse(text, opts) {
+    opts = opts || {};
+    const DC = opts.dutyCodes || root.FLOGGY_DUTY_CODES || {};
+    const h = readHeader(text);
+    if (!h.ok) return { header: h, legs: [], notes: h.errors.slice() };
+    const notes = [];
+    const rows = parseCSV(text);
+    const iTot = rows.findIndex(r => (r[0] || '').indexOf('Total Hours') === 0);
+    if (iTot < 0) return { header: h, legs: [], notes: ['No "Total Hours and Statistics" line found.'] };
+    const hdr = rows[4] || [];
+    const off = trim(hdr[3]) === '' ? 1 : 0;
+    const sched = rows.slice(5, iTot).map(normalizeRow);
+
+    // training rows: after "Training Details" + header, up to "Hotel Information"
+    const iTr = rows.findIndex(r => r[0] === 'Training Details');
+    const iHo = rows.findIndex(r => r[0] === 'Hotel Information');
+    const training = (iTr >= 0 && iHo > iTr) ? rows.slice(iTr + 2, iHo) : [];
+
+    const legs = []; let duty = 0;
+    for (const r of sched) {
+      const duties = trim(r[1]);
+      if (!duties || duties === 'OFF' || duties === 'VA') continue;
+      const dm = /^(\d{1,2})\/(\d{1,2})\/(\d{2,4})/.exec(trim(r[0]));
+      if (!dm) continue;
+      const date = pad(+dm[1]) + '/' + pad(+dm[2]) + '/' + (dm[3].length < 4 ? '20' + dm[3] : dm[3]);
+      duty++;
+      let report = cleanTime((trim(r[3 + off]).split(/\s+/)[0]) || '');
+      let debrief = cleanTime((trim(r[5 + off]).split(/\s+/)[0]) || '');
+      report = report.replace(/^[AE]/, ''); debrief = debrief.replace(/^[AE]/, '');
+      const crew = parseCrewBlock(r[8], h.crewId);
+      const flts = duties.split('|'), routes = (r[2] || '').split('|'), acts = (r[4 + off] || '').split('|');
+      const dutyLegs = [];
+      for (let L = 0; L < flts.length; L++) {
+        const routeRaw = routes[L] || '';
+        const isDHLeg = routeRaw.indexOf('*') >= 0;
+        const legWords = trim(flts[L]).split(/\s+/);
+        let flt = legWords[0] || '';
+        const acType = (legWords[1] || '').replace(/[\[\]]/g, '');
+        let code = ''; let seenDigit = false;
+        for (const ch of flt) { if (/\d/.test(ch)) seenDigit = true; else if (!seenDigit) code += ch; }
+        let ftype = '', dutyRmk = '', cat = '';
+        if (code) {
+          const dc = DC[code];
+          if (dc) {
+            cat = dc[0];
+            if (cat === 'X') continue;
+            ftype = { P: '1', S: '3', R: '6', G: '2', F: '4' }[cat] || '';
+            dutyRmk = dc[1];
+          }
+        } else ftype = '0';
+        const L0 = { date, duty, warnings: [], acTypeRaw: acType, code, cat };
+        L0.dh = isDHLeg;
+        if (isDHLeg) { ftype = '1'; L0.remarks = 'Dead Head'; }
+        if (dutyRmk) L0.remarks = dutyRmk;
+        // route
+        let dep, arv;
+        if (code === 'LB') { dep = arv = h.base; }
+        else {
+          const rp = routeRaw.replace(/- /g, '|').split('|');
+          dep = trim(rp[0]).split(/\s+/)[0].replace(/\*/g, '');
+          arv = trim(rp[1] || '').split(/\s+/)[0].replace(/\*/g, '');
+          if (!dep) dep = h.base; if (!arv) arv = h.base;
+        }
+        L0.dep = dep; L0.arv = arv;
+        // times
+        const tp = trim(acts[L] || '');
+        if (tp) {
+          const w = tp.split(/\s+/);
+          let dt = cleanTime(w[0]), at = cleanTime(w[2] || '');
+          const flown = dt[0] === 'A' || at[0] === 'A';
+          const put = (t, a, s) => {
+            if (t[0] === 'E') return;
+            if (t[0] === 'A') L0[a] = t.slice(1, 6);
+            else if (flown) L0[a] = t.slice(0, 5);
+            else L0[s] = t.slice(0, 5);
+          };
+          put(dt, 'atd', 'std'); put(at, 'ata', 'sta');
+        }
+        // crew: blank on DH legs
+        if (!isDHLeg) { L0.pic = crew.capt; L0.sic = crew.first; L0.fa1 = crew.fa1; L0.fa2 = crew.fa2; }
+        // P1/P2 only when the seat logic is certain: the pilot found in the crew
+        // list by ID, not deadheading, and no other crew member listed in that seat
+        L0.p1 = crew.selfSeat === 'CA' && !crew.selfDH && !isDHLeg && !crew.doubled;
+        L0.p2 = crew.selfSeat === 'FO' && !crew.selfDH && !isDHLeg && !crew.doubled;
+        if (crew.doubled && !isDHLeg && ftype === '0') L0.warnings.push('Two ' + crew.selfSeat + 's listed for this duty: P1/P2 left to the logbook; check the ' + (crew.selfSeat === 'CA' ? 'PIC' : 'SIC') + ' name.');
+        L0.pt121 = ftype === '0' || ftype === '1';
+        L0.flt = flt; L0.ftype = ftype;
+        if (crew.warn.length && !isDHLeg && ftype === '0') L0.warnings.push('Crew list: ' + crew.warn.join('; ') + ' (seat left blank).');
+        dutyLegs.push(L0);
+      }
+      // duty times belong to the duty (row); placed on first/last checked leg later
+      dutyLegs.forEach(x => { x.report = report; x.debrief = debrief; });
+      legs.push(...dutyLegs);
+    }
+
+    // cleanfltdata
+    for (const L of legs) {
+      // LB/IB keep eCrew's own times (Floggy forces 08:00-17:00; changed 10/29/26)
+      if (/^(LM|LI)/.test(L.flt)) { L.atd = L.std; L.ata = L.sta; L.dh = true; }
+      if (/^(GT|JGI)/.test(L.flt)) { L.atd = L.std; L.ata = L.sta; }
+      if (L.flt.startsWith('DHA')) L.flt = L.flt.slice(3); else if (L.flt.startsWith('DH')) L.flt = L.flt.slice(2);
+      if (/^\d+$/.test(L.flt)) L.ftype = '0';
+      if (L.dh) {
+        // deadheads behave as live flights: actuals only when eCrew reports them (legacy prefill removed 10/30/26)
+        L.ftype = '1'; L.remarks = 'Dead Head';
+      }
+      if (L.cat === 'G' || L.cat === 'S' || L.cat === 'R') {
+        L.ftype = { G: '2', S: '3', R: '6' }[L.cat];
+        const dc = (opts.dutyCodes || root.FLOGGY_DUTY_CODES || {})[L.code];
+        if (dc) L.remarks = dc[1];
+        L.atd = L.std; L.ata = L.sta;
+        L.pic = L.sic = L.fa1 = L.fa2 = ''; L.p1 = L.p2 = false;
+        if (L.cat === 'S') { if (!['SEA', 'STL'].includes(L.dep)) L.dep = 'SEA'; if (!['SEA', 'STL'].includes(L.arv)) L.arv = 'SEA'; }
+        else { L.dep = h.base; L.arv = h.base; }
+      }
+      if (L.ftype === '') L.warnings.push('Duty code ' + (L.code || L.flt) + ' is not in the duty code list.');
+      L.typeRaw = L.acTypeRaw; L.type = mapType(L.acTypeRaw, opts.typeMode || 'none');
+      L.nonFlying = L.ftype === '1' || L.ftype === '2' || L.ftype === '6';
+    }
+
+    // training codes (getTrainingData v2)
+    for (const t of training) {
+      const td = trim(t[0]); const dm = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(td); if (!dm) continue;
+      const tDate = pad(+dm[1]) + '/' + pad(+dm[2]) + '/' + dm[3];
+      const tm = /^(\d{2}):?(\d{2})/.exec(trim(t[1])); const tStart = tm ? tm[1] + ':' + tm[2] : '';
+      const tDuty = trim(t[3]);
+      const cm = /\(([A-Za-z])\)[^(]*$/.exec(tDuty); let code = cm ? cm[1] : '';
+      let role = '';
+      for (const mem of (t[5] || '').split('|')) if (mem.indexOf(h.name) >= 0) {
+        if (mem.indexOf('Instructor') >= 0) role = 'I'; if (mem.indexOf('Trainee') >= 0) role = 'T';
+      }
+      if (role === 'I') code = code.toUpperCase(); if (role === 'T') code = code.toLowerCase();
+      const fn = /^\d+$/.test(tDuty.split(/\s+/)[0]) ? tDuty.split(/\s+/)[0] : '';
+      if (!code || (!tStart && !fn)) { notes.push('Training row not matched: ' + tDate + ' ' + tDuty); continue; }
+      const digits = f => (/(\d+)/.exec(f) || [])[1];
+      let hits = tStart ? legs.filter(L => L.date === tDate && (L.atd === tStart || L.std === tStart) && (!fn || digits(L.flt) === fn)) : [];
+      if (!hits.length && fn) hits = legs.filter(L => L.date === tDate && digits(L.flt) === fn);
+      if (!hits.length) { notes.push('Training row not matched (no leg at ' + tDate + ' ' + tStart + '): ' + tDuty); continue; }
+      hits.forEach(L => { L.trg = code; });
+    }
+
+    // A/B/C/D suffix: sort date desc, STD desc, ATD desc; letter adjacent runs
+    const dn = L => { const [m, d, y] = L.date.split('/').map(Number); return y * 10000 + m * 100 + d; };
+    const order = legs.slice();
+    const tv = s => (toMin(s) == null ? -1 : toMin(s));
+    order.sort((a, b) => tv(b.atd) - tv(a.atd));
+    order.sort((a, b) => tv(b.std) - tv(a.std));
+    order.sort((a, b) => dn(b) - dn(a));
+    const k4 = L => L.date + '|' + L.flt + '|' + L.dep + '|' + L.arv;
+    let run = 1;
+    for (let j = 0; j < order.length; j++) {
+      const same = j > 0 && k4(order[j]) === k4(order[j - 1]);
+      run = same ? run + 1 : 1;
+      const dup = same || (j < order.length - 1 && k4(order[j]) === k4(order[j + 1]));
+      order[j].suffix = dup && run <= 4 ? 'ABCD'[run - 1] : '';
+    }
+    const prefix = opts.prefix || '';
+    for (const L of legs) {
+      L.fltOut = L.flt + L.suffix;
+      L.key = L.date.replace(/\//g, '') + L.fltOut + L.dep + L.arv;
+      L.fltSend = (prefix && L.ftype !== '3' && /^\d/.test(L.fltOut)) ? prefix + L.fltOut : L.fltOut;
+      if (L.suffix) L.warnings.push('Same date, flight and route as another leg: sent as ' + L.fltOut + '.');
+    }
+
+    // true calendar dates for the times within each duty
+    const byDuty = {};
+    legs.forEach(L => (byDuty[L.duty] = byDuty[L.duty] || []).push(L));
+    for (const k in byDuty) {
+      let dayOff = 0, prevDep = null;
+      for (const L of byDuty[k]) {
+        const dep = toMin(L.atd || L.std), arr = toMin(L.ata || L.sta);
+        if (dep != null && prevDep != null && dep < prevDep - 360) dayOff++;
+        if (dep != null) prevDep = dep;
+        L.depDate = addDays(L.date, dayOff);
+        L.arrDate = (dep != null && arr != null && arr < dep) ? addDays(L.depDate, 1) : L.depDate;
+        if (arr != null && dep != null && arr < dep) { prevDep = arr; dayOff++; }
+      }
+    }
+    return { header: h, legs, notes };
+  }
+
+  // Duty times: report on the first CHECKED leg of each duty, debrief on the last.
+  function placeDuty(legs, isChecked) {
+    const byDuty = {};
+    legs.forEach((L, i) => { L.dutyS = ''; L.dutyE = ''; L.dutySDate = ''; L.dutyEDate = ''; if (isChecked(i)) (byDuty[L.duty] = byDuty[L.duty] || []).push(L); });
+    for (const k in byDuty) {
+      const g = byDuty[k], first = g[0], last = g[g.length - 1];
+      if (first.report) {
+        first.dutyS = first.report;
+        const r = toMin(first.report), d = toMin(first.atd || first.std);
+        first.dutySDate = (r != null && d != null && r > d + 360) ? addDays(first.depDate, -1) : first.depDate;
+      }
+      if (last.debrief) {
+        last.dutyE = last.debrief;
+        const e = toMin(last.debrief), a = toMin(last.ata || last.sta);
+        last.dutyEDate = (e != null && a != null && e < a - 360) ? addDays(last.arrDate, 1) : last.arrDate;
+      }
+    }
+  }
+
+  function entity(L, opts) {
+    opts = opts || {};
+    const e = { entity_name: 'Flight' };
+    const put = (k, v) => { if (v !== '' && v != null && v !== false) e[k] = String(v); };
+    put('flight_flightDate', L.date);
+    put('flight_flightNumber', L.fltSend);
+    put('flight_from', L.dep); put('flight_to', L.arv);
+    if (L.std) put('flight_scheduledDepartureTime', L.depDate + ' ' + L.std);
+    if (L.atd) put('flight_actualDepartureTime', L.depDate + ' ' + L.atd);
+    if (L.sta) put('flight_scheduledArrivalTime', L.arrDate + ' ' + L.sta);
+    if (L.ata) put('flight_actualArrivalTime', L.arrDate + ' ' + L.ata);
+    put('flight_selectedAircraftType', L.type);
+    put('flight_selectedCrewPIC', L.pic); put('flight_selectedCrewSIC', L.sic);
+    put('flight_selectedCrewFlightAttendant', L.fa1); put('flight_selectedCrewFlightAttendant2', L.fa2);
+    if (opts.capacity !== false) { if (L.p1) put('flight_picCapacity', '1'); if (L.p2) put('flight_sicCapacity', '1'); }
+    if (opts.duty !== false) {
+      if (L.dutyS) put('flight_onDutyTime', L.dutySDate + ' ' + L.dutyS);
+      if (L.dutyE) put('flight_offDutyTime', L.dutyEDate + ' ' + L.dutyE);
+    }
+    put('flight_remarks', L.remarks);
+    put('flight_key', L.key);
+    put('flight_type', '0000000' + L.ftype);
+    // Part 121/91 is never sent: the schedule can't tell them apart (logbook only)
+    put('flight_customNote5', L.trg);
+    return e;
+  }
+
+  function buildPackage(legs, opts) {
+    return {
+      metadata: { dateAndTimeFormat: 'MM/dd/yyyy HH:mm', timesAreZulu: false, application: 'Floggy Go Skd',
+        dateFormat: 'MM/dd/yyyy', shouldApplyAutoFillTimes: true, version: '1.0' },
+      entities: legs.map(L => entity(L, opts))
+    };
+  }
+
+  const api = { parse, placeDuty, entity, buildPackage, readHeader, parseCSV };
+  if (typeof module !== 'undefined' && module.exports) module.exports = api;
+  else root.FloggyGoSkd = api;
+})(typeof window !== 'undefined' ? window : this);
+
+</script>
+<script>
+(function () {
+  const S = window.FloggyGoSkd;
+  const SAMPLE = "Horizon Air,,Personal Crew Schedule Report,,,,,\n,,11/01/2026 - 11/07/2026 (All times in Local Station),,,,,\n1234 WILCO Roger PDX-CA-E75 \nSchedule Details\nDate,Duties,Details,,Report times,Actual times/Delays,Debrief times,Indicators,Crew\n11/01/2026 Sun,\"2108 [E75]\n2457 [E75]\",\"PDX  - SEA \nSEA  - BIL \",,13:15,\"A14:30 - A15:23\nA16:10 - A17:58\",18:13,E ,\"CA - 1234 - WILCO Roger\nFO - 777001 - ROOKIE Ray (SEA)\nFA - 50001 - AILERON Allie\nFA - 50002 - TAXIWAY Tess\"\n11/02/2026 Mon,\"DHA2162\n2093 [E75]\n2094 [E75]\",\"*BIL  - PDX \nPDX  - FAT \nFAT  - PDX \",,12:00,\"A12:45 - A14:40\nA15:30 - A17:15\nA17:55 - A19:40\",19:55,E ,\"CA - 1234 - WILCO Roger\nFO - 777001 - ROOKIE Ray (SEA)\nFA - 50001 - AILERON Allie\nFA - 50002 - TAXIWAY Tess\nCA - DH - 99001 - HOLDSHORT Hal\"\n11/03/2026 Tue,OFF,Day off,,,,,,\n11/04/2026 Wed,LB,Line Building,,,09:00 - 17:00,,,\n11/05/2026 Thu,\"2240 [E75]\n2023 [E75]\",\"PDX  - SFO \nSFO  - PDX \",,19:10,\"A20:10 - A22:05\nA22:40 - A00:25\",00:40,R ,\"CA - 77002 - THROTTLE Rudy\nFO - 1234 - WILCO Roger\nFA - 50003 - WINDSOCK Wendy\nFA - 50004 - CROSSWIND Kelly\"\n11/06/2026 Fri,VB,DAT Vacation,,,,,S,\n11/07/2026 Sat,\"2268 [E75]\n2269 [E75]\",\"PDX  - ABQ \nABQ  - PDX \",,06:18,\"07:18 - 09:58\n10:42 - 13:41\",13:56,,\"CA - 1234 - WILCO Roger\nFO - 77005 - FLAPS Freddie\nFA - 50003 - WINDSOCK Wendy\nFA - 50004 - CROSSWIND Kelly\"\nTotal Hours and Statistics\nBlock Hours,,Duty Hours,Credits,,Time Away From Base,,Off Days,Flight Days\n14:46,,40:12,24:30,,30:25,,2,4\nTraining Details\nDate,Time,,Duty,,Crew\n11/01/2026,1430 - 1523,,2108 - IOE (e) ,,\"1234 -- WILCO Roger -- Instructor  \n777001 -- ROOKIE Ray (SEA) -- Trainee  \"\n11/01/2026,1610 - 1758,,2457 - IOE (e) ,,\"1234 -- WILCO Roger -- Instructor  \n777001 -- ROOKIE Ray (SEA) -- Trainee  \"\n11/05/2026,2010 - 2205,,Right Seat Pay (r) ,,1234 -- WILCO Roger -- Instructor  \n11/05/2026,2240 - 0025,,Right Seat Pay (r) ,,1234 -- WILCO Roger -- Instructor  \nHotel Information\nPort,,,Phone,,Address,,Locators\nMemos\nDate,Category,,Memo\nDescriptions\nDuty Codes,,,,,Indicators\n\n\"Generated on  Nov 02, 2026 21:30\",,,,,Page 1 of 1\n";
+  const st = { text: SAMPLE, name: '', example: true, typeMode: 'none', prefix: '', nf: 'in', duty: 'send', cap: 'send', show: 'all', off: new Set(), initOff: true, result: null, url: '' };
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const KIND = { '0': ['Flight', 'act'], '1': ['Deadhead', 'dh'], '2': ['Ground', 'gnd'], '3': ['Sim', 'sim'], '4': ['Other', 'gnd'], '6': ['Reserve', 'rsv'], '': ['Unknown', 'sim'] };
+
+  function applyNF() {
+    st.off = new Set();
+    st.result.legs.forEach((L, i) => { if (L.warnings.some(w => /not in the duty code list/.test(w))) st.off.add(i); if (st.nf === 'out' && L.nonFlying) st.off.add(i); });
+  }
+  function run(keepChecks) {
+    st.result = S.parse(st.text, { typeMode: st.typeMode, prefix: st.prefix });
+    if (!keepChecks) applyNF();
+    render();
+  }
+  function tm(L, a, b, dA, dB) {
+    if (!L[a] && !L[b]) return '–';
+    const x = (L[a] || '') + '–' + (L[b] || '');
+    return esc(x) + (L[dB] && L[dB] !== L.date ? '<span class="nd" title="' + esc(L[dB]) + '"> +1</span>' : '');
+  }
+  function render() {
+    const r = st.result, h = r.header;
+    $('notice').hidden = !st.example;
+    $('fname').textContent = st.name;
+    if (!h.ok) {
+      $('baseNote').className = 'banner error';
+      $('baseText').innerHTML = '<strong>Can’t read this file.</strong> ' + esc((r.notes || []).join(' ')) + ' In eCrew, run the Personal Crew Schedule Report and save it as CSV.';
+      $('strip').innerHTML = ''; $('legs').innerHTML = ''; $('pkg').textContent = '';
+      FGO.send($('sendBox'), { legs: [], disabledText: 'Nothing to send' });
+      return;
+    }
+    $('baseNote').className = 'banner';
+    const per = h.period ? h.period.start + ' – ' + h.period.end : 'period not found';
+    $('baseText').innerHTML = 'Schedule for <strong>' + esc(per) + '</strong>. Times are station local, as eCrew shows them, and LogTen places each one in its airport’s time zone. Days off and excluded duties (vacation, sick and similar) are left out.';
+    const legs = r.legs;
+    S.placeDuty(legs, i => !st.off.has(i));
+    const n = f => legs.filter(f).length;
+    const cells = [
+      ['Pilot', esc(h.name) + ' · ' + esc(h.crewId)],
+      ['Base · seat', esc(h.base) + ' · ' + esc(h.equip) + ' ' + esc(h.seat)],
+      ['Generated', h.generated ? esc(h.generated) : 'not found'],
+      ['Flights', String(n(L => L.ftype === '0'))],
+      ['Deadheads · sims', n(L => L.ftype === '1') + ' · ' + n(L => L.ftype === '3')],
+      ['Ground · reserve', n(L => L.ftype === '2') + ' · ' + n(L => L.ftype === '6')],
+      ['Warnings', String(n(L => L.warnings.length) + r.notes.length)]
+    ];
+    $('strip').innerHTML = cells.map(c => '<div><div class="lbl">' + c[0] + '</div><div class="val">' + c[1] + '</div></div>').join('');
+    const shown = legs.filter(L => st.show === 'all' || L.warnings.length);
+    const items = shown.map(L => {
+      const i = legs.indexOf(L), k = KIND[L.ftype] || KIND[''];
+      const nd = (d) => d && d !== L.date ? '<span class="nd"> +1</span>' : '';
+      const sch = L.std || L.sta ? esc((L.std || '–') + '–' + (L.sta || '–')) + nd(L.arrDate) : '';
+      const act = L.atd || L.ata ? esc((L.atd || '–') + '–' + (L.ata || '–')) + nd(L.arrDate) : '';
+      const cap = st.cap === 'out' ? 'logbook' : ([L.p1 ? 'P1' : '', L.p2 ? 'P2' : ''].filter(Boolean).join(' '));
+      const duty = st.duty === 'out' ? 'not sent' : ((L.dutyS || L.dutyE) ? (L.dutyS || '') + '–' + (L.dutyE || '') : '');
+      return { i, key: L.key + '|' + i, date: L.date.slice(0, 5), flt: L.fltSend, route: L.dep + '–' + L.arv, _dep: L.dep, _arv: L.arv, _ft: L.ftype, _date: L.date, _duty: L.duty,
+        times: act ? (sch && sch !== act ? sch + ' → ' : '') + act : sch, chip: L.ftype === '0' ? null : { text: k[0], cls: k[1] }, warn: L.warnings,
+        details: [['Scheduled', sch], ['Actual', act], ['PIC', esc(L.pic || '')], ['SIC', esc(L.sic || '')], ['FA', esc(L.fa1 || '')], ['FA2', esc(L.fa2 || '')],
+          ['P1/P2', esc(cap)], ['Duty on–off', esc(duty)], ['Training', esc(L.trg || '')], ['Type', esc(L.type || '')], ['Remarks', esc(L.remarks || '')], ['Match key', esc(L.key)]] };
+    }).map(it => Object.assign(it, { date: it._date }));
+    const groups = FGO.groupTrips(items, h.base, it => it._ft === '0' || it._ft === '1', it => it.flt + ' · ' + it.date.slice(0, 5));
+    groups.forEach(g => g.items.forEach(it => { it.date = it._date.slice(0, 5); }));
+    FGO.legs($('legs'), { groups, on: i => !st.off.has(i), toggle: (ids, on) => { ids.forEach(i => on ? st.off.delete(i) : st.off.add(i)); render(); } });
+    $('notesBox').hidden = !r.notes.length; $('notesText').textContent = r.notes.join(' ');
+    const sel = legs.filter((L, i) => !st.off.has(i));
+    FGO.optSum($('optSum'), [st.prefix ? st.prefix + ' flight numbers' : '', st.typeMode === 'raw' ? 'type as reported' : st.typeMode === 'E170' ? 'type E170' : '',
+      st.nf === 'out' ? 'non-flying left out' : '', st.duty === 'out' ? 'no duty times' : '', st.cap === 'out' ? 'P1/P2 to logbook' : '', st.show === 'warn' ? 'warnings only' : '']);
+    const pkg = S.buildPackage(sel, { duty: st.duty === 'send', capacity: st.cap === 'send' });
+    $('pkg').textContent = JSON.stringify(pkg, null, 2);
+    FGO.send($('sendBox'), { legs: sel, noun: 'entry', msgEl: $('sendMsg'), disabledText: st.example ? 'Choose your schedule to send' : '',
+      url: part => 'logten://v2/addEntities?package=' + encodeURIComponent(JSON.stringify(S.buildPackage(part, { duty: st.duty === 'send', capacity: st.cap === 'send' }))) });
+    FGOCSV.refresh($('csvBox')); FGOCAL.refresh($('calBox'));
+  }
+  // checked legs -> export rows (Schedule times are station local)
+  const checked = () => (st.result && st.result.header.ok) ? st.result.legs.filter((L, i) => !st.off.has(i)) : [];
+  function csvRows() {
+    const at = (d, t, s) => t ? { date: d, time: t, stn: s } : null;
+    return checked().map(L => ({
+      date: L.date, flt: L.fltSend, dep: L.dep, arv: L.arv, kind: L.ftype, tail: '', type: L.typeRaw || '',
+      pic: L.pic || '', sic: L.sic || '', fa1: L.fa1 || '', fa2: L.fa2 || '', p1: !!L.p1, p2: !!L.p2, pt121: null,
+      out: at(L.depDate, L.atd, L.dep), inn: at(L.arrDate, L.ata, L.arv), sOut: at(L.depDate, L.std, L.dep), sIn: at(L.arrDate, L.sta, L.arv),
+      dOn: at(L.dutySDate, L.dutyS, L.dep), dOff: at(L.dutyEDate, L.dutyE, L.arv),
+      zulu: false, remarks: L.remarks || '', trg: L.trg || '', key: L.key }));
+  }
+  // checked legs -> calendar legs (bare flight number, as Floggy's events use)
+  function calLegs() {
+    return checked().map(L => ({ date: L.date, flt: L.fltOut, dep: L.dep, arv: L.arv, kind: L.ftype, std: L.std || '', sta: L.sta || '', atd: L.atd || '',
+      depDate: L.depDate, arrDate: L.arrDate, dutyS: L.dutyS, dutySDate: L.dutySDate, dutyE: L.dutyE, dutyEDate: L.dutyEDate,
+      pic: L.pic, sic: L.sic, fa1: L.fa1, fa2: L.fa2, remarks: L.remarks || '' }));
+  }
+  // what the schedule report can't supply, per target
+  const LIMITS = {
+    foreflight: 'No tail numbers, which ForeFlight requires: enter one tail for every leg, or fix them in ForeFlight after import. No Part 121/91. P1/P2 only where the crew list is clear. Legs not yet flown have no times.',
+    logbookpro: 'No tail numbers: enter one for every leg, or leave Aircraft Ident unmapped. No Part 121/91. P1/P2 only where the crew list is clear. Legs not yet flown have no times.',
+    myflightbook: 'No tail numbers, which MyFlightbook requires: enter one tail for every leg, or use your anonymous aircraft ID (#123456, shown in MyFlightbook’s aircraft details). No Part 121/91. P1/P2 only where the crew list is clear. Legs not yet flown have no times.',
+    sheet: 'No tail numbers or Part 121/91. P1/P2 only where the crew list is clear. For tails and Part 121, export from Floggy-Go Logbook too.'
+  };
+  const seg = (attr, fn) => document.querySelectorAll('[data-' + attr + ']').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('[data-' + attr + ']').forEach(x => x.setAttribute('aria-pressed', x === b)); fn(b.dataset[attr]);
+  }));
+  seg('ty', v => { st.typeMode = v; run(true); });
+  seg('px', v => { st.prefix = v; run(true); });
+  seg('nf', v => { st.nf = v; applyNF(); render(); });
+  seg('du', v => { st.duty = v; render(); });
+  seg('cap', v => { st.cap = v; render(); });
+  seg('sh', v => { st.show = v; render(); });
+  $('file').addEventListener('change', e => {
+    const f = e.target.files[0]; if (!f) return;
+    const rd = new FileReader();
+    rd.onload = () => { st.text = String(rd.result); st.name = f.name; st.example = false; run(false); };
+    rd.readAsText(f, 'windows-1252');
+  });
+  $('copy').addEventListener('click', () => {
+    navigator.clipboard.writeText($('pkg').textContent).then(() => { $('copyMsg').textContent = 'Copied'; }, () => {
+      const r = document.createRange(); r.selectNodeContents($('pkg')); const s = getSelection(); s.removeAllRanges(); s.addRange(r); $('copyMsg').textContent = 'Selected — press Copy';
+    });
+  });
+  FGOCSV.mount($('csvBox'), { page: 'schedule', rows: csvRows, header: () => st.result.header, has121: false, hasTail: false, limits: id => LIMITS[id] });
+  FGOCAL.mount($('calBox'), { legs: calLegs });
+  run(false);
+})();
+</script>
+
+</body></html>
