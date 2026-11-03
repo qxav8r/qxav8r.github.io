@@ -20,6 +20,9 @@ header p { margin:6px 0 0; font:600 1.15rem var(--f-brand); }
 h2 { margin:14px 0 0; font:600 1.05rem var(--f-brand); color:var(--muted); }
 a.tool { display:block; background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px 18px; text-decoration:none; color:var(--ink); }
 a.tool:hover { border-color:var(--accent); }
+a.tool:focus-visible { outline:3px solid var(--gold); outline-offset:3px; }
+a.tool span.sub { font-size:.85rem; margin-top:2px; }
+.lead { margin:-8px 0 0; color:var(--muted); font-size:.95rem; }
 a.tool strong { color:var(--accent); font-size:1.15rem; }
 a.tool small { font-size:.8rem; color:var(--muted); font-weight:600; }
 a.tool span { display:block; color:var(--muted); font-size:.95rem; }
@@ -38,17 +41,18 @@ footer a { color:var(--accent); }
   </header>
 
   <h2 id="floggy-go">Floggy-Go · in your browser (iPad, iPhone, Mac)</h2>
+  <p class="lead">Nothing to install. Your files stay on your device.</p>
   <a class="tool" href="go/schedule/">
     <strong>Floggy-Go Schedule</strong> <small>beta</small>
     <span>eCrew Crew Schedule CSV → LogTen</span>
   </a>
   <a class="tool" href="go/pairing/">
     <strong>Floggy-Go Pairing</strong> <small>beta</small>
-    <span>eCrew pairing web archive → trip rig, LogTen and calendar</span>
+    <span>eCrew Pairing Details page → trip rig, LogTen and calendar</span>
   </a>
   <a class="tool" href="go/flifo/">
     <strong>Floggy-Go Flifo</strong> <small>beta</small>
-    <span>Look up a flight: actual out/in times and tail from Alaska flight status → LogTen</span>
+    <span>Look up a flight → actual out/in times and tail → LogTen</span>
   </a>
   <a class="tool" href="go/flighty/">
     <strong>Floggy-Go Flighty</strong> <small>beta</small>
@@ -66,7 +70,8 @@ footer a { color:var(--accent); }
   <h2>Floggy · the Mac app</h2>
   <a class="tool" href="floggy/">
     <strong>Floggy</strong>
-    <span>Downloads, User Guide and Gatekeeper help</span>
+    <span>The full Mac app for importing, reviewing and exporting your eCrew flight records.</span>
+    <span class="sub">Downloads, User Guide and Gatekeeper help</span>
   </a>
 
   <h2>Meet the fleet</h2>
