@@ -32,10 +32,11 @@ Livery colors:
 | purple | `#7835A0` |
 | red | `#AD2F35` |
 | teal | `#2F9399` |
-| yellow | `#F2CC45` |
+| yellow | `#F2CC45`, plus `tcol=#22406E&fcol=#FFFFFF` so the title and F stay readable |
 
 Other knobs, as URL parameters:
 - `ts`, `ty`: title position.
+- `tcol`, `fcol`: title and tail-F colors; they default to the livery color and amber.
 - `es`, `ef`: eye position.
 - `ms`, `mw`, `mc`: smile position, width and curve.
 - `irot`, `io`: inlet swing and offset.

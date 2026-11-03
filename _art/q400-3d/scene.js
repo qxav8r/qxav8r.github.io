@@ -95,7 +95,7 @@ function fuselageTexture() {
   // title
   for (const side of [1, -1]) { const s = +(P.get('ts') || 13.2), th = thAt(s, +(P.get('ty') || 0.98)); const T = side > 0 ? th : Math.PI * 2 - th;
     g.save(); g.translate(sx(s), ty(T)); g.scale(side > 0 ? -1 : 1, 1);
-    g.font = '700 190px Fredoka'; g.lineWidth = 14; g.strokeStyle = WHITE; g.fillStyle = LIV; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.font = '700 190px Fredoka'; g.lineWidth = 14; g.strokeStyle = WHITE; g.fillStyle = P.get('tcol') || LIV; g.textAlign = 'center'; g.textBaseline = 'middle';
     g.strokeText('Floggy', 0, 0); g.fillText('Floggy', 0, 0); g.restore(); }
   if (FACE) {
     const es = +(P.get('es') || 2.95), ef = +(P.get('ef') || 0.55);
@@ -118,7 +118,7 @@ function finTexture(fx = 560, fy = 470) {
   const c = document.createElement('canvas'); c.width = 1024; c.height = 1024; const g = c.getContext('2d');
   g.fillStyle = LIV; g.fillRect(0, 0, 1024, 1024);
   g.save(); g.font = '700 360px Fredoka'; g.textAlign = 'center'; g.textBaseline = 'middle';
-  g.lineWidth = 18; g.strokeStyle = NAVY; g.strokeText('F', fx, fy + 14); g.fillStyle = AMBER; g.fillText('F', fx, fy + 14); g.restore();
+  g.lineWidth = 18; g.strokeStyle = NAVY; g.strokeText('F', fx, fy + 14); g.fillStyle = P.get('fcol') || AMBER; g.fillText('F', fx, fy + 14); g.restore();
   const t = new THREE.CanvasTexture(c); t.flipY = false; t.colorSpace = THREE.SRGBColorSpace; return t;
 }
 
