@@ -70,7 +70,7 @@ function fuselageTexture() {
   const band = (yfn, color) => { for (const side of [1, -1]) { g.beginPath();
       for (let s = 0; s <= L; s += 0.1) { const th = thAt(s, yfn(s)); const T = side > 0 ? th : Math.PI * 2 - th; s === 0 ? g.moveTo(sx(s), ty(T)) : g.lineTo(sx(s), ty(T)); }
       g.lineTo(sx(L), ty(Math.PI)); g.lineTo(sx(0), ty(Math.PI)); g.closePath(); g.fillStyle = color; g.fill(); } };
-  band(s => lineY(s) + 0.15, AMBER); band(s => lineY(s) + 0.05, WHITE); band(s => lineY(s), LIV);
+  band(s => lineY(s) + 0.15, P.get('acc') || AMBER); band(s => lineY(s) + 0.05, WHITE); band(s => lineY(s), LIV);
   // passenger windows (Q400 row spacing)
   if (P.get('win') !== '0') { g.fillStyle = GLASS;
     for (let s = 6.4; s < 23.4; s += 0.79) { if (Math.abs(s - 11.5) < 0.45) continue;

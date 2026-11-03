@@ -32,11 +32,12 @@ Livery colors:
 | purple | `#7835A0` |
 | red | `#AD2F35` |
 | teal | `#2F9399` |
-| yellow | `#F2CC45`, plus `tcol=#22406E&fcol=#FFFFFF` so the title and F stay readable |
+| yellow | `#F2CC45`, with green accents `tcol=#2E7D3E&fcol=#2E7D3E&acc=#2E7D3E` (title, F, cheatline) |
 
 Other knobs, as URL parameters:
 - `ts`, `ty`: title position.
-- `tcol`, `fcol`: title and tail-F colors; they default to the livery color and amber.
+- `tcol`, `fcol`, `acc`: title, tail-F and cheatline colors; they default to the livery color, amber and amber.
+- The yellow E175 gets the same green accents from `e175_yellow_green.py`, which recolors the original art.
 - `es`, `ef`: eye position.
 - `ms`, `mw`, `mc`: smile position, width and curve.
 - `irot`, `io`: inlet swing and offset.
