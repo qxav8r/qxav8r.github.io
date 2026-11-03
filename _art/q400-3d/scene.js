@@ -97,6 +97,10 @@ function fuselageTexture() {
     g.save(); g.translate(sx(s), ty(T)); g.scale(side > 0 ? -1 : 1, 1);
     g.font = '700 190px Fredoka'; g.lineWidth = 14; g.strokeStyle = WHITE; g.fillStyle = P.get('tcol') || LIV; g.textAlign = 'center'; g.textBaseline = 'middle';
     g.strokeText('Floggy', 0, 0); g.fillText('Floggy', 0, 0); g.restore(); }
+  // registration on the aft fuselage
+  if (P.get('reg')) for (const side of [1, -1]) { const s0 = +(P.get('rs') || 27.4), th = thAt(s0, +(P.get('ry') || 0.72)); const T = side > 0 ? th : Math.PI * 2 - th;
+    g.save(); g.translate(sx(s0), ty(T)); g.scale(side > 0 ? -1 : 1, 1); g.font = '700 118px Arial, Helvetica, sans-serif'; g.fillStyle = '#1b2230'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillText(P.get('reg'), 0, 0); g.restore(); }
   if (FACE) {
     const es = +(P.get('es') || 2.95), ef = +(P.get('ef') || 0.55);
     for (const side of [1, -1]) { const thLow = thAt(es, sill(es)); const th = 0.045 + (thLow - 0.045) * ef; const T = side > 0 ? th : Math.PI * 2 - th;
