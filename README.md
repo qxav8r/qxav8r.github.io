@@ -22,7 +22,9 @@ Your files never leave your device. The pages read the report in your browser an
 
 ```
 index.html          home page
-img/                Floggy plane liveries (green home, red Schedule, blue Logbook, teal Flifo, yellow Pairing, pink Flighty, purple Help, orange Floggy)
+img/fleet/          page header planes: <page>-e175.webp and <page>-q400.webp (one is picked at random on each load)
+img/                original E175 liveries (plane-<color>.webp)
+_art/               art sources, not published (Q400 3D scene and render script in _art/q400-3d)
 go/schedule/        Floggy-Go Schedule
 go/logbook/         Floggy-Go Logbook
 go/flifo/           Floggy-Go Flifo page (flifo.js kept for the earlier loader bookmark)
@@ -36,8 +38,23 @@ floggy/gatekeeper/  First-launch / Gatekeeper guide
 floggy-go-skd/, floggy-go-lbk/, help/, flifo-test/   old addresses: redirect to the new ones (flifo-test/flifo.js kept for early bookmarks)
 ```
 
+## Header fleet
+
+Every page header shows the Floggy E175 or the Floggy Q400, picked at random on each load. Each page keeps its color, and both planes carry its tail number. The digits follow the type (N175 jet, N400 turboprop), and the letters follow the tool:
+
+| Page | Color | Tail numbers |
+|---|---|---|
+| Home, Floggy | green, orange | N175FG · N400FG |
+| Schedule | red | N175SK · N400SK |
+| Logbook | blue | N175LB · N400LB |
+| Pairing | yellow | N175PR · N400PR |
+| Flifo | teal | N175FF · N400FF |
+| Flighty | pink | N175FT · N400FT |
+| Help | purple | N175HP · N400HP |
+
 ## Changes
 
+- **11/02/26** Header fleet: the Floggy Q400 joins the E175, built in the same 3D cartoon style. It has a high wing, T-tail, chin inlets and six-blade props, and comes in all eight colors. Each page now shows one of the two planes at random, with a tail number for its tool (see Header fleet).
 - **11/02/26** Floggy-Go Pairing v1.2: every fold starts closed; Trip Pay moved from the summary card into the Rig fold (and its header).
 - **11/02/26** Floggy-Go Pairing v1.1: page reorganized. Trip summary always showing (pairing, dates, route, Trip Pay), then folds in this order: Pairing legs, Rig (final credit, REG bucket, Flights in LBase and the three explanations together), Rest of the month (Dashboard), Send to LogTen, Add to Calendar, Export CSV. Each fold header carries a short summary; open/closed is remembered per device. Pairing legs use the same day headers and Show switch as Schedule and Logbook.
 - **11/02/26** Floggy-Go Schedule v1.2 and Logbook v1.2: legs grouped by **day**, days by **block** (consecutive work days, ending after a day off or a day that ends at base); Logbook keeps months on top. Day headers show date, legs and kinds of duty; a **Show: Blocks · Days · All** switch (blocks by default); checkboxes on every header for picking a block or a single day; headers with a warning inside in the warning color. Pairing and Flighty unchanged. Shared leg-card code now lives in go/shared/fgo-ui.*.
