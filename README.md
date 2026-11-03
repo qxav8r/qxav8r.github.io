@@ -12,7 +12,7 @@ eCrew to logbook. No retyping. Floggy-Go browser tools (iPad, iPhone, Mac) and t
 | [Floggy-Go Pairing](https://qxav8r.github.io/go/pairing/) (beta) | eCrew Pairing Details web archive → trip rig (Calculate Rig), legs with crew and training codes → LogTen, the rest of the month from the eCrew dashboard, CSV for other logbooks, and Flights / Duty / Trip calendar files (.ics) | v1.2 |
 | [Floggy-Go Flighty](https://qxav8r.github.io/go/flighty/) (beta) | Flighty "Export Flights" CSV → actual out/in times and tail → LogTen, one year at a time (other airlines optional, as deadheads), and CSV for other logbooks | v0.4 |
 | [Floggy-Go Help](https://qxav8r.github.io/go/help/) | Quick start and what every switch means | |
-| [Floggy](https://qxav8r.github.io/floggy/) | The Mac app: downloads, User Guide, Gatekeeper help. Builds live in [QXAV8R/floggy releases](https://github.com/QXAV8R/floggy/releases) | v2.6 |
+| [Floggy](https://qxav8r.github.io/floggy/) | The Mac app: downloads, User Guide, Gatekeeper help. Builds live in [QXAV8R/floggy releases](https://github.com/QXAV8R/floggy/releases) | v2.5 (2.6 this week) |
 
 ## Privacy
 
@@ -31,6 +31,8 @@ go/flifo/           Floggy-Go Flifo page (flifo.js kept for the earlier loader b
 go/pairing/         Floggy-Go Pairing (rig, LogTen, calendar); go/rig/ redirects here
 go/flighty/         Floggy-Go Flighty
 go/help/            Floggy-Go Help
+go/index.html       /go/ address: redirects to the Floggy-Go section of the home page
+fleet/              The Floggy Fleet page (every tool's E175 and Q400)
 go/shared/          source of the shared leg cards / day tree and export folds (CSV, Calendar), inlined into the pages by build_exports.py
 floggy/             Floggy Mac app page, Interface Guide PDF
 floggy/help/        Floggy User Guide (2.6)
@@ -54,6 +56,7 @@ Every page header shows the Floggy E175 or the Floggy Q400, picked at random on 
 
 ## Changes
 
+- **11/03/26** Site tidy: Floggy-Go pages get a tool switcher under the header (Home · Schedule · Pairing · Flifo · Flighty · Logbook · Help); every page ends with the same footer (Home · Floggy-Go Help · Floggy for Mac · The Fleet, and one disclaimer line). Home lists the tools in workflow order. New **Fleet** page. /go/ now redirects to the home page instead of a 404. Floggy page shows v2.5 (2.6 coming this week) to match the download. Rule notes for Schedule and Logbook moved from their footers into Help → Sending.
 - **11/02/26** Header fleet: the Floggy Q400 joins the E175, built in the same 3D cartoon style. It has a high wing, T-tail, chin inlets and six-blade props, and comes in all eight colors. Each page now shows one of the two planes at random, with a tail number for its tool (see Header fleet).
 - **11/02/26** Floggy-Go Pairing v1.2: every fold starts closed; Trip Pay moved from the summary card into the Rig fold (and its header).
 - **11/02/26** Floggy-Go Pairing v1.1: page reorganized. Trip summary always showing (pairing, dates, route, Trip Pay), then folds in this order: Pairing legs, Rig (final credit, REG bucket, Flights in LBase and the three explanations together), Rest of the month (Dashboard), Send to LogTen, Add to Calendar, Export CSV. Each fold header carries a short summary; open/closed is remembered per device. Pairing legs use the same day headers and Show switch as Schedule and Logbook.
@@ -76,4 +79,4 @@ The relay code lives in Cloudflare (Workers & Pages → flifo) and is copied in 
 
 ---
 
-Unofficial personal tools. Not affiliated with or endorsed by Alaska Airlines, Horizon Air or LogTen Pro.
+Unofficial tools, not affiliated with any airline or app maker.

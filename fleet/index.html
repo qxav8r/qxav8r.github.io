@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Floggy Fleet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=IBM+Plex+Mono:wght@400&family=IBM+Plex+Sans:wght@400;600&display=swap">
+<style>
+:root { --bg:#f3f5f7; --ink:#18212b; --muted:#5b6875; --accent:#0b6e8a; --hero:#0f1e3a; --gold:#f5b841; --soft:#c9d3e3;
+  --f-brand:"Fredoka","Arial Rounded MT Bold",system-ui,sans-serif; --f-body:"IBM Plex Sans",-apple-system,system-ui,sans-serif; --f-data:"IBM Plex Mono",ui-monospace,Menlo,monospace; }
+@media (prefers-color-scheme: dark) { :root { --bg:#0f151b; --ink:#e3e9ef; --muted:#93a1ae; --accent:#4fb3cf; --hero:#0b1628; color-scheme:dark; } }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.5 var(--f-body); }
+.wrap { max-width:900px; margin:0 auto; padding:20px 16px 48px; display:grid; gap:14px; }
+.homelink { justify-self:start; font:600 .95rem var(--f-body); color:var(--accent); text-decoration:none; }
+.poster { background:var(--hero); color:#fff; border-radius:14px; padding:28px clamp(16px,4vw,40px) 22px; }
+h1 { margin:0; font:700 clamp(2.2rem,7vw,3.4rem)/1 var(--f-brand); color:var(--gold); }
+.tag { margin:8px 0 22px; font:600 1.15rem var(--f-brand); }
+.row { display:grid; grid-template-columns:minmax(150px,220px) 1fr 1fr; gap:4px 16px; align-items:center; color:#fff; text-decoration:none; padding:6px 0; border-top:1px solid rgba(255,255,255,.1); }
+.row:hover strong { text-decoration:underline; }
+.row img { width:100%; height:auto; display:block; }
+.who { display:flex; align-items:center; gap:12px; }
+.dot { width:14px; height:14px; border-radius:50%; flex-shrink:0; }
+.who strong { display:block; font:600 1.3rem var(--f-brand); }
+.who small { display:block; font:.85rem var(--f-data); color:var(--soft); }
+.base { display:flex; justify-content:space-between; flex-wrap:wrap; gap:4px 12px; margin-top:14px; padding-top:14px; border-top:1px solid rgba(255,255,255,.18); font:.85rem var(--f-data); letter-spacing:.06em; color:var(--soft); }
+p.note { color:var(--muted); margin:0; max-width:70ch; }
+.foot { color:var(--muted); font-size:.85rem; } .foot a { color:var(--accent); }
+@media (max-width:560px) { .row { grid-template-columns:1fr 1fr; } .who { grid-column:1 / -1; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="homelink" href="../">‹ Home</a>
+  <div class="poster">
+    <h1>The Floggy Fleet</h1>
+    <p class="tag">eCrew to logbook. No retyping.</p>
+    <a class="row" href="../">
+      <span class="who"><span class="dot" style="background:#2E9E5B"></span><span><strong>Home</strong><small>N175FG · N400FG</small></span></span>
+      <img src="../img/fleet/home-e175.webp" alt="Green Floggy E175" loading="lazy">
+      <img src="../img/fleet/home-q400.webp" alt="Green Floggy Q400" loading="lazy">
+    </a>
+    <a class="row" href="../floggy/">
+      <span class="who"><span class="dot" style="background:#E8822A"></span><span><strong>Floggy for Mac</strong><small>N175FG · N400FG</small></span></span>
+      <img src="../img/fleet/floggy-e175.webp" alt="Orange Floggy E175" loading="lazy">
+      <img src="../img/fleet/floggy-q400.webp" alt="Orange Floggy Q400" loading="lazy">
+    </a>
+    <a class="row" href="../go/schedule/">
+      <span class="who"><span class="dot" style="background:#D33A3A"></span><span><strong>Schedule</strong><small>N175SK · N400SK</small></span></span>
+      <img src="../img/fleet/schedule-e175.webp" alt="Red Floggy E175" loading="lazy">
+      <img src="../img/fleet/schedule-q400.webp" alt="Red Floggy Q400" loading="lazy">
+    </a>
+    <a class="row" href="../go/pairing/">
+      <span class="who"><span class="dot" style="background:#F2C230"></span><span><strong>Pairing</strong><small>N175PR · N400PR</small></span></span>
+      <img src="../img/fleet/pairing-e175.webp" alt="Yellow Floggy E175" loading="lazy">
+      <img src="../img/fleet/pairing-q400.webp" alt="Yellow Floggy Q400" loading="lazy">
+    </a>
+    <a class="row" href="../go/flifo/">
+      <span class="who"><span class="dot" style="background:#1E9E9A"></span><span><strong>Flifo</strong><small>N175FF · N400FF</small></span></span>
+      <img src="../img/fleet/flifo-e175.webp" alt="Teal Floggy E175" loading="lazy">
+      <img src="../img/fleet/flifo-q400.webp" alt="Teal Floggy Q400" loading="lazy">
+    </a>
+    <a class="row" href="../go/flighty/">
+      <span class="who"><span class="dot" style="background:#E05A9C"></span><span><strong>Flighty</strong><small>N175FT · N400FT</small></span></span>
+      <img src="../img/fleet/flighty-e175.webp" alt="Pink Floggy E175" loading="lazy">
+      <img src="../img/fleet/flighty-q400.webp" alt="Pink Floggy Q400" loading="lazy">
+    </a>
+    <a class="row" href="../go/logbook/">
+      <span class="who"><span class="dot" style="background:#2F6FD0"></span><span><strong>Logbook</strong><small>N175LB · N400LB</small></span></span>
+      <img src="../img/fleet/logbook-e175.webp" alt="Blue Floggy E175" loading="lazy">
+      <img src="../img/fleet/logbook-q400.webp" alt="Blue Floggy Q400" loading="lazy">
+    </a>
+    <a class="row" href="../go/help/">
+      <span class="who"><span class="dot" style="background:#7835A0"></span><span><strong>Help</strong><small>N175HP · N400HP</small></span></span>
+      <img src="../img/fleet/help-e175.webp" alt="Purple Floggy E175" loading="lazy">
+      <img src="../img/fleet/help-q400.webp" alt="Purple Floggy Q400" loading="lazy">
+    </a>
+    <div class="base"><span>qxav8r.github.io</span><span>Built by a line pilot</span></div>
+  </div>
+  <p class="note">Every page has its own color and tail number. Each time a page opens, its header shows the E175 or the Q400 at random. Tap a row to go to that tool.</p>
+  <p class="foot"><a href="../">Home</a> · <a href="../go/help/">Floggy-Go Help</a> · <a href="../floggy/">Floggy for Mac</a> · <a href="./">The Fleet</a><br>Unofficial tools, not affiliated with any airline or app maker.</p>
+</div>
+</body>
+</html>

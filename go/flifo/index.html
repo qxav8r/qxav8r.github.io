@@ -26,6 +26,11 @@
 body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.55 var(--f-body); }
 .wrap { max-width:900px; margin:0 auto; padding:20px max(16px,env(safe-area-inset-right)) 56px max(16px,env(safe-area-inset-left)); display:grid; gap:18px; }
 .homelink { justify-self:start; font:600 .95rem var(--f-ui); color:var(--accent); text-decoration:none; }
+.toolnav { justify-self:stretch; display:flex; flex-wrap:wrap; gap:2px 16px; font:600 .95rem var(--f-ui); }
+.toolnav a { color:var(--accent); text-decoration:none; padding:.2rem 0; border-bottom:2px solid transparent; }
+.toolnav a:hover { text-decoration:underline; }
+.toolnav a[aria-current] { color:var(--ink); border-bottom-color:var(--accent); }
+.sitefoot { margin-top:-6px; }
 .hero { background:var(--hero); color:#fff; border-radius:12px; padding:20px 24px; display:flex; align-items:center; justify-content:space-between; gap:8px 20px; flex-wrap:wrap; overflow:hidden; }
 .hero h1 { font-family:var(--f-brand); font-weight:700; font-size:clamp(2rem,6vw,3rem); line-height:1; margin:0; color:var(--gold); }
 .hero h1 .sub { color:#fff; font-size:.55em; font-weight:600; }
@@ -79,7 +84,7 @@ button.btn:disabled, a.btn[aria-disabled="true"] { opacity:.45; pointer-events:n
 </head>
 <body>
 <div class="wrap">
-  <a class="homelink" href="../../">‹ All Tools / Home</a>
+  <nav class="toolnav" aria-label="Floggy-Go tools"><a href="../../">‹ Home</a><a href="../schedule/">Schedule</a><a href="../pairing/">Pairing</a><a href="../flifo/" aria-current="page">Flifo</a><a href="../flighty/">Flighty</a><a href="../logbook/">Logbook</a><a href="../help/">Help</a></nav>
   <header class="hero">
     <div>
       <h1>Floggy-Go <span class="sub">Flifo</span></h1>
@@ -128,7 +133,8 @@ button.btn:disabled, a.btn[aria-disabled="true"] { opacity:.45; pointer-events:n
     <p>LogTen updates the matching flight (date + flight number + route) or adds a new one. Times are station local, like eCrew.</p>
   </section>
 
-  <p class="foot">Floggy-Go Flifo reads Alaska's public flight status page through a small relay; nothing about you is sent or stored. · <a href="../../">All tools</a> · Not affiliated with or endorsed by Alaska Airlines, Horizon Air or LogTen Pro.</p>
+  <p class="foot">Floggy-Go Flifo reads Alaska's public flight status page through a small relay; only the flight number and date are sent, and nothing about you is sent or stored.</p>
+  <p class="foot sitefoot"><a href="../../">Home</a> · <a href="../../go/help/">Floggy-Go Help</a> · <a href="../../floggy/">Floggy for Mac</a> · <a href="../../fleet/">The Fleet</a><br>Unofficial tools, not affiliated with any airline or app maker.</p>
 </div>
 <script>
 (function () {

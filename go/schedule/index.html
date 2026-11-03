@@ -89,6 +89,11 @@ pre { margin: 0; max-height: 420px; overflow: auto; background: var(--bg); borde
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 .homelink { justify-self:start; font:600 .95rem var(--f-ui); color:var(--accent); text-decoration:none; padding:.2rem 0; }
 .homelink:hover { text-decoration:underline; }
+.toolnav { justify-self:stretch; display:flex; flex-wrap:wrap; gap:2px 16px; font:600 .95rem var(--f-ui); }
+.toolnav a { color:var(--accent); text-decoration:none; padding:.2rem 0; border-bottom:2px solid transparent; }
+.toolnav a:hover { text-decoration:underline; }
+.toolnav a[aria-current] { color:var(--ink); border-bottom-color:var(--accent); }
+.sitefoot { margin-top:-6px; }
 </style>
 <style id="fgo-ui-css">
 /* Floggy-Go shared UI: options panel, leg cards, day tree, send parts. Source: go/shared/fgo-ui.css, inlined into each import page. */
@@ -176,7 +181,7 @@ details.fx-fold { margin:0; }
 .fx-hist { font-size:.8rem; color:var(--muted); margin:0; }
 </style>
 <div class="wrap">
-  <a class="homelink" href="../../">‹ All Tools / Home</a>
+  <nav class="toolnav" aria-label="Floggy-Go tools"><a href="../../">‹ Home</a><a href="../schedule/" aria-current="page">Schedule</a><a href="../pairing/">Pairing</a><a href="../flifo/">Flifo</a><a href="../flighty/">Flighty</a><a href="../logbook/">Logbook</a><a href="../help/">Help</a></nav>
   <header class="hero">
     <div class="hero-text">
       <h1>Floggy-Go <span class="sub">Schedule</span></h1>
@@ -264,7 +269,8 @@ details.fx-fold { margin:0; }
   <div id="csvBox"></div>
   <div id="calBox"></div>
 
-  <p class="foot">Nothing reaches LogTen until you tap Send. Rules match Floggy 2.6 Parse Schedule and Log10 Export, with the duty code list built in. Part 121/91 is not sent: the schedule can’t tell them apart, so it comes from the logbook. Times are station local, as eCrew shows them, each with its own date: <span class="nd">+1</span> marks a time on the day after the duty date. Duty on goes on the first checked leg of each duty day and duty off on the last.</p>
+  <p class="foot">Nothing reaches LogTen until you tap Send. Part 121/91 is not sent: the schedule can’t tell them apart, so it comes from the logbook. Times are station local, as eCrew shows them, each with its own date: <span class="nd">+1</span> marks a time on the day after the duty date. Duty on goes on the first checked leg of each duty day and duty off on the last.</p>
+  <p class="foot sitefoot"><a href="../../">Home</a> · <a href="../../go/help/">Floggy-Go Help</a> · <a href="../../floggy/">Floggy for Mac</a> · <a href="../../fleet/">The Fleet</a><br>Unofficial tools, not affiliated with any airline or app maker.</p>
 </div>
 
 <script id="fgo-ui-js">

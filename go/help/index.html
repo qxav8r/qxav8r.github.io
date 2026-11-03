@@ -59,6 +59,11 @@ td:first-child { white-space:nowrap; }
 code { font:.85rem var(--f-data); }
 .foot { color:var(--muted); font-size:.85rem; }
 .homelink { justify-self:start; font:600 .95rem var(--f-ui); color:var(--accent); text-decoration:none; padding:.2rem 0; }
+.toolnav { justify-self:stretch; display:flex; flex-wrap:wrap; gap:2px 16px; font:600 .95rem var(--f-ui); }
+.toolnav a { color:var(--accent); text-decoration:none; padding:.2rem 0; border-bottom:2px solid transparent; }
+.toolnav a:hover { text-decoration:underline; }
+.toolnav a[aria-current] { color:var(--ink); border-bottom-color:var(--accent); }
+.sitefoot { margin-top:-6px; }
 .tablewrap { overflow-x:auto; }
 @media (max-width: 640px) {
   .stack thead { display:none; }
@@ -73,7 +78,7 @@ code { font:.85rem var(--f-data); }
 </head>
 <body>
 <div class="wrap">
-  <a class="homelink" href="../../">‹ All Tools / Home</a>
+  <nav class="toolnav" aria-label="Floggy-Go tools"><a href="../../">‹ Home</a><a href="../schedule/">Schedule</a><a href="../pairing/">Pairing</a><a href="../flifo/">Flifo</a><a href="../flighty/">Flighty</a><a href="../logbook/">Logbook</a><a href="../help/" aria-current="page">Help</a></nav>
   <header class="hero">
     <div>
       <h1>Floggy-Go <span class="sub">Help</span></h1>
@@ -246,6 +251,11 @@ code { font:.85rem var(--f-data); }
       <li>Nothing reaches LogTen until you tap Send.</li>
     </ul>
     <p>Below the send box, two folds do more with the same checked legs: <a href="#export">Export CSV</a> (every import page) and <a href="#calendar">Add to Calendar</a> (Schedule and Pairing).</p>
+    <h3>For the technically curious</h3>
+    <ul>
+      <li>Schedule follows Floggy 2.6's Parse Schedule and Log10 Export rules, with the duty code list built in. Logbook follows Parse LogBook and Log10 Export.</li>
+      <li>The airline code, when chosen, goes on the flight number only. LogTen's flight key stays the bare number, so imports match the ones Floggy sends.</li>
+    </ul>
   </section>
 
   <section id="export">
@@ -417,7 +427,7 @@ code { font:.85rem var(--f-data); }
     </ul>
   </section>
 
-  <p class="foot">Floggy-Go · <a href="../../">All tools</a> · Not affiliated with any airline or with LogTen.</p>
+  <p class="foot sitefoot"><a href="../../">Home</a> · <a href="../../go/help/">Floggy-Go Help</a> · <a href="../../floggy/">Floggy for Mac</a> · <a href="../../fleet/">The Fleet</a><br>Unofficial tools, not affiliated with any airline or app maker.</p>
 </div>
 </body>
 </html>

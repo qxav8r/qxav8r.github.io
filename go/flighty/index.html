@@ -26,6 +26,11 @@
 body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.55 var(--f-body); }
 .wrap { max-width:900px; margin:0 auto; padding:20px max(16px,env(safe-area-inset-right)) 56px max(16px,env(safe-area-inset-left)); display:grid; gap:18px; }
 .homelink { justify-self:start; font:600 .95rem var(--f-ui); color:var(--accent); text-decoration:none; }
+.toolnav { justify-self:stretch; display:flex; flex-wrap:wrap; gap:2px 16px; font:600 .95rem var(--f-ui); }
+.toolnav a { color:var(--accent); text-decoration:none; padding:.2rem 0; border-bottom:2px solid transparent; }
+.toolnav a:hover { text-decoration:underline; }
+.toolnav a[aria-current] { color:var(--ink); border-bottom-color:var(--accent); }
+.sitefoot { margin-top:-6px; }
 .hero { background:var(--hero); color:#fff; border-radius:12px; padding:20px 24px; display:flex; align-items:center; justify-content:space-between; gap:8px 20px; flex-wrap:wrap; overflow:hidden; }
 .hero h1 { font-family:var(--f-brand); font-weight:700; font-size:clamp(2rem,6vw,3rem); line-height:1; margin:0; color:var(--gold); }
 .hero h1 .sub { color:#fff; font-size:.55em; font-weight:600; }
@@ -180,7 +185,7 @@ details.fx-fold { margin:0; }
 .fx-hist { font-size:.8rem; color:var(--muted); margin:0; }
 </style>
 <div class="wrap">
-  <a class="homelink" href="../../">‹ All Tools / Home</a>
+  <nav class="toolnav" aria-label="Floggy-Go tools"><a href="../../">‹ Home</a><a href="../schedule/">Schedule</a><a href="../pairing/">Pairing</a><a href="../flifo/">Flifo</a><a href="../flighty/" aria-current="page">Flighty</a><a href="../logbook/">Logbook</a><a href="../help/">Help</a></nav>
   <header class="hero">
     <div>
       <h1>Floggy-Go <span class="sub" style="color:#fff">Flighty</span></h1>
@@ -229,7 +234,8 @@ details.fx-fold { margin:0; }
     <div id="csvBox"></div>
   </div>
 
-  <p class="foot">Floggy-Go Flighty is a prototype port of Floggy's Parse Flighty. · <a href="../../">All tools</a> · Not affiliated with or endorsed by Flighty, Alaska Airlines or Horizon Air.</p>
+  <p class="foot">Floggy-Go Flighty is a prototype port of Floggy's Parse Flighty.</p>
+  <p class="foot sitefoot"><a href="../../">Home</a> · <a href="../../go/help/">Floggy-Go Help</a> · <a href="../../floggy/">Floggy for Mac</a> · <a href="../../fleet/">The Fleet</a><br>Unofficial tools, not affiliated with any airline or app maker.</p>
 </div>
 
 <script id="fgo-ui-js">
