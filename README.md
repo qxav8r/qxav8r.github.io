@@ -46,7 +46,8 @@ Every page header shows the Floggy E175 or the Floggy Q400, picked at random on 
 
 | Page | Color | Tail numbers |
 |---|---|---|
-| Home, Floggy | green, orange | N175FG · N400FG |
+| Home | green | N175FG · N400FG |
+| Floggy | orange | N175XT · N400XT |
 | Schedule | red | N175SK · N400SK |
 | Logbook | blue | N175LB · N400LB |
 | Pairing | yellow | N175PR · N400PR |
@@ -56,6 +57,7 @@ Every page header shows the Floggy E175 or the Floggy Q400, picked at random on 
 
 ## Changes
 
+- **11/03/26** Floggy (Mac) planes get their own tails, N175XT and N400XT, so no two pages share a tail number.
 - **11/03/26** Site tidy: Floggy-Go pages get a tool switcher under the header (Home · Schedule · Pairing · Flifo · Flighty · Logbook · Help); every page ends with the same footer (Home · Floggy-Go Help · Floggy for Mac · The Fleet, and one disclaimer line). Home lists the tools in workflow order. New **Fleet** page. /go/ now redirects to the home page instead of a 404. Floggy page shows v2.5 (2.6 coming this week) to match the download. Rule notes for Schedule and Logbook moved from their footers into Help → Sending.
 - **11/02/26** Header fleet: the Floggy Q400 joins the E175, built in the same 3D cartoon style. It has a high wing, T-tail, chin inlets and six-blade props, and comes in all eight colors. Each page now shows one of the two planes at random, with a tail number for its tool (see Header fleet).
 - **11/02/26** Floggy-Go Pairing v1.2: every fold starts closed; Trip Pay moved from the summary card into the Rig fold (and its header).
