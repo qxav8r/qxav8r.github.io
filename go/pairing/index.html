@@ -1391,7 +1391,7 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
       var S = it.LStationTimes || {};
       if (num(S.aDepDay) <= 0) return;
       var L = { flt: flt, dep: word1(it.Departure), arv: word1(it.Arrival), ac: word1(it.AC), tail: word1(it.Tail), dhd: trim(it.DHD),
-        warnings: [], route: route };
+        warnings: [], route: route, pairNum: route };
       L.date = aimsdate(S.aDepDay);
       L.depDate = L.date; L.arrDate = aimsdate(S.aArrDay) || L.date;
       L.actDepDate = aimsdate(S.aFormat2_DepDay) || L.depDate; L.actArrDate = aimsdate(S.aActArrDay) || L.actDepDate;
@@ -1542,7 +1542,7 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
           var m = /^(\S+)\s+-\s+([A-Z0-9]{3,4})\s+\(([^)]*)\)\s+-\s+([A-Z0-9]{3,4})\s+\(([^)]*)\)/.exec(l);
           if (!m) return;
           var d = dashTime(m[3]), a = dashTime(m[5]);
-          var L = { src: 'dash', trip: trip, group: trip + '|' + tripStart, flt: m[1], dep: m[2], arv: m[4], ac: '', tail: '', warnings: [], route: trip,
+          var L = { src: 'dash', trip: trip, group: trip + '|' + tripStart, flt: m[1], dep: m[2], arv: m[4], ac: '', tail: '', warnings: [], route: trip, pairNum: trip,
             std: '', sta: '', atd: '', ata: '' };
           L.date = d.kind === 'S' ? mdyAdd(startD, d.plus) : startD;
           if (d.kind === 'A') { L.atd = d.t; L.actDepDate = mdyAdd(startD, d.plus); }
@@ -1610,6 +1610,7 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
         if (!P[f[0]]) { P[f[0]] = D[f[0]]; P[f[1]] = D[f[1]]; filled.push(f[2]); }
         else if (P[f[0]] !== D[f[0]]) P.warnings.push('Dashboard shows ' + f[2] + ' ' + D[f[0]] + ', the pairing ' + P[f[0]] + ': pairing kept.');
       });
+      if (!P.pairNum && D.pairNum) P.pairNum = D.pairNum;
       if (filled.length) P.dashFill = filled.join(', ');
     });
     return rest;
@@ -1671,6 +1672,7 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
     put('flight_remarks', L.remarks);
     put('flight_key', L.key);
     put('flight_type', '0000000' + L.ftype);
+    put('flight_customNote2', L.pairNum);   // pairing number, same field as Floggy (TRIP, item 25); trip legs only
     put('flight_customNote5', L.trg);
     return e;
   }
