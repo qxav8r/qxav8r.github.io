@@ -1977,6 +1977,9 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
       $('calMsg').textContent = CLABEL[k] + ': ' + r.events.length + (r.events.length === 1 ? ' event' : ' events') + (touch ? ' opened.' : ' saved as ' + name + '.');
     });
   });
+  // Mac Safari dims a web archive eCrew has just saved (macOS hasn't typed the new file yet), so it takes a second
+  // pick. No type filter on the Mac: the page already rejects a file with no pairing data. iPad keeps the filter.
+  if (!touch) $('file').removeAttribute('accept');
   $('file').addEventListener('change', function (e) {
     var f = e.target.files[0]; if (!f) return;
     $('msg').className = 'msg'; $('msg').textContent = 'Reading ' + f.name + '…'; $('out').hidden = true;
