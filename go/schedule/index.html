@@ -931,11 +931,11 @@ details.fx-fold { margin:0; }
 })(this);
 </script>
 <script id="fgo-cal-js">
-// Floggy-Go shared "Add to Calendar" fold: Flights, Duty and Day events for UPCOMING legs only.
+// Floggy-Go shared "Add to Calendar" fold: Flights, Duty and Trip / Day events for UPCOMING legs only.
 // Ported from Floggy-Go Pairing's calendar (Floggy's Build ICS / Write ICS Files): timed events in UTC ("Z"),
 // UID = SUMMARY + DTSTART + LOCATION + "@floggyxt", so re-importing updates events instead of duplicating them.
 // Needs FGOCSV (station time zones). Page calls FGOCAL.mount(el, { legs() }) once and FGOCAL.refresh(el) after each render.
-// Leg: { date, flt, dep, arv, kind, std, sta, atd, depDate, arrDate, dutyS, dutySDate, dutyE, dutyEDate, pic, sic, fa1, fa2, remarks }
+// Leg: { date, trip (pairing number, or ''), flt, dep, arv, kind, std, sta, atd, depDate, arrDate, dutyS, dutySDate, dutyE, dutyEDate, pic, sic, fa1, fa2, remarks }
 (function (root) {
   'use strict';
   var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
@@ -987,13 +987,25 @@ details.fx-fold { margin:0; }
       ev.push({ summary: A.dep + ' ' + B.arv, start: zt(a), end: zt(b), allDay: false, location: A.dep + ' ' + B.arv,
         desc: tripDesc(g), when: A.dutySDate + ' ' + A.dutyS + '\u2013' + B.dutyE });
     });
-    if (kind === 'Day') {
-      // one all-day event per duty day: first departure to last arrival, or the duty code on a ground/reserve/sim-only day
+    if (kind === 'TripDay') {
+      // Trip / Day: legs with a pairing number (L.trip) -> one all-day banner per trip, titled with the number;
+      // all other legs -> one all-day event per day: first departure to last arrival of the flying legs ("PDX SEA"),
+      // or the duty code on a ground/reserve/sim-only day ("LB").
+      var trips = [], cur = null, rest = [];
+      legs.forEach(function (L) {
+        if (!L.trip) { rest.push(L); cur = null; return; }
+        if (!cur || cur.t !== L.trip) trips.push(cur = { t: L.trip, legs: [] });
+        cur.legs.push(L);
+      });
+      trips.forEach(function (g) {
+        var a = g.legs[0], b = g.legs[g.legs.length - 1];
+        ev.push({ summary: g.t, start: ymd(a.date), end: nextYmd(b.date), allDay: true, location: a.dep + ' ' + b.arv,
+          desc: tripDesc(g.legs), when: a.date + (b.date !== a.date ? '\u2013' + b.date : '') + ' (all day)' });
+      });
       var days = [], idx = {};
-      legs.forEach(function (L) { if (!idx[L.date]) days.push(idx[L.date] = { date: L.date, legs: [] }); idx[L.date].legs.push(L); });
+      rest.forEach(function (L) { if (!idx[L.date]) days.push(idx[L.date] = { date: L.date, legs: [] }); idx[L.date].legs.push(L); });
       days.forEach(function (d) {
         var fl = d.legs.filter(function (L) { return L.kind === '0' || L.kind === '1'; });
-        // first departure and last arrival, like Floggy's Duty titles ("PDX SEA"); duty code on a ground/reserve/sim-only day
         var name = fl.length ? fl[0].dep + ' ' + fl[fl.length - 1].arv : d.legs.map(function (L) { return L.flt; }).filter(function (x, i, a) { return a.indexOf(x) === i; }).join(' ');
         var desc = d.legs.map(function (L) { return (L.kind === '0' || L.kind === '1') ? legLine(L) : L.flt + (L.remarks ? ' ' + L.remarks : '') + (L.std ? ' ' + L.std + '\u2013' + (L.sta || '') : '') + '\n\n'; }).join('');
         ev.push({ summary: name, start: ymd(d.date), end: nextYmd(d.date), allDay: true, location: d.legs[0].dep, desc: desc, when: d.date + ' (all day)' });
@@ -1023,7 +1035,8 @@ details.fx-fold { margin:0; }
     return L.map(fold).join('\r\n') + '\r\n';
   }
 
-  var KINDS = ['Flights', 'Duty', 'Day'];
+  var KINDS = ['Flights', 'Duty', 'TripDay'];
+  var LABEL = { Flights: 'Flights', Duty: 'Duty', TripDay: 'Trip / Day' }, FILE = { Flights: 'Flights', Duty: 'Duty', TripDay: 'Trip-Day' };
   var touch = typeof navigator !== 'undefined' && (/iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1));
   function mount(el, o) {
     var S = el._cal = { o: o, mem: load(), ev: {} };
@@ -1033,12 +1046,12 @@ details.fx-fold { margin:0; }
     el.addEventListener('click', function (e) {
       var b = e.target.closest('button[data-calk]'); if (!b) return;
       var k = b.dataset.calk, ev = S.ev[k]; if (!ev || !ev.length) return;
-      var d = new Date(), name = k + ' ' + (d.getMonth() + 1) + '-' + d.getDate() + '-' + String(d.getFullYear()).slice(2) + '.ics';
-      var url = URL.createObjectURL(new Blob([ics(ev, k)], { type: 'text/calendar;charset=utf-8' }));
+      var d = new Date(), name = FILE[k] + ' ' + (d.getMonth() + 1) + '-' + d.getDate() + '-' + String(d.getFullYear()).slice(2) + '.ics';
+      var url = URL.createObjectURL(new Blob([ics(ev, FILE[k])], { type: 'text/calendar;charset=utf-8' }));
       if (touch) location.href = url;
       else { var a = document.createElement('a'); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove(); }
       setTimeout(function () { URL.revokeObjectURL(url); }, 60000);
-      var m = el.querySelector('#calMsg'); if (m) m.textContent = k + ': ' + ev.length + (ev.length === 1 ? ' event' : ' events') + (touch ? ' opened.' : ' saved as ' + name + '.');
+      var m = el.querySelector('#calMsg'); if (m) m.textContent = LABEL[k] + ': ' + ev.length + (ev.length === 1 ? ' event' : ' events') + (touch ? ' opened.' : ' saved as ' + name + '.');
     });
     refresh(el);
   }
@@ -1050,15 +1063,15 @@ details.fx-fold { margin:0; }
     var rows = '', h = '';
     KINDS.forEach(function (k) {
       var ev = S.ev[k] = events(up, k, noZone);
-      ev.forEach(function (e) { rows += '<tr><td>' + esc(k) + '</td><td>' + esc(e.summary) + '</td><td>' + esc(e.when) + '</td><td>' + esc(e.location) + '</td></tr>'; });
+      ev.forEach(function (e) { rows += '<tr><td>' + esc(LABEL[k]) + '</td><td>' + esc(e.summary) + '</td><td>' + esc(e.when) + '</td><td>' + esc(e.location) + '</td></tr>'; });
     });
     var sum = el.querySelector('#calSum'); if (sum) sum.textContent = '· ' + up.length + ' upcoming leg' + (up.length === 1 ? '' : 's');
     h += '<p class="fx-note">Upcoming legs only (today on), from the legs checked above' + (past ? '; ' + past + ' earlier leg' + (past === 1 ? '' : 's') + ' skipped' : '') +
-      '. Same events as Floggy’s Cal–ICS, so importing again updates them instead of adding copies. Flights use scheduled times; a leg already flown is left out. Day is one all-day event per duty day.</p>';
+      '. Same events as Floggy’s Cal–ICS, so importing again updates them instead of adding copies. Flights use scheduled times; a leg already flown is left out. Trip / Day: a trip with a pairing number is one all-day banner titled with the number; any other day is one all-day event, titled with its first and last city, or the duty code on a ground day.</p>';
     var nz = Object.keys(noZone);
     if (nz.length) h += '<div class="fx-warn">No time zone for ' + esc(nz.join(', ')) + ': events at those stations left out. Tell Bill so the station gets added.</div>';
     var dis = ''; try { dis = S.o.disabled ? S.o.disabled() || '' : ''; } catch (e) { }
-    h += '<div class="fx-act">' + KINDS.map(function (k) { var n = S.ev[k].length; return '<button type="button" class="btn" data-calk="' + k + '"' + (n && !dis ? '' : ' disabled') + '>' + k + ' (' + n + ')</button>'; }).join('') +
+    h += '<div class="fx-act">' + KINDS.map(function (k) { var n = S.ev[k].length; return '<button type="button" class="btn" data-calk="' + k + '"' + (n && !dis ? '' : ' disabled') + '>' + LABEL[k] + ' (' + n + ')</button>'; }).join('') +
       '<span class="fx-msg" id="calMsg">' + esc(dis) + '</span></div>';
     h += rows ? '<details><summary class="fx-note" style="cursor:pointer">Preview events</summary><div class="fx-table" style="margin-top:6px"><table><thead><tr><th>Calendar</th><th>Event</th><th>When (local)</th><th>Location</th></tr></thead><tbody>' + rows + '</tbody></table></div></details>' : '<p class="fx-note">No upcoming events in the checked legs.</p>';
     S.body.innerHTML = h;
@@ -1512,7 +1525,7 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
   }
   // checked legs -> calendar legs (bare flight number, as Floggy's events use)
   function calLegs() {
-    return checked().map(L => ({ date: L.date, flt: L.fltOut, dep: L.dep, arv: L.arv, kind: L.ftype, std: L.std || '', sta: L.sta || '', atd: L.atd || '',
+    return checked().map(L => ({ date: L.date, trip: L.pairNum || '', flt: L.fltOut, dep: L.dep, arv: L.arv, kind: L.ftype, std: L.std || '', sta: L.sta || '', atd: L.atd || '',
       depDate: L.depDate, arrDate: L.arrDate, dutyS: L.dutyS, dutySDate: L.dutySDate, dutyE: L.dutyE, dutyEDate: L.dutyEDate,
       pic: L.pic, sic: L.sic, fa1: L.fa1, fa2: L.fa2, remarks: L.remarks || '' }));
   }

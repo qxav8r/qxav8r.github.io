@@ -299,7 +299,7 @@ details.fx-fold { margin:0; }
       <div class="btns" id="calBtns">
         <button class="btn" type="button" data-cal="Flights">Flights</button>
         <button class="btn" type="button" data-cal="Duty">Duty</button>
-        <button class="btn" type="button" data-cal="Trip">Trip</button>
+        <button class="btn" type="button" data-cal="TripDay">Trip / Day</button>
       </div>
       <p class="sub" id="calMsg"></p>
       <details><summary>Preview events</summary><div class="tablewrap"><table id="calPrev"></table></div></details>
@@ -1684,7 +1684,7 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
   }
 
   // ---------- Calendar (.ics), matching Floggy's Build ICS / Write ICS Files ----------
-  // Timed events in plain UTC ("Z"); Trip = all-day dates (DTEND exclusive). UID = SUMMARY + DTSTART + LOCATION + "@floggyxt",
+  // Timed events in plain UTC ("Z"); Trip / Day = all-day dates (DTEND exclusive). UID = SUMMARY + DTSTART + LOCATION + "@floggyxt",
   // the same as Floggy, so importing the same trip from Floggy and Floggy-Go updates one event instead of making two.
   function zt(ms) { return new Date(ms).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, ''); }
   function ymd(mdy) { var p = mdy.split('/'); return p[2] + p[0] + p[1]; }
@@ -1720,13 +1720,28 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
       ev.push({ summary: a.dep + ' ' + b.arv, start: zt(a.uDutyS), end: zt(b.uDutyE), allDay: false, location: a.dep + ' ' + b.arv,
         desc: tripDesc(g), when: a.dutySDate + ' ' + a.dutyS + '\u2013' + b.dutyE });
     });
-    if (kind === 'Trip' && legs.length) {
-      var groups = [], cur = null;
-      legs.forEach(function (L) { var t = L.route || L.fltOut; if (!cur || cur.t !== t) groups.push(cur = { t: t, legs: [] }); cur.legs.push(L); });
-      groups.forEach(function (g) {
+    if (kind === 'TripDay') {
+      // Trip / Day: legs with a pairing number -> one all-day banner per trip, titled with the number; all other
+      // legs -> one all-day event per day: first departure to last arrival of the flying legs ("PDX SEA"), or the
+      // duty code on a ground/reserve/sim-only day ("LB").
+      var trips = [], cur = null, rest = [];
+      legs.forEach(function (L) {
+        if (!L.pairNum) { rest.push(L); cur = null; return; }
+        if (!cur || cur.t !== L.pairNum) trips.push(cur = { t: L.pairNum, legs: [] });
+        cur.legs.push(L);
+      });
+      trips.forEach(function (g) {
         var a = g.legs[0], b = g.legs[g.legs.length - 1];
         ev.push({ summary: g.t, start: ymd(a.date), end: nextYmd(b.date), allDay: true, location: a.dep + ' ' + b.arv,
           desc: tripDesc(g.legs), when: a.date + (b.date !== a.date ? '\u2013' + b.date : '') + ' (all day)' });
+      });
+      var days = [], idx = {};
+      rest.forEach(function (L) { if (!idx[L.date]) days.push(idx[L.date] = { date: L.date, legs: [] }); idx[L.date].legs.push(L); });
+      days.forEach(function (d) {
+        var fl = d.legs.filter(function (L) { return L.ftype === '0' || L.ftype === '1'; });
+        var name = fl.length ? fl[0].dep + ' ' + fl[fl.length - 1].arv : d.legs.map(function (L) { return L.fltOut; }).filter(function (x, i, a) { return a.indexOf(x) === i; }).join(' ');
+        var desc = d.legs.map(function (L) { return L.fltOut + (L.ftype === '0' || L.ftype === '1' ? '\n' + L.dep + ' ' + L.arv : L.remarks ? ' ' + L.remarks : '') + ' ' + (L.std || '') + ' ' + (L.sta || '') + ' \n\n'; }).join('');
+        ev.push({ summary: name, start: ymd(d.date), end: nextYmd(d.date), allDay: true, location: d.legs[0].dep, desc: desc, when: d.date + ' (all day)' });
       });
     }
     return ev;
@@ -1741,8 +1756,8 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
     });
     return out + cur;
   }
-  function buildICS(legs, kind) {
-    var ev = calEvents(legs, kind), L = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//FloggyXT//EN', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH', 'X-WR-CALNAME:' + kind];
+  function buildICS(legs, kind, calName) {
+    var ev = calEvents(legs, kind), L = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//FloggyXT//EN', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH', 'X-WR-CALNAME:' + (calName || kind)];
     var stamp = zt(Date.now());
     ev.forEach(function (e) {
       L.push('BEGIN:VEVENT', 'UID:' + e.summary + e.start + e.location + '@floggyxt', 'DTSTAMP:' + stamp, 'SUMMARY:' + icsEsc(e.summary));
@@ -1925,7 +1940,8 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
   FGOCSV.mount($('csvBox'), { page: 'pairing', rows: csvRows, header: function () { var m = IM.res && IM.res.me || {}; return { name: m.name || '', crewId: m.id || '' }; }, has121: false, hasTail: true, limits: function (id) { return LIMITS[id]; } });
 
   // ---------- Add to Calendar ----------
-  var CALS = ['Flights', 'Duty', 'Trip'];
+  var CALS = ['Flights', 'Duty', 'TripDay'];
+  var CLABEL = { Flights: 'Flights', Duty: 'Duty', TripDay: 'Trip / Day' }, CFILE = { Flights: 'Flights', Duty: 'Duty', TripDay: 'Trip-Day' };
   var touch = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   function calLegs() { return IM.res && IM.res.ok ? IM.res.legs.filter(function (L, i) { return !IM.off[i]; }) : []; }
   function calRender() {
@@ -1933,11 +1949,11 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
     $('cal').hidden = !(IM.res && IM.res.ok);
     CALS.forEach(function (k) {
       var ev = FloggyPairing.calEvents(legs, k), b = document.querySelector('[data-cal="' + k + '"]');
-      b.textContent = k + ' (' + ev.length + ')'; b.disabled = !ev.length;
-      ev.forEach(function (e) { rows += '<tr><td>' + esc(k) + '</td><td>' + esc(e.summary) + '</td><td class="m">' + esc(e.when) + '</td><td class="m">' + esc(e.location) + '</td></tr>'; });
+      b.textContent = CLABEL[k] + ' (' + ev.length + ')'; b.disabled = !ev.length;
+      ev.forEach(function (e) { rows += '<tr><td>' + esc(CLABEL[k]) + '</td><td>' + esc(e.summary) + '</td><td class="m">' + esc(e.when) + '</td><td class="m">' + esc(e.location) + '</td></tr>'; });
     });
     $('calPrev').innerHTML = '<thead><tr><th>Calendar</th><th>Event</th><th>When (local)</th><th>Location</th></tr></thead><tbody>' + rows + '</tbody>';
-    $('calSum').textContent = '· ' + CALS.map(function (k) { return k + ' ' + FloggyPairing.calEvents(legs, k).length; }).join(' · ');
+    $('calSum').textContent = '· ' + CALS.map(function (k) { return CLABEL[k] + ' ' + FloggyPairing.calEvents(legs, k).length; }).join(' · ');
   }
   // remember which page folds are open, per device
   (function () {
@@ -1950,14 +1966,14 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
   })();
   Array.prototype.forEach.call(document.querySelectorAll('[data-cal]'), function (b) {
     b.addEventListener('click', function () {
-      var k = b.dataset.cal, r = FloggyPairing.buildICS(calLegs(), k);
+      var k = b.dataset.cal, r = FloggyPairing.buildICS(calLegs(), k, CFILE[k]);
       if (!r.events.length) return;
-      var d = new Date(), name = k + ' ' + (d.getMonth() + 1) + '-' + d.getDate() + '-' + String(d.getFullYear()).slice(2) + '.ics';
+      var d = new Date(), name = CFILE[k] + ' ' + (d.getMonth() + 1) + '-' + d.getDate() + '-' + String(d.getFullYear()).slice(2) + '.ics';
       var url = URL.createObjectURL(new Blob([r.text], { type: 'text/calendar;charset=utf-8' }));
       if (touch) { location.href = url; }
       else { var a = document.createElement('a'); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove(); }
       setTimeout(function () { URL.revokeObjectURL(url); }, 60000);
-      $('calMsg').textContent = k + ': ' + r.events.length + (r.events.length === 1 ? ' event' : ' events') + (touch ? ' opened.' : ' saved as ' + name + '.');
+      $('calMsg').textContent = CLABEL[k] + ': ' + r.events.length + (r.events.length === 1 ? ' event' : ' events') + (touch ? ' opened.' : ' saved as ' + name + '.');
     });
   });
   $('file').addEventListener('change', function (e) {
