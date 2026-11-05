@@ -62,6 +62,7 @@ input[type=file] { position:absolute; width:1px; height:1px; opacity:0; }
 label.btn { cursor:pointer; }
 .msg { color:var(--muted); min-height:1.3em; }
 .msg.err { color:var(--amber); }
+body.dropping::after { content:'Drop the pairing file to load it'; position:fixed; inset:12px; display:flex; align-items:center; justify-content:center; border:3px dashed var(--accent); border-radius:16px; background:color-mix(in srgb, var(--bg) 85%, transparent); color:var(--ink); font-size:1.3rem; font-weight:600; z-index:1000; pointer-events:none; }
 .pay { display:flex; flex-wrap:wrap; align-items:baseline; gap:6px 16px; }
 .pay .big { font:700 1.6rem/1 var(--f-data); color:var(--accent); }
 .pay .which { font:600 1.1rem var(--f-ui); }
@@ -209,7 +210,7 @@ details.fx-fold { margin:0; }
       <label class="btn" for="file">Choose pairing file</label>
       <input id="file" type="file" accept=".webarchive,.html,.htm,.flog,application/x-webarchive,text/html">
     </div>
-    <p class="msg" id="msg">In eCrew, open the pairing's <strong>Pairing Details</strong>, then <strong>Share → Options → Web Archive → Save to Files</strong>. Pick that file here to see the trip rig and send the legs to LogTen. It stays on your device.</p>
+    <p class="msg" id="msg">In eCrew, open the pairing's <strong>Pairing Details</strong>, then <strong>Share → Options → Web Archive → Save to Files</strong>. Pick that file here (or drop it on the page on a Mac) to see the trip rig and send the legs to LogTen. It stays on your device.</p>
   </section>
 
   <div id="out" hidden>
@@ -1980,8 +1981,8 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
   // Mac Safari dims a web archive eCrew has just saved (macOS hasn't typed the new file yet), so it takes a second
   // pick. No type filter on the Mac: the page already rejects a file with no pairing data. iPad keeps the filter.
   if (!touch) $('file').removeAttribute('accept');
-  $('file').addEventListener('change', function (e) {
-    var f = e.target.files[0]; if (!f) return;
+  function loadFile(f) {
+    if (!f) return;
     $('msg').className = 'msg'; $('msg').textContent = 'Reading ' + f.name + '…'; $('out').hidden = true;
     var rd = new FileReader();
     rd.onload = function () {
@@ -1992,10 +1993,19 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
         $('msg').textContent = f.name; show(r);
         IM.text = text; impParse(); impInitOff(); impRender();
       } catch (err) { $('msg').className = 'msg err'; $('msg').textContent = 'Could not read that file (' + err.message + '). Choose a .webarchive, .html, .htm or .flog file saved from eCrew\'s Pairing Details page.'; }
-      e.target.value = '';
     };
     rd.onerror = function () { $('msg').className = 'msg err'; $('msg').textContent = 'Could not open that file.'; };
     rd.readAsArrayBuffer(f);
+  }
+  $('file').addEventListener('change', function (e) { loadFile(e.target.files[0]); e.target.value = ''; });
+  // drag and drop: a file dropped anywhere on the page loads like a picked one (instead of Safari opening it)
+  var dragN = 0;
+  document.addEventListener('dragenter', function (e) { if (e.dataTransfer && Array.prototype.indexOf.call(e.dataTransfer.types, 'Files') >= 0) { dragN++; document.body.classList.add('dropping'); } });
+  document.addEventListener('dragleave', function () { if (--dragN <= 0) { dragN = 0; document.body.classList.remove('dropping'); } });
+  document.addEventListener('dragover', function (e) { e.preventDefault(); });
+  document.addEventListener('drop', function (e) {
+    e.preventDefault(); dragN = 0; document.body.classList.remove('dropping');
+    var f = e.dataTransfer && e.dataTransfer.files[0]; if (f) { loadFile(f); window.scrollTo(0, 0); }
   });
 })();
 </script>
