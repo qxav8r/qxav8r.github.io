@@ -1269,7 +1269,7 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
 
   function calculate(text, dutyCodes) {
     var p = findPairing(text);
-    if (!p) return { ok: false, error: 'No pairing data found. Save the eCrew Pairing Details page (Share → Options → Web Archive) and pick that file.' };
+    if (!p) return { ok: false, error: 'No pairing data found. Choose a .webarchive, .html, .htm or .flog file saved from eCrew\'s Pairing Details page (Share → Options → Web Archive).' };
     var b = buildFlights(p.sectors, dutyCodes);
     if (!b.rows.length) return { ok: false, error: 'The pairing has no flights to calculate.' };
     var T = tafb(b.rows), D = duty(b.rows), B = cblk(b.rows), M = mdcr(b.rows);
@@ -1379,7 +1379,7 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
   function parse(text, opts) {
     opts = opts || {};
     var dc = opts.dutyCodes || {};
-    var i = text.indexOf('"Sectors":['); if (i < 0) return { ok: false, error: 'No pairing data found in this file.' };
+    var i = text.indexOf('"Sectors":['); if (i < 0) return { ok: false, error: 'No pairing data found. Choose a .webarchive, .html, .htm or .flog file saved from eCrew\'s Pairing Details page.' };
     var sectors = jsonAt(text, i + 10); if (!sectors) return { ok: false, error: 'Could not read the pairing data.' };
     var me = identity(text) || { name: '', id: '', base: '' };
     var tree = crewTree(text), dd = dutyDetailsCrew(text);
@@ -1991,7 +1991,7 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
         if (!r.ok) { $('msg').className = 'msg err'; $('msg').textContent = r.error; return; }
         $('msg').textContent = f.name; show(r);
         IM.text = text; impParse(); impInitOff(); impRender();
-      } catch (err) { $('msg').className = 'msg err'; $('msg').textContent = 'Could not read that file: ' + err.message; }
+      } catch (err) { $('msg').className = 'msg err'; $('msg').textContent = 'Could not read that file (' + err.message + '). Choose a .webarchive, .html, .htm or .flog file saved from eCrew\'s Pairing Details page.'; }
       e.target.value = '';
     };
     rd.onerror = function () { $('msg').className = 'msg err'; $('msg').textContent = 'Could not open that file.'; };
