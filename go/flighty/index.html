@@ -967,12 +967,18 @@ details.fx-fold { margin:0; }
     var tm = function (t) { var m = /^(\d{2}):(\d{2})$/.exec(t || ''); return m ? +m[1] * 60 + +m[2] : -1; };
     var dn = function (L) { var p = L.date.split('/').map(Number); return p[2] * 10000 + p[0] * 100 + p[1]; };
     legs.sort(function (a, b) { return dn(a) - dn(b) || tm(a.std || a.atd) - tm(b.std || b.atd); });
+    // letters in Floggy's order (cleanfltdata, and every other Floggy-Go page): date newest first, then STD, then
+    // ATD, newest first, so a return to gate gets the same flight key here as from Schedule or Pairing (11/5/26)
+    var order = legs.slice();
+    order.sort(function (a, b) { return tm(b.atd) - tm(a.atd); });
+    order.sort(function (a, b) { return tm(b.std) - tm(a.std); });
+    order.sort(function (a, b) { return dn(b) - dn(a); });
     var k4 = function (L) { return L.date + '|' + L.flt + '|' + L.dep + '|' + L.arv; }, run = 1;
-    for (var j = 0; j < legs.length; j++) {
-      var same = j > 0 && k4(legs[j]) === k4(legs[j - 1]);
+    for (var j = 0; j < order.length; j++) {
+      var same = j > 0 && k4(order[j]) === k4(order[j - 1]);
       run = same ? run + 1 : 1;
-      var dup = same || (j < legs.length - 1 && k4(legs[j]) === k4(legs[j + 1]));
-      legs[j].suffix = dup && run <= 4 ? 'ABCD'[run - 1] : '';
+      var dup = same || (j < order.length - 1 && k4(order[j]) === k4(order[j + 1]));
+      order[j].suffix = dup && run <= 4 ? 'ABCD'[run - 1] : '';
     }
     legs.forEach(function (L) {
       L.fltOut = L.flt + L.suffix;
