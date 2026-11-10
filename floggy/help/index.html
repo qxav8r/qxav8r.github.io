@@ -489,6 +489,7 @@
     <a class="toc-item sub" href="#s8-compare">What Each Button Imports</a>
     <a class="toc-item sub" href="#s8-order">Recommended Order</a>
     <a class="toc-item sub" href="#s8-edge">Known Edge Cases</a>
+    <a class="toc-item sub" href="#s8-bc">BC Winter Times</a>
     <a class="toc-item" href="#s9">9 &mdash; Flt Data Workspace</a>
     <a class="toc-item sub" href="#s9-flifo">Flifo &mdash; Flight Status Update</a>
     <a class="toc-item" href="#s10">10 &mdash; Calendar</a>
@@ -650,14 +651,14 @@ WILCO_Flighty_2026-01-01_to_2026-12-31.csv</pre>
 
   <h3 id="s2-flifo">Secondary Source &mdash; Alaska Flight Status (Flifo)</h3>
 
-  <p>The <strong>Flifo</strong> button (Flt Data workspace, Section 9) is a <strong>secondary source for quick updates</strong>. It looks up the selected flights on Alaska Airlines' public flight status page and fills in actual out/in times and the tail number &mdash; handy for keeping the current trip up to date between eCrew captures.</p>
+  <p>Flight status lookups have moved to <strong>Floggy-Go Flifo</strong>, on the Floggy-Go tools page at <code>qxav8r.github.io</code>. It runs in Safari on your iPad, iPhone or Mac, looks up a flight on Alaska Airlines' public flight status, and sends actual out/in times and the tail number straight to LogTen Pro &mdash; handy for keeping the current trip up to date on the road, between eCrew captures.</p>
+  <p>The <strong>Flifo</strong> button in Floggy's Flt Data workspace (Section 9) now just points you there.</p>
   <ul>
-    <li><strong>Limited look-back, limited look-ahead.</strong> Alaska's flight status only reaches about 3 days back and 3 days ahead. Flights outside that window are skipped.</li>
-    <li><strong>Not a replacement for eCrew.</strong> Your eCrew schedule, Pairing Details, and Pilot Logbook remain the primary sources for complete records. Flifo only touches actual out time (ATD), actual in time (ATA), and tail number.</li>
-    <li><strong>Scheduled times are never changed.</strong> Contract (CBA) scheduled times from eCrew differ from Alaska's public schedule by design, so Flifo leaves STD and STA alone.</li>
-    <li><strong>Before the flight:</strong> only the planned tail is filled in; departure and arrival times are still estimates and are not used.</li>
+    <li><strong>Limited look-back, limited look-ahead.</strong> Alaska's flight status only reaches a few days either side of today.</li>
+    <li><strong>Not a replacement for eCrew.</strong> Your eCrew schedule, Pairing Details, and Pilot Logbook remain the primary sources for complete records.</li>
+    <li><strong>Scheduled times are left alone by default.</strong> Contract (CBA) scheduled times from eCrew differ from Alaska's public schedule by design.</li>
   </ul>
-  <div class="tip">Typical use: set up your trip at home from eCrew as usual, then run Flifo during or right after each day's flying to pick up actual times and aircraft swaps &mdash; and export to LogTen as you go.</div>
+  <div class="tip">Typical use: set up your trip at home from eCrew with Floggy as usual, then use Floggy-Go Flifo during or right after each day's flying to pick up actual times and aircraft swaps in LogTen.</div>
 
   <hr class="section-divider">
 
@@ -816,7 +817,7 @@ System Settings → Privacy &amp; Security → Calendars</pre>
 
   <div class="warning">Incorrect or missing values in these fields will affect parsing accuracy across all data sources.</div>
 
-  <p>Floggy automatically saves data at meaningful checkpoints &mdash; after a parse (Parse Schedule, Parse (Archive or HTML), Parse LogBook, Parse Flighty); after Copy Crew Names, Delete Flights, Unlock/Lock Flights, CSV Export, or a Flifo merge; after using the File Path For User Data control; and when the application closes. Switching workspaces or changing the theme does not trigger a save on its own, since neither changes your underlying data.</p>
+  <p>Floggy automatically saves data at meaningful checkpoints &mdash; after a parse (Parse Schedule, Parse (Archive or HTML), Parse LogBook, Parse Flighty); after Copy Crew Names, Delete Flights, Unlock/Lock Flights, or CSV Export; after using the File Path For User Data control; and when the application closes. Switching workspaces or changing the theme does not trigger a save on its own, since neither changes your underlying data.</p>
   <div class="tip">If you have been working for a while without parsing anything new, it's good practice to close and reopen Floggy (or use Export User Data) before assuming your latest edits are safely on disk.</div>
 
   <h4>Automatic Backup on Close</h4>
@@ -880,7 +881,7 @@ Desktop (simple single Mac setup)
     <li>Always check the lower panel after every operation.</li>
     <li>Floggy saves automatically whenever your flight data changes. Switching workspaces or changing the theme does not save on its own (see Section 5).</li>
   </ul>
-  <div class="note">Selecting one or more rows in Flt Data (Section 9) is how you tell many buttons what to work on &mdash; and that selection carries across workspaces, not just within Flt Data. Buttons that depend on it: <strong>Copy Crew Names</strong>, <strong>Delete Flights</strong>, <strong>LogTen Export</strong>, <strong>HTML Export</strong>, <strong>CSV Export</strong>, <strong>Display Flts</strong>, and <strong>Flifo</strong> all act on whatever is currently selected in the Flt Data panel. <strong>Build ICS Data</strong> (Cal &ndash; ICS, Section 10) and <strong>Build Events</strong> (Cal &ndash; APS, Section 10) do too, even though you press them from a different workspace &mdash; make your selection in Flt Data first, then switch workspaces to build. <strong>Sort Flights</strong> and <strong>Unlock Flights</strong> are the exceptions: both work on the entire list and ignore selection.</div>
+  <div class="note">Selecting one or more rows in Flt Data (Section 9) is how you tell many buttons what to work on &mdash; and that selection carries across workspaces, not just within Flt Data. Buttons that depend on it: <strong>Copy Crew Names</strong>, <strong>Delete Flights</strong>, <strong>LogTen Export</strong>, <strong>HTML Export</strong>, <strong>CSV Export</strong>, and <strong>Display Flts</strong> all act on whatever is currently selected in the Flt Data panel. <strong>Build ICS Data</strong> (Cal &ndash; ICS, Section 10) and <strong>Build Events</strong> (Cal &ndash; APS, Section 10) do too, even though you press them from a different workspace &mdash; make your selection in Flt Data first, then switch workspaces to build. <strong>Sort Flights</strong> and <strong>Unlock Flights</strong> are the exceptions: both work on the entire list and ignore selection.</div>
 
   <hr class="section-divider">
 
@@ -937,6 +938,12 @@ CMD-`          Cycle between open Safari windows &mdash; useful for switching
   </ul>
   <div class="note">Dashboard, Crew Data, and Training Events on a saved Pairing Details page always reflect your <strong>current</strong> bid month, regardless of which month's pairing you are actually viewing. If you are parsing a pairing from a bid month other than the current one, those sections captured in that file will not match the pairing &mdash; use Bypass Dashboard (below) to skip them in that situation.</div>
   <p>Parse (Archive or HTML) is the only source for scheduled times on legs you've already flown, trip numbers, and FDP start/end times. It also handles embedded crew data, DST-aware timezone conversion, and training events from the Training Details section of the pairing &mdash; training codes are written to field 31 (TRG) of the flight record. On out-and-back turns where eCrew lists the crew only once, the return leg picks up the same crew automatically. Limo transfers are always recorded as deadheads.</p>
+  <ul>
+    <li><strong>Your own deadheads:</strong> when the crew list shows you riding a leg as a deadhead, that leg is recorded as a deadhead (flight type 1), with its crew names and PIC/SIC capacity cleared.</li>
+    <li><strong>Pairing wins over Dashboard:</strong> the Dashboard on the saved page lists every event in your bid month, including the legs of the pairing you opened. Where the two list the same leg, the Pairing Details copy is kept &mdash; the Dashboard only fills a time the pairing left blank, any disagreement is noted in the Data panel, and the Dashboard's copy is dropped. Every other Dashboard event (the rest of the month's trips and duties) still comes in.</li>
+    <li><strong>BC winter times:</strong> corrected automatically, the same as Parse Schedule &mdash; see <a href="#s8-bc">Known Edge Cases</a>.</li>
+  </ul>
+  <div class="warning"><strong>Save Pairing Details from My Schedule.</strong> eCrew's home-page pairing view looks similar but does <em>not</em> include the crew list. If you parse a page saved from there, Floggy tells you "No crew list in this file" and parses the pairing without crew names. Go back to <code>My Schedule → select the pairing → Pairing Details</code> and save that page instead.</div>
   <p>Each successful parse also writes a compact <code>.flog</code> archive of the pairing to your Documents folder &mdash; see <a href="#release-notes">Release Notes</a>, Compact Archive Files. You can select a <code>.flog</code> file here in place of the original capture if you ever need to re-run a pairing and no longer have the original .webarchive or .html/"_files" capture around.</p>
   <p>To use with Safari:</p>
   <pre class="menu-path">eCrew → Crew Schedule → My Schedule → select a pairing
@@ -961,6 +968,8 @@ CMD-`          Cycle between open Safari windows &mdash; useful for switching
     <li><strong>Times:</strong> a leg shows either its scheduled or its actual times. Times eCrew marks as <em>estimated</em> are ignored, so they never replace a real scheduled time already in your data.</li>
     <li><strong>PIC / SIC capacity:</strong> Parse Schedule guesses your capacity from your seat on the crew list. It only fills legs that don't have a capacity yet &mdash; once Parse LogBook has set it, Parse Schedule leaves it alone.</li>
     <li><strong>Not included:</strong> tail numbers, block time and landings (use Parse (Archive or HTML) and Parse LogBook).</li>
+    <li><strong>Union duties (IB/LB):</strong> keep the times eCrew shows (usually 09:00&ndash;17:00); 08:00&ndash;17:00 goes in only when eCrew lists no times at all.</li>
+    <li><strong>BC winter times:</strong> eCrew shows Vancouver, Kelowna and Victoria times one hour late on older winter dates; Floggy corrects them automatically &mdash; see <a href="#s8-bc">Known Edge Cases</a>.</li>
   </ul>
   <p>To use:</p>
   <pre class="menu-path">eCrew → Schedule → My Schedule → Print
@@ -983,6 +992,8 @@ ScheduleReport-2.csv
   <p>The report's "Generated on" line (at the bottom of the file) tells Floggy when it was run. A leg with a tail number that arrived before that time is treated as flown, and its times go into the actual (out/in) fields. Legs still in the future go into the scheduled fields.</p>
   <h5>Deadheads</h5>
   <p>A leg with no block time and no PIC or co-pilot time is recorded as a deadhead.</p>
+  <h5>Part 91 Legs and Simulators</h5>
+  <p>On a Part 91 leg you operated (a ferry or other non-revenue flight), your PIC/SIC capacity comes from the seat on the report's crew header line &mdash; CA sets PIC, FO sets SIC. Part 121 legs are unchanged. A simulator session gets the remark <strong>Simulator</strong>, unless its duty code has its own description in Duty Codes (Section 11), which is used instead; a sim already in Flt Data keeps the remark it has.</p>
   <h5>When the Flight Is Already in Flt Data</h5>
   <ul>
     <li>Times, tail, block, landings, instructor and Part 121/91 from the logbook replace what's there &mdash; the most recent import wins, the same as every other parser.</li>
@@ -1000,6 +1011,13 @@ ScheduleReport-2.csv
   <h4>Parse Flighty</h4>
   <p>Imports data exported from the Flighty app. Useful for capturing tail number and aircraft type on deadhead legs (non QX), and often provides more accurate actual departure and arrival times than eCrew.</p>
   <p>Flighty exports your entire flight history in one file, so Parse Flighty asks which year you want to import before parsing &mdash; it lists the years found in the file and defaults to the most recent one. Only flights from the year you choose are imported; run Parse Flighty again to import a different year.</p>
+  <p>Flighty is treated as a helper source &mdash; it fills gaps rather than overriding eCrew:</p>
+  <ul>
+    <li><strong>Flights already in Flt Data:</strong> only empty out/in times, tail number and aircraft type are filled in. If Flighty's out/in time or tail differs from what's there, the difference is listed in the Data panel but not written. Scheduled times are added only when missing &mdash; Flighty carries the public (ORA) schedule, not your contract times.</li>
+    <li><strong>Your own flights that aren't in Flt Data</strong> (QX, or AS 2000&ndash;2999): Floggy asks once per import whether to <strong>Add</strong> or <strong>Skip</strong> them, with Skip the default. These are usually trips you dropped or traded that are still on your calendar, so add them only if you flew them. Skipped flights are listed in the Data panel.</li>
+    <li><strong>Other airlines' flights</strong> (including AS flights outside 2000&ndash;2999) are always added, as deadheads.</li>
+    <li><strong>Diversions:</strong> "Diverted to XXX" is added to the flight's remarks.</li>
+  </ul>
   <p>After a successful parse, Floggy moves the file you selected into your Documents folder and renames it with the same pattern as your other archived files &mdash; for example <code>WILCO_Flighty_2026-01-01_to_2026-12-31.csv</code> (last name, then the calendar year you imported). If your eCrew Name isn't set yet, the name starts with <code>PILOT</code> instead. Duplicates are handled the same way as the other parsers: an identical file is skipped, and a different file with the same name gets the <strong>Cancel / Replace / Keep Both</strong> choice (see Section 2, Managing Saved Files).</p>
 
   <h4>Calculate Rig</h4>
@@ -1145,7 +1163,7 @@ ScheduleReport-2.csv
         <td>✓</td>
         <td>✓</td>
         <td>✓</td>
-        <td>✗</td>
+        <td>Other airlines' flights</td>
       </tr>
       <tr>
         <td><strong>Remarks</strong></td>
@@ -1173,7 +1191,7 @@ ScheduleReport-2.csv
         <td>✓</td>
         <td>✓</td>
         <td>✓</td>
-        <td>✗</td>
+        <td>Revenue or deadhead (new flights only)</td>
       </tr>
       <tr>
         <td><strong>Part 121 / Part 91</strong></td>
@@ -1209,6 +1227,12 @@ ScheduleReport-2.csv
   <h4>Crew change in the middle of a duty day</h4>
   <p>If your crew changes partway through a duty day (for example, a training captain leaves after the first leg), Parse Schedule can assign the <em>later</em> crew to the earlier leg. Running the recommended order &mdash; Parse Schedule, then Parse (Archive or HTML), then Parse LogBook &mdash; corrects the captain's name and your capacity (PIC/SIC time) on that leg, because the logbook is the record for both. The <strong>SIC name</strong> on that one leg may still be wrong.</p>
   <p><strong>Fix:</strong> correct the SIC name for that flight in LogTen Pro after import.</p>
+
+  <h4 id="s8-bc">BC winter times (Vancouver, Kelowna, Victoria)</h4>
+  <p>British Columbia moved to permanent daylight time in 2026. eCrew applies that change to <em>old</em> dates as well, so for any date when BC was actually on standard time &mdash; winters before March 8, 2026 &mdash; eCrew shows YVR, YLW and YYJ local times <strong>one hour late</strong>. The other end of the flight is shown correctly, which is why these legs look odd in eCrew: a 7-minute YVR&ndash;SEA flight, or a 2-hour SEA&ndash;YVR.</p>
+  <p>Parse Schedule and Parse (Archive or HTML) correct this automatically: on those dates they subtract one hour from the BC side of the leg only &mdash; departure times, report and FDP start when the leg leaves BC; arrival times, release and FDP end when it arrives there. Each corrected leg is listed in the Data panel under <strong>BC winter times corrected (eCrew +1h)</strong>. Where eCrew's block time is available (Pairing Details), Floggy also checks the corrected times against it and flags any leg that still doesn't add up.</p>
+  <p>Parse LogBook doesn't need the fix &mdash; the logbook report uses your base time, which Floggy converts with the correct time zone table &mdash; and Parse Flighty's times are already correct. Dates from March 8, 2026 on are left alone.</p>
+  <div class="note">Before this fix, these legs reached LogTen Pro an hour off on the BC end, which also gave them the wrong block time. If you exported BC winter legs to LogTen with an earlier version, re-parse that month and export those legs again &mdash; the flight key updates the existing entries.</div>
 
   <div class="nav-note"><strong>Navigation:</strong> Click the Work Space indicator in the lower-right corner to open the workspace popup menu and jump to any other workspace, or select Nav Tool to open the Workspaces palette.</div>
 
@@ -1254,20 +1278,63 @@ ScheduleReport-2.csv
 
   <h3>Buttons &mdash; Row 2</h3>
 
-  <h4>LogTen Export</h4>
-  <p>Sends selected flights directly to LogTen Pro via the LogTen API. Each record includes a unique flightKey to prevent duplicate entries. LogTen Pro will be launched automatically if it is not already open.</p>
-  <div class="note">Before sending, a Save panel titled <strong>Optional LogTen People file &mdash; Cancel to skip</strong> offers to save a People file for this export's crew (default name <code>eCrew People</code> plus the date, on your Desktop). This step is optional &mdash; your flights export either way. Click <strong>Save</strong> and Floggy writes a People file (Name, ID, Organization) with clean crew associations, then shows a confirmation listing how many people were written and any names it couldn't match. You then import it into LogTen Pro yourself:
-  <pre class="menu-path">LogTen Pro → File → Import From File… → People  (CMD-Shift-P)</pre>
-  Click <strong>Cancel</strong> to skip this step. If the selected flights have no crew (line building days, for example), Floggy skips the People file without asking.</div>
+  <h4 id="s9-logten">LogTen Export</h4>
+  <p>Opens the <strong>LogTen Export</strong> palette for the flights selected in Flt Data. Nothing goes to LogTen Pro until you press <strong>Send</strong>; Floggy then sends the flights through the LogTen API, launching LogTen Pro if it isn't already open. Each flight carries a unique flight key (date, flight number, departure and arrival), so sending the same flight again updates its LogTen entry instead of creating a duplicate.</p>
+  <p>The palette lists six options, each with a short description; the first choice in each row is the default (marked <strong>(default)</strong>):</p>
+  <table class="compare-table">
+    <thead><tr><th>Option</th><th>Choices</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Flight number</strong></td><td>No code &middot; QX &middot; AS</td><td>Puts an airline code in front of the flight number (not on sims). The flight key always uses the bare number, so changing this later still matches your existing entries.</td></tr>
+      <tr><td><strong>Aircraft type</strong></td><td>Not sent &middot; E170 / DH8D</td><td>LogTen takes the type from the tail; leave it off unless you need it.</td></tr>
+      <tr><td><strong>Tail number</strong></td><td>When flown &middot; Always &middot; Never</td><td>When flown sends a tail only on legs with an actual out time, so a planned tail doesn't land on a flight that hasn't gone yet.</td></tr>
+      <tr><td><strong>Non-flying duties</strong></td><td>Include &middot; Leave out</td><td>Ground, reserve and sim legs in the selection.</td></tr>
+      <tr><td><strong>Duty times</strong></td><td>Send &middot; Leave out</td><td>Duty on/off and FDP start/end.</td></tr>
+      <tr><td><strong>P1/P2</strong></td><td>Send &middot; Leave to logbook</td><td>PIC/SIC capacity. The logbook import is the authority for it.</td></tr>
+    </tbody>
+  </table>
+  <p>Below the options, a summary line shows what's selected &mdash; the number of legs, how many are flights, deadheads and ground/reserve/sim, and the date range. The palette follows your Flt Data selection live: change the selection with the palette open and the summary updates. With nothing selected, Send is dimmed.</p>
+  <ul>
+    <li><strong>Save People File&hellip;</strong> saves a LogTen People file (Name, ID, Organization) for the crew on the selected flights, then shows how many people were written and any names it couldn't match. The button reads <strong>People File Saved</strong> afterwards, or <strong>No crew to save</strong> (dimmed) when the selection has no crew &mdash; line building days, for example. Import the file into LogTen Pro yourself:
+    <pre class="menu-path">LogTen Pro → File → Import From File… → People  (CMD-Shift-P)</pre></li>
+    <li><strong>Cancel</strong> (or CMD-W) closes the palette without sending.</li>
+    <li><strong>Send</strong> sends the flights with the options shown.</li>
+  </ul>
+  <p>Your choices are saved with your data file, so the palette opens the same way next time.</p>
+  <div class="note"><strong>Each time on its own date.</strong> A time past midnight is sent on the day it actually happened, not the leg's date: an arrival earlier than the departure goes on the next day, as does a release after midnight or a late push past midnight. So a leg that departs at 23:08 and arrives at 00:08 reaches LogTen with the arrival on the following day.</div>
+  <div class="tip">The palette is a floating window: it stays open when you switch workspaces and follows your theme, so you can keep it beside Flt Data while you check and send a month's flights.</div>
 
   <h4>HTML Export</h4>
   <p>Exports selected flights to an HTML file and opens it automatically in your default browser. Use for transferring flight data between machines or sharing a readable copy of flight records. The HTML file also contains a direct LogTen export link.</p>
   <div class="tip">The HTML file can be emailed to an iPad or iPhone and opened in Safari to trigger a LogTen import directly on that device. This is useful for users who maintain their logbook on a mobile device.</div>
 
-  <h4>CSV Export</h4>
-  <p>Exports selected flights to a CSV file with plain-language column headers, suitable for Excel, Numbers, other spreadsheet applications, or import into a logbook application such as Logbook Pro. You will be asked whether to use colons in time fields (HH:MM) or not (HHMM) &mdash; check your destination application's expected format before choosing. A Cancel option is available at that step if you change your mind partway through.</p>
-  <p>The file is saved to your Desktop. Floggy suggests a name (<code>Flight Export</code> plus the date) that you can change; if a file with that name already exists on the Desktop, you will be asked to confirm before it is overwritten.</p>
-  <div class="note">Block time comes from Parse (Archive or HTML) and Parse LogBook (the legal block) &mdash; Parse Schedule doesn't supply it (see Section 8, What Each Button Imports). Worth checking this field against your destination app before importing or updating records either way.</div>
+  <h4 id="s9-csv">CSV Export</h4>
+  <p>Opens the <strong>CSV Export</strong> palette for the flights selected in Flt Data. It writes a CSV file shaped for the logbook you pick, ready for that app's import &mdash; or a plain spreadsheet, or a full copy of every Flt Data field.</p>
+  <p>Start with the <strong>Logbook</strong> popup, which opens on <em>Choose a logbook&hellip;</em> so you always pick on purpose:</p>
+  <table class="compare-table">
+    <thead><tr><th>Logbook</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td><strong>ForeFlight</strong></td><td>Laid out from ForeFlight's published field list &mdash; compare with the template from ForeFlight on the Web (Logbook &gt; Import) before a real import. Dates Y-M-D, clock times hhmm, total time decimal; crew go in the Person fields.</td></tr>
+      <tr><td><strong>Logbook Pro</strong></td><td>No fixed column names: map each column once in Logbook Pro's Import Wizard and save the mapping as a template. Create custom fields first for anything beyond the standard ones, and make sure the aircraft type exists in Options.</td></tr>
+      <tr><td><strong>MyFlightbook</strong></td><td>Column names match MyFlightbook's import list exactly (Logbook &gt; Import). Block, scheduled and duty times are UTC; total time decimal. Importing adds new flights only, so export each month once.</td></tr>
+      <tr><td><strong>Spreadsheet</strong></td><td>Plain columns for Excel, Numbers, or any logbook with a column-mapping import (Safelog, mccPilotLog and others).</td></tr>
+      <tr><td><strong>Floggy (all fields)</strong></td><td>All 31 Flt Data fields as Floggy stores them, with Floggy's own headers &mdash; for backups, spreadsheets and troubleshooting. Times are station local, as in Flt Data.</td></tr>
+    </tbody>
+  </table>
+  <p>The same note appears under the popup once you pick. The rest of the palette then fills in for that logbook:</p>
+  <ul>
+    <li><strong>Columns</strong> &mdash; on/off switches for the optional columns that logbook supports, such as flight number, crew names, deadhead flag, duty times, scheduled times, Part 121, or the training code in remarks. Defaults suit each logbook.</li>
+    <li><strong>Rows</strong> &mdash; Flights are always included; tick <strong>Deadheads</strong>, <strong>Sims</strong> and <strong>Ground &amp; reserve</strong> to include those legs too.</li>
+    <li><strong>Formats</strong> &mdash; only the ones that logbook lets you choose: <strong>Clock times</strong> (Station local or UTC), <strong>Durations</strong> (h:mm, Decimal or Minutes), <strong>Dates</strong> (M/D/Y, Y-M-D or D/M/Y) and <strong>Time format</strong> (HH:MM or HHMM). Formats a logbook insists on are set for you and not shown.</li>
+    <li><strong>Summary and warnings</strong> &mdash; a summary of the selection, then a <strong>Check before exporting</strong> list when something needs attention: a station missing from Airport Data (so no UTC or block time for those legs), flights not flown yet (no total time), legs without a tail number for a logbook that needs one, or flights with no P1/P2 (no PIC or SIC time).</li>
+  </ul>
+  <p>Buttons along the bottom:</p>
+  <ul>
+    <li><strong>Copy CSV</strong> copies the CSV text to the clipboard (the button reads <strong>Copied</strong>).</li>
+    <li><strong>Cancel</strong> closes the palette.</li>
+    <li><strong>Save&hellip;</strong> opens a Save panel in your Documents folder with a name following Floggy's usual pattern &mdash; your last name and crew ID, the logbook, and the date range of the selected legs. It's dimmed until you've chosen a logbook and have flights selected.</li>
+  </ul>
+  <p>Like LogTen Export, the palette follows your Flt Data selection live, stays open when you switch workspaces, and remembers your logbook and choices in your data file.</p>
+  <div class="note">Block time comes from Parse (Archive or HTML) and Parse LogBook (the legal block) &mdash; Parse Schedule doesn't supply it (see Section 8, What Each Button Imports). Most logbooks only add flights on import rather than updating them, so check each import against your destination app and avoid exporting the same flights twice.</div>
 
   <h4>Display Flts</h4>
   <p>Opens selected flights in a clean, labeled, readable window for review. Use this to spot-check data before exporting. This is read-only and does not modify any data.</p>
@@ -1276,15 +1343,8 @@ ScheduleReport-2.csv
   <div class="note">Display Flts is also on the Workspaces palette (Section 7), so you can open this window from any workspace &mdash; including Collect while you parse.</div>
 
   <h4 id="s9-flifo">Flifo</h4>
-  <p>A <strong>secondary source for quick updates</strong> (see Section 2). Select one or more flights, press Flifo, and Floggy looks each one up on Alaska Airlines' public flight status to pick up actual out/in times and the tail number.</p>
-  <ul>
-    <li><strong>Look-back / look-ahead is limited</strong> to what Alaska's status page serves &mdash; about 3 days back and 3 days ahead. Flights outside that window are skipped and noted in the report.</li>
-    <li><strong>What it fills in:</strong> before departure, the planned tail only; once departed, the actual out time (ATD) and tail; once arrived, the actual in time (ATA) as well. If the aircraft was swapped, the actual tail replaces the planned one.</li>
-    <li><strong>What it never changes:</strong> scheduled times (STD/STA), crew, and every other field. Existing out/in times are kept &mdash; if Alaska's differ they are reported, not overwritten.</li>
-    <li><strong>Irregular operations</strong> (cancelled, returned, or diverted flights) and flight numbers that appear twice on the same route in a day are flagged for you to review by hand, never merged automatically.</li>
-  </ul>
-  <p>When the lookup finishes, the Display Flts window shows your selected flights with a Flifo report underneath, then a dialog lists each flight that's ready to update. Choose <strong>Merge</strong> to apply the updates (your data file is saved and the window refreshes to show the new values), or <strong>Cancel</strong> to leave everything as it was.</p>
-  <div class="tip">Flifo pairs well with LogTen Export: run Flifo after a day's flying, merge, then export the same selection to LogTen to update those flights.</div>
+  <p>Flight status lookups now live in <strong>Floggy-Go Flifo</strong> on the Floggy-Go tools page (<code>qxav8r.github.io</code>), which works on the iPad and sends actual times and tails straight to LogTen Pro. Pressing Flifo in Floggy shows a short notice pointing you there; it no longer changes your Flt Data. See Section 2, Secondary Source &mdash; Flifo.</p>
+  <div class="tip">Whatever Floggy-Go Flifo sends to LogTen uses the same flight key as Floggy's LogTen Export, so the two update the same LogTen entries rather than creating duplicates.</div>
 
   <div class="nav-note"><strong>Navigation:</strong> Click the Work Space indicator in the lower-right corner to open the workspace popup menu and jump to any other workspace, or select Nav Tool to open the Workspaces palette.</div>
 
@@ -1432,7 +1492,7 @@ Description Full event detail including report time, crew info, flight details.<
   <p>The Data workspace displays five panels. Airport Data and Duty Codes run full-height down the left and middle columns; eCrew Pilot Logbook Data, Crew Data, and Crew Names stack in the right column, with the eCrew Name and eCrew Base fields below them.</p>
 
   <h4>Airport Data</h4>
-  <p>Reference database of airports by IATA code, each with its standard UTC offset and a list of upcoming DST transition dates (spring-forward and fall-back pairs, several years out). Powers DST-aware timezone conversion in calendar exports &mdash; Floggy uses the offset together with the surrounding transition dates to determine whether a given flight or duty time falls in daylight or standard time at that airport.</p>
+  <p>Reference database of airports by IATA code, each with its standard UTC offset and its DST transition dates (spring-forward and fall-back pairs) from 2007 through 2035 &mdash; 2007 is the year the current US daylight-time rule began, and as far back as eCrew's data goes. Airports that don't observe DST (Arizona, Puerto Rico, Brazil) carry no pairs; European airports follow the EU dates; British Columbia and Alberta stay on daylight time from March 8, 2026. Powers DST-aware timezone conversion in calendar exports and in Parse LogBook's base-time conversion &mdash; Floggy uses the offset together with the surrounding transition dates to determine whether a given flight or duty time falls in daylight or standard time at that airport.</p>
 
   <h4>Duty Codes</h4>
   <p>Maps eCrew duty type codes to plain-language descriptions. For example: <code>G,LB</code> = Line Building; <code>G,IB</code> = IBT Union Business. Determines how records are categorized in the Flt Data workspace.</p>
@@ -1775,6 +1835,33 @@ Description Full event detail including report time, crew info, flight details.<
   <h2 id="release-notes">Release Notes &mdash; What's New in Version 2.6</h2>
 
   <p>This section lists what's changed in Floggy 2.6, followed by the 2.5 notes. You don't need to read it to use the app &mdash; it's here for reference if you're curious what's new since your last update.</p>
+
+  <h4>Airport Data &mdash; Daylight Time Back to 2007</h4>
+  <p>The Airport Data table now carries daylight-time dates from 2007 through 2035. The earlier table started in 2024, so summer dates before 2024 were treated as standard time &mdash; Parse LogBook's base-time conversion and calendar events for those summers came out an hour off. Several airport offsets were also corrected (DTW, HIO, RFD, OSH, PDT, PLN), European airports (AMS, WAW, LIS) now follow EU dates, and SJK no longer observes DST. If you built LogTen entries for summers before 2024 with Parse LogBook, re-parse and export them again to correct the times. See Section 11, Airport Data.</p>
+
+  <h4>BC Winter Times Corrected</h4>
+  <p>eCrew shows Vancouver, Kelowna and Victoria times one hour late on winter dates before March 8, 2026. Parse Schedule and Parse (Archive or HTML) now correct the BC side of those legs automatically and list each one in the Data panel. See Section 8, <a href="#s8-bc">BC winter times</a>.</p>
+
+  <h4>Parse (Archive or HTML) &mdash; Pairing, Dashboard and Crew</h4>
+  <p>Where the Dashboard and the Pairing Details list the same leg, the pairing's copy now wins and the Dashboard's copy is dropped (it only fills blank times). A leg the crew list shows you deadheading on is recorded as a deadhead, with crew and capacity cleared. A page saved without a crew list now gets a clear <strong>No crew list in this file</strong> notice telling you to save Pairing Details from My Schedule. See Section 8, Parse (Archive or HTML).</p>
+
+  <h4>Parse LogBook &mdash; Part 91 and Simulators</h4>
+  <p>Part 91 legs you operated take PIC/SIC capacity from your seat on the report's crew line (CA = PIC, FO = SIC). Simulator sessions get the remark Simulator unless their duty code has its own description.</p>
+
+  <h4>Parse Flighty &mdash; Fills Gaps Only</h4>
+  <p>Flighty now only fills empty out/in times, tail and aircraft type on flights already in Flt Data, and lists any differences instead of overwriting them. Your own flights that aren't in Flt Data get one Add / Skip question per import (Skip is the default); other airlines' flights are added as deadheads. See Section 8, Parse Flighty.</p>
+
+  <h4>Crew Data &mdash; Cleaner Records</h4>
+  <p>Captain entries from Parse LogBook no longer carry a crew ID number in the Crew Data panel, and re-importing a schedule or logbook updates existing crew entries instead of adding duplicates.</p>
+
+  <h4>Duty Codes and Union Duties</h4>
+  <p>Line checks (JLC, LC, QLC) are now ground duties, and duplicate codes were removed. IB and LB days keep the times eCrew shows, with 08:00&ndash;17:00 used only when eCrew lists none.</p>
+
+  <h4>LogTen Export and CSV Export Palettes</h4>
+  <p>LogTen Export now opens a palette with Floggy-Go's options (flight-number code, aircraft type, tail, non-flying duties, duty times, P1/P2), a live summary of the selection, and Save People File&hellip; / Cancel / Send. Each time is sent on its own calendar date, so arrivals and releases after midnight land on the right day. CSV Export now opens a palette that shapes the file for ForeFlight, Logbook Pro, MyFlightbook, a plain spreadsheet, or Floggy's full 31-field layout, with column, row and format choices and a check list before you save. Both follow your Flt Data selection live and remember your choices. See Section 9.</p>
+
+  <h4>Flifo Moved to Floggy-Go</h4>
+  <p>Flight status lookups now live in Floggy-Go Flifo on the tools page (<code>qxav8r.github.io</code>), which works on the iPad and sends straight to LogTen. The Flifo button in Flt Data now points you there. See Section 2 and Section 9.</p>
 
   <h4>Parse LogBook &mdash; Times Converted from Base Time</h4>
   <p>Parse LogBook now imports out/in times. The logbook report lists times in your base time, so Floggy converts each leg to local station time (daylight saving time included), and uses the report's "Generated on" time to decide which legs are flown (actual times) and which are still scheduled. A <strong>Logbook Times</strong> notice shows the base and date range before every parse, with a reminder to pull separate reports after a base change. See Section 8, Parse LogBook.</p>
