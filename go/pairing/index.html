@@ -286,7 +286,7 @@ details.fx-fold { margin:0; }
             <p><strong>TAFB</strong> runs from the first duty's report to the last duty's release, using eCrew's own duty dates, so a release after midnight is handled.</p>
             <p><strong>! / ?</strong> on a flight number: the leg was split or moved because it crosses LBase midnight. <strong>----</strong>: no scheduled or actual time on that piece.</p>
             <p><strong>Estimated (E) times</strong> are used as actuals, and the Rig is marked <em>Estimated</em> until actuals post. Estimated times are never sent to LogTen.</p>
-            <p><strong>Scheduled times only:</strong> works the rig from scheduled times (STD/STA) alone, ignoring actual and estimated times. Use it to see what the trip pays as scheduled.</p>
+            <p><strong>Scheduled times only:</strong> works the rig from scheduled times (STD/STA) alone, ignoring actual and estimated times. Each duty is released after its last scheduled arrival by the same gap eCrew uses (15 minutes, 5 after a deadhead); report times are eCrew's. Use it to see what the trip pays as scheduled.</p>
           </details>
         </div>
       </div>
@@ -1103,6 +1103,13 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
         if (r[7].charAt(0) === 'E') { r[7] = r[7].slice(1); estFlag = estFlag ? estFlag + ' & ATA' : 'ATA'; }
         if (r[7].slice(4, 6) === '+1') r[7] = r[7].slice(0, 4) + r[7].slice(6);
       }
+      // release gap after arrival as eCrew has it (15 min, 5 after a deadhead), for Scheduled times only
+      if (schedOnly && 'Dutyend' in L) {
+        var hm = function (v) { v = String(v || '').replace(/^[AE]/, '').replace('+1', '').replace(/:/g, ''); return /^\d{4}$/.test(v) ? num(v.slice(0, 2)) * 60 + num(v.slice(2, 4)) : null; };
+        var de = hm(word1(L.Dutyend)), inn = /^A/.test(word1(L.Ata)) ? hm(word1(L.Ata)) : hm(L.Sta);
+        var gap = de !== null && inn !== null ? (de - inn + 1440) % 1440 : 15;
+        r[19] = String(gap <= 120 ? gap : 15);
+      }
       if ('Dutybeg' in L) r[11] = word1(L.Dutybeg);
       if ('Dutyend' in L) r[12] = word1(L.Dutyend);
       if ('aDutybeg' in L) r[14] = Number(L.aDutybeg) === 0 ? '' : aimsminstodate(L.aDutybeg);
@@ -1114,6 +1121,15 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
       if (r[1].charAt(0) === '?') moved.push({ flt: r[1].slice(1), route: r[2] + '-' + r[3], sched: r[0], act: r[16] });
       if (estFlag) est.push({ date: r[0], flt: r[1].replace(/^\?/, ''), route: r[2] + '-' + r[3], what: estFlag });
       rows.push(r);
+    });
+    // Scheduled times only (11/11/26): eCrew's release time is actual-based, so a late night would add a day; release
+    // as scheduled is the duty's last scheduled arrival + eCrew's own release gap (report times are scheduled already)
+    if (schedOnly) rows.forEach(function (r) {
+      if (!r[12]) return;
+      var t = String(r[6]).replace(/:/g, ''); if (!/^\d{4}$/.test(t)) return;
+      var m = num(t.slice(0, 2)) * 60 + num(t.slice(2, 4)) + num(r[19] || 15), d = r[18] || r[0];
+      if (m >= 1440) { m -= 1440; d = nextcalday(d); }
+      r[12] = pad2(Math.floor(m / 60)) + pad2(m % 60); r[15] = d;
     });
     // strip colons (HHMM)
     rows = rows.map(function (r) { return r.map(function (v) { return String(v).replace(/:/g, ''); }); });
