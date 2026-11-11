@@ -1527,7 +1527,12 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
       if (r.doubled) L.warnings.push('Two ' + r.selfSeat + 's listed: P1/P2 left to the logbook; check the ' + (r.selfSeat === 'CA' ? 'PIC' : 'SIC') + ' name.');
       if (r.warn.length) L.warnings.push('Crew list: ' + r.warn.join('; ') + ' (seat left blank).');
       if (r.selfDH) { L.ftype = '1'; L.remarks = 'Dead Head'; L.pic = L.sic = L.fa1 = L.fa2 = ''; L.p1 = L.p2 = false; }
-    } else if (noCrewMsg) L.warnings.push(noCrewMsg);
+    } else {
+      // no crew list for this leg: you still flew it in your own seat (from the file header), so P1/P2 and your name go in
+      if (me && me.name && me.seat === 'CA') { L.pic = me.name; L.p1 = true; }
+      else if (me && me.name && me.seat === 'FO') { L.sic = me.name; L.p2 = true; }
+      if (noCrewMsg) L.warnings.push(noCrewMsg + (L.p1 || L.p2 ? ' ' + (L.p1 ? 'P1' : 'P2') + ' and your name are set from your seat (' + me.seat + ').' : ''));
+    }
   }
 
   // Floggy's addCrewToFlts / flipcrew: eCrew's crew list has one entry per flight number per day, so the return leg
@@ -1999,12 +2004,12 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
     var at = function (d, t, s) { return t ? { date: d, time: t, stn: s } : null; };
     var sel = IM.res.legs.filter(function (L, i) { return !IM.off[i]; });
     return sel.map(function (L) {
-      var flown = !!L.atd;
+      var flown = !!L.atd;   // scheduled times go on every leg, flown or not (same as Send to LogTen)
       var tail = IM.o.tail === 'none' ? '' : (IM.o.tail === 'flown' && !flown ? '' : (L.tail || ''));
       return { date: L.date, flt: L.fltSend, dep: L.dep, arv: L.arv, kind: L.ftype, tail: tail, type: L.ac || '',
         pic: L.pic, sic: L.sic, fa1: L.fa1, fa2: L.fa2, p1: !!L.p1, p2: !!L.p2, pt121: null,
         out: at(L.actDepDate, L.atd, L.dep), inn: at(L.actArrDate, L.ata, L.arv),
-        sOut: flown ? null : at(L.depDate, L.std, L.dep), sIn: flown ? null : at(L.arrDate, L.sta, L.arv),
+        sOut: at(L.depDate, L.std, L.dep), sIn: at(L.arrDate, L.sta, L.arv),
         dOn: L.dutyS ? at(L.dutySDate, L.dutyS, L.dep) : null, dOff: L.dutyE ? at(L.dutyEDate, L.dutyE, L.arv) : null,
         zulu: false, remarks: L.remarks || '', trg: L.trg || '', key: L.key };
     });

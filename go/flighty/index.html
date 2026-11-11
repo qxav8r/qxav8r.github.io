@@ -1063,7 +1063,7 @@ details.fx-fold { margin:0; }
       var flown = !!L.atd;
       return { date: L.date, flt: L.fltSend || L.fltOut, dep: L.dep, arv: L.arv, kind: L.ftype, tail: L.tail || '', type: L.typeCode || '',
         pic: '', sic: '', fa1: '', fa2: '', p1: false, p2: false, pt121: null,
-        out: at(L.atdDate, L.atd, L.dep), inn: at(L.ataDate, L.ata, L.arv), sOut: flown ? null : at(L.stdDate, L.std, L.dep), sIn: flown ? null : at(L.staDate, L.sta, L.arv),
+        out: at(L.atdDate, L.atd, L.dep), inn: at(L.ataDate, L.ata, L.arv), sOut: flown && S.o.sch !== 'send' ? null : at(L.stdDate, L.std, L.dep), sIn: flown && S.o.sch !== 'send' ? null : at(L.staDate, L.sta, L.arv),
         dOn: null, dOff: null, zulu: false, remarks: L.remarks || '', trg: '', key: L.key };
     });
   }
