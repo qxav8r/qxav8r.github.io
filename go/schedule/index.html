@@ -1293,9 +1293,8 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
 
     // cleanfltdata
     for (const L of legs) {
-      // LB/IB keep eCrew's own times (Floggy forces 08:00-17:00; changed 10/29/26)
+      // limos keep fixed placeholder times; GT/JGI get actuals only when eCrew reports them (11/10/26, as Floggy)
       if (/^(LM|LI)/.test(L.flt)) { L.atd = L.std; L.ata = L.sta; L.dh = true; }
-      if (/^(GT|JGI)/.test(L.flt)) { L.atd = L.std; L.ata = L.sta; }
       if (L.flt.startsWith('DHA')) L.flt = L.flt.slice(3); else if (L.flt.startsWith('DH')) L.flt = L.flt.slice(2);
       if (/^\d+$/.test(L.flt)) L.ftype = '0';
       if (L.dh) {
@@ -1306,6 +1305,8 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
         L.ftype = { G: '2', S: '3', R: '6' }[L.cat];
         const dc = (opts.dutyCodes || root.FLOGGY_DUTY_CODES || {})[L.code];
         if (dc) L.remarks = dc[1];
+        // LB/IB use eCrew's own times; 08:00-17:00 only when the row has none (11/10/26, as Floggy)
+        if ((L.code === 'LB' || L.code === 'IB') && !L.std && !L.sta && !L.atd && !L.ata) { L.std = '08:00'; L.sta = '17:00'; }
         L.atd = L.std; L.ata = L.sta;
         L.pic = L.sic = L.fa1 = L.fa2 = ''; L.p1 = L.p2 = false;
         if (L.cat === 'S') { if (!['SEA', 'STL'].includes(L.dep)) L.dep = 'SEA'; if (!['SEA', 'STL'].includes(L.arv)) L.arv = 'SEA'; }
