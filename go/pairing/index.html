@@ -209,10 +209,8 @@ details.fx-fold { margin:0; }
     <div class="btns">
       <label class="btn" for="file">Choose pairing file</label>
       <input id="file" type="file" accept=".webarchive,.html,.htm,.flog,application/x-webarchive,text/html">
-      <label class="btn ghost" for="folder" id="folderBtn" hidden>Choose Chrome folder</label>
-      <input id="folder" type="file" webkitdirectory multiple>
     </div>
-    <p class="msg" id="msg">In eCrew, open <strong>My Schedule → Pairing Details</strong> for the pairing (the home-page pairing view has no crew list), then <strong>Share → Options → Web Archive → Save to Files</strong>. Pick that file here (or drop it on the page on a Mac) to see the trip rig and send the legs to LogTen. It stays on your device. <span class="sub" id="folderHint" hidden>Saved from Chrome or Firefox on a Mac (Save Page As → Webpage, Complete)? Use <strong>Choose Chrome folder</strong> and pick the page’s “_files” folder (e.g. eCrew_files).</span></p>
+    <p class="msg" id="msg">In eCrew, open <strong>My Schedule → Pairing Details</strong> for the pairing (the home-page pairing view has no crew list), then <strong>Share → Options → Web Archive → Save to Files</strong>. Pick that file here (or drop it on the page on a Mac) to see the trip rig and send the legs to LogTen. It stays on your device.</p>
   </section>
 
   <div id="out" hidden>
@@ -2052,37 +2050,22 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
   // Mac Safari dims a web archive eCrew has just saved (macOS hasn't typed the new file yet), so it takes a second
   // pick. No type filter on the Mac: the page already rejects a file with no pairing data. iPad keeps the filter.
   if (!touch) $('file').removeAttribute('accept');
-  function loadText(text, name) {
-    try {
-      var r = FloggyRig.calculate(text, window.FLOGGY_DUTY_CODES);
-      if (!r.ok) { $('msg').className = 'msg err'; $('msg').textContent = r.error; return; }
-      $('msg').textContent = name; show(r);
-      IM.text = text; impParse(); impInitOff(); impRender();
-    } catch (err) { $('msg').className = 'msg err'; $('msg').textContent = 'Could not read that file (' + err.message + '). Choose a .webarchive, .html, .htm or .flog file saved from eCrew\'s Pairing Details page.'; }
-  }
   function loadFile(f) {
     if (!f) return;
     $('msg').className = 'msg'; $('msg').textContent = 'Reading ' + f.name + '…'; $('out').hidden = true;
     var rd = new FileReader();
-    rd.onload = function () { loadText(new TextDecoder('utf-8').decode(new Uint8Array(rd.result)), f.name); };
+    rd.onload = function () {
+      try {
+        var text = new TextDecoder('utf-8').decode(new Uint8Array(rd.result));
+        var r = FloggyRig.calculate(text, window.FLOGGY_DUTY_CODES);
+        if (!r.ok) { $('msg').className = 'msg err'; $('msg').textContent = r.error; return; }
+        $('msg').textContent = f.name; show(r);
+        IM.text = text; impParse(); impInitOff(); impRender();
+      } catch (err) { $('msg').className = 'msg err'; $('msg').textContent = 'Could not read that file (' + err.message + '). Choose a .webarchive, .html, .htm or .flog file saved from eCrew\'s Pairing Details page.'; }
+    };
     rd.onerror = function () { $('msg').className = 'msg err'; $('msg').textContent = 'Could not open that file.'; };
     rd.readAsArrayBuffer(f);
   }
-  // Chrome / Firefox "Save Page As → Webpage, Complete" (11/11/26, as Floggy's collectHtmlFiles): the page's frames
-  // land in a "_files" folder, so the pilot picks that folder and every .htm/.html in it, at any depth, is read and
-  // joined into one text, the way Floggy's Parse Archive reads a page's companion folder. Mac only.
-  function loadFolder(list) {
-    var files = Array.prototype.filter.call(list || [], function (f) { return /\.html?$/i.test(f.name); });
-    if (!files.length) { $('msg').className = 'msg err'; $('msg').textContent = 'No .html files in that folder. Pick the “_files” folder that Chrome or Firefox saved next to the page (Save Page As → Webpage, Complete).'; return; }
-    var top = (files[0].webkitRelativePath || '').split('/')[0] || 'folder';
-    $('msg').className = 'msg'; $('msg').textContent = 'Reading ' + files.length + ' files from ' + top + '…'; $('out').hidden = true;
-    Promise.all(files.map(function (f) {
-      return new Promise(function (ok, no) { var rd = new FileReader(); rd.onload = function () { ok(new TextDecoder('utf-8').decode(new Uint8Array(rd.result))); }; rd.onerror = no; rd.readAsArrayBuffer(f); });
-    })).then(function (texts) { loadText(texts.join('\n'), top + ' (' + files.length + ' files)'); },
-      function () { $('msg').className = 'msg err'; $('msg').textContent = 'Could not open the files in that folder.'; });
-  }
-  if (!touch && 'webkitdirectory' in document.createElement('input')) $('folderBtn').hidden = $('folderHint').hidden = false;
-  $('folder').addEventListener('change', function (e) { loadFolder(e.target.files); e.target.value = ''; });
   $('file').addEventListener('change', function (e) { loadFile(e.target.files[0]); e.target.value = ''; });
   // drag and drop: a file dropped anywhere on the page loads like a picked one (instead of Safari opening it)
   var dragN = 0;
