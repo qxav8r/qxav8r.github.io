@@ -844,8 +844,7 @@ details.fx-fold { margin:0; }
     var S = el._fx = { o: o, mem: load() };
     el.innerHTML = '<details class="fl-opts fx-fold"><summary>Export CSV for another logbook <span class="fl-os" id="fxSum"></span></summary><div class="fx-box"></div></details>';
     S.det = el.firstChild; S.body = S.det.lastChild;
-    S.det.open = !!S.mem.open;   // closed until the pilot opens it; remembered on this device
-    S.det.addEventListener('toggle', function () { S.mem.open = S.det.open; save(S.mem); });
+    S.det.open = false;   // always starts closed (11/11/26: folds no longer remembered)
     el.addEventListener('change', function (e) {
       var t = e.target, id = S.mem.target; if (!id && t.id !== 'fxTarget') return;
       if (t.id === 'fxTarget') { S.mem.target = t.value; save(S.mem); refresh(el); return; }
@@ -1056,8 +1055,7 @@ details.fx-fold { margin:0; }
   function mount(el, o) {
     var S = el._cal = { o: o, mem: load(), ev: {} };
     el.innerHTML = '<details class="fl-opts fx-fold"><summary>Add to Calendar <span class="fl-os" id="calSum"></span></summary><div class="fx-box"></div></details>';
-    S.det = el.firstChild; S.body = S.det.lastChild; S.det.open = !!S.mem.open;
-    S.det.addEventListener('toggle', function () { S.mem.open = S.det.open; save(S.mem); });
+    S.det = el.firstChild; S.body = S.det.lastChild; S.det.open = false;   // always starts closed (11/11/26)
     el.addEventListener('click', function (e) {
       var b = e.target.closest('button[data-calk]'); if (!b) return;
       var k = b.dataset.calk, ev = S.ev[k]; if (!ev || !ev.length) return;

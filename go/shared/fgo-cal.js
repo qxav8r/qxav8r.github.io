@@ -108,8 +108,7 @@
   function mount(el, o) {
     var S = el._cal = { o: o, mem: load(), ev: {} };
     el.innerHTML = '<details class="fl-opts fx-fold"><summary>Add to Calendar <span class="fl-os" id="calSum"></span></summary><div class="fx-box"></div></details>';
-    S.det = el.firstChild; S.body = S.det.lastChild; S.det.open = !!S.mem.open;
-    S.det.addEventListener('toggle', function () { S.mem.open = S.det.open; save(S.mem); });
+    S.det = el.firstChild; S.body = S.det.lastChild; S.det.open = false;   // always starts closed (11/11/26)
     el.addEventListener('click', function (e) {
       var b = e.target.closest('button[data-calk]'); if (!b) return;
       var k = b.dataset.calk, ev = S.ev[k]; if (!ev || !ev.length) return;

@@ -885,8 +885,7 @@ details.fx-fold { margin:0; }
     var S = el._fx = { o: o, mem: load() };
     el.innerHTML = '<details class="fl-opts fx-fold"><summary>Export CSV for another logbook <span class="fl-os" id="fxSum"></span></summary><div class="fx-box"></div></details>';
     S.det = el.firstChild; S.body = S.det.lastChild;
-    S.det.open = !!S.mem.open;   // closed until the pilot opens it; remembered on this device
-    S.det.addEventListener('toggle', function () { S.mem.open = S.det.open; save(S.mem); });
+    S.det.open = false;   // always starts closed (11/11/26: folds no longer remembered)
     el.addEventListener('change', function (e) {
       var t = e.target, id = S.mem.target; if (!id && t.id !== 'fxTarget') return;
       if (t.id === 'fxTarget') { S.mem.target = t.value; save(S.mem); refresh(el); return; }
@@ -2026,15 +2025,8 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
     $('calPrev').innerHTML = '<thead><tr><th>Calendar</th><th>Event</th><th>When (local)</th><th>Location</th></tr></thead><tbody>' + rows + '</tbody>';
     $('calSum').textContent = '· ' + CALS.map(function (k) { return CLABEL[k] + ' ' + FloggyPairing.calEvents(legs, k).length; }).join(' · ');
   }
-  // remember which page folds are open, per device
-  (function () {
-    var KEY = 'floggyGo.pairing.folds.v2', mem = {};
-    try { mem = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { mem = {}; }
-    Array.prototype.forEach.call(document.querySelectorAll('details[data-fold]'), function (d) {
-      if (mem[d.id] != null) d.open = mem[d.id];
-      d.addEventListener('toggle', function () { mem[d.id] = d.open; try { localStorage.setItem(KEY, JSON.stringify(mem)); } catch (e) { } });
-    });
-  })();
+  // page folds always start closed (11/11/26: no longer remembered per device); clear the old saved state
+  try { localStorage.removeItem('floggyGo.pairing.folds.v2'); } catch (e) { }
   Array.prototype.forEach.call(document.querySelectorAll('[data-cal]'), function (b) {
     b.addEventListener('click', function () {
       var k = b.dataset.cal, r = FloggyPairing.buildICS(calLegs(), k, CFILE[k]);
