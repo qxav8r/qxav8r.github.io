@@ -66,6 +66,9 @@ body.dropping::after { content:'Drop the pairing file to load it'; position:fixe
 .pay { display:flex; flex-wrap:wrap; align-items:baseline; gap:6px 16px; }
 .pay .big { font:700 1.6rem/1 var(--f-data); color:var(--accent); }
 .pay .which { font:600 1.1rem var(--f-ui); }
+.rig-sch { display:flex; align-items:center; gap:8px; margin:0 0 10px; font-weight:600; }
+.rig-sch input { width:20px; height:20px; }
+#rig #estWarn { margin:0 0 12px; }
 .warn { border:1px solid var(--amber); background:var(--amber-bg); border-radius:8px; padding:10px 14px; }
 .tablewrap { overflow-x:auto; }
 td.n, th.n { text-align:right; font-family:var(--f-data); font-variant-numeric:tabular-nums; }
@@ -217,7 +220,6 @@ details.fx-fold { margin:0; }
     <section class="pg-summary">
       <p class="cap" id="cap"></p>
       <p class="sub" id="capTrip"></p>
-      <div id="estWarn" class="warn" hidden></div>
       <div id="movedWarn" class="warn" hidden></div>
     </section>
 
@@ -239,6 +241,8 @@ details.fx-fold { margin:0; }
     </div></details>
 
     <details class="pg-fold" id="rig" data-fold><summary><span class="pg-t">Rig</span> <span class="fl-os" id="rigSum"></span></summary><div class="pg-b">
+      <label class="rig-sch"><input type="checkbox" id="rigSched"> Scheduled times only</label>
+      <div id="estWarn" class="warn" hidden></div>
       <div class="pay"><span class="big" id="payHM"></span><span class="which" id="payWhich"></span></div>
       <h3>Trip rig · final credit</h3>
       <div class="tablewrap"><table id="finals"></table></div>
@@ -280,7 +284,8 @@ details.fx-fold { margin:0; }
             <p><strong>Legs flown on a different day than scheduled</strong> (delay or IRROPS): the scheduled block stays on the scheduled day and the actual block goes on the day it was flown; each day still gets at least 4:12.</p>
             <p><strong>TAFB</strong> runs from the first duty's report to the last duty's release, using eCrew's own duty dates, so a release after midnight is handled.</p>
             <p><strong>! / ?</strong> on a flight number: the leg was split or moved because it crosses LBase midnight. <strong>----</strong>: no scheduled or actual time on that piece.</p>
-            <p><strong>Estimated (E) times</strong> are used as actuals; the result is provisional until actuals post.</p>
+            <p><strong>Estimated (E) times</strong> are used as actuals, and the Rig is marked <em>Estimated</em> until actuals post. Estimated times are never sent to LogTen.</p>
+            <p><strong>Scheduled times only:</strong> works the rig from scheduled times (STD/STA) alone, ignoring actual and estimated times. Use it to see what the trip pays as scheduled.</p>
           </details>
         </div>
       </div>
@@ -1063,7 +1068,7 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
 
   // ---------- STEP: build the flight table (Floggy pflts) ----------
   // row: [date, flt, dep, arv, std, atd, sta, ata, sbk, abk, mbk, sduty, eduty, tday, sdutydate, edutydate]
-  function buildFlights(sectors, dutyCodes) {
+  function buildFlights(sectors, dutyCodes, schedOnly) {
     var rows = [], est = [], duties = [], moved = [], dutycount = 1;
     sectors.forEach(function (it) {
       if (JSON.stringify(it).indexOf('Duty Period Totals') >= 0) return;
@@ -1083,15 +1088,15 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
       if (!('aDepDay' in L)) return;
       r[0] = aimsdatetodate(L.aDepDay);
       if (!('aFormat2_DepDay' in L)) return;
-      if (String(L.aDepDay) !== String(L.aFormat2_DepDay)) r[1] = '?' + r[1];
+      if (!schedOnly && String(L.aDepDay) !== String(L.aFormat2_DepDay)) r[1] = '?' + r[1];
       if ('Std' in L) r[4] = word1(L.Std);
-      if ('Atd' in L) {
+      if ('Atd' in L && !schedOnly) {
         r[5] = word1(L.Atd);
         if (r[5].charAt(0) === 'A') r[5] = r[5].slice(1);
         if (r[5].charAt(0) === 'E') { r[5] = r[5].slice(1); estFlag = 'ATD'; }
       }
       if ('Sta' in L) { r[6] = String(L.Sta); if (r[6].slice(4, 6) === '+1') r[6] = r[6].slice(0, 4) + r[6].slice(6); }
-      if ('Ata' in L) {
+      if ('Ata' in L && !schedOnly) {
         r[7] = word1(L.Ata);
         if (r[7].charAt(0) === 'A') r[7] = r[7].slice(1);
         if (r[7].charAt(0) === 'E') { r[7] = r[7].slice(1); estFlag = estFlag ? estFlag + ' & ATA' : 'ATA'; }
@@ -1102,8 +1107,8 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
       if ('aDutybeg' in L) r[14] = Number(L.aDutybeg) === 0 ? '' : aimsminstodate(L.aDutybeg);
       if ('aDutyend' in L) r[15] = Number(L.aDutyend) === 0 ? '' : aimsminstodate(L.aDutyend);
       // 10/31/26: keep eCrew's own day fields for the "?" (date-changed) leg fix
-      r[16] = num(L.aFormat2_DepDay) > 0 ? aimsdatetodate(L.aFormat2_DepDay) : '';   // actual departure date
-      r[17] = num(L.aActArrDay) > 0 ? aimsdatetodate(L.aActArrDay) : '';             // actual arrival date
+      r[16] = !schedOnly && num(L.aFormat2_DepDay) > 0 ? aimsdatetodate(L.aFormat2_DepDay) : '';   // actual departure date
+      r[17] = !schedOnly && num(L.aActArrDay) > 0 ? aimsdatetodate(L.aActArrDay) : '';             // actual arrival date
       r[18] = num(L.aArrDay) > 0 ? aimsdatetodate(L.aArrDay) : '';                   // scheduled arrival date
       if (r[1].charAt(0) === '?') moved.push({ flt: r[1].slice(1), route: r[2] + '-' + r[3], sched: r[0], act: r[16] });
       if (estFlag) est.push({ date: r[0], flt: r[1].replace(/^\?/, ''), route: r[2] + '-' + r[3], what: estFlag });
@@ -1282,10 +1287,11 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
     return { mins: total, table: table, overhang: out, bucket: table.map(function (t) { return [t.date, t.mdbk]; }) };
   }
 
-  function calculate(text, dutyCodes) {
+  function calculate(text, dutyCodes, opts) {
+    var schedOnly = !!(opts && opts.schedOnly);
     var p = findPairing(text);
     if (!p) return { ok: false, error: 'No pairing data found. Choose a .webarchive, .html, .htm or .flog file saved from eCrew\'s Pairing Details page (Share → Options → Web Archive).' };
-    var b = buildFlights(p.sectors, dutyCodes);
+    var b = buildFlights(p.sectors, dutyCodes, schedOnly);
     if (!b.rows.length) return { ok: false, error: 'The pairing has no flights to calculate.' };
     var T = tafb(b.rows), D = duty(b.rows), B = cblk(b.rows), M = mdcr(b.rows);
     function line(name, code, mins, x, credit) { return { rig: name, code: code, hm: minstohours(mins), mm: hourstomins(minstohours(mins)), x: x, creditHM: minstohours(credit), credit: round(credit) }; }
@@ -1299,7 +1305,7 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
     var sorted = finals.slice().sort(function (a, b2) { return b2.credit - a.credit; });
     var win = sorted[0];
     var bucket = { T: T.bucket, D: D.bucket, B: B.bucket, M: M.bucket }[win.code];
-    return { ok: true, route: p.route, caption: p.caption, rows: b.rows, est: b.est, duties: b.duties, moved: b.moved,
+    return { ok: true, schedOnly: schedOnly, route: p.route, caption: p.caption, rows: b.rows, est: b.est, duties: b.duties, moved: b.moved,
       tafb: T, duty: D, cblk: B, mdcr: M, finals: sorted, win: win, bucket: bucket, minstohours: minstohours };
   }
 
@@ -1857,13 +1863,15 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
     $('cap').textContent = r.caption || ('Pairing ' + r.route);
     $('payHM').textContent = r.win.creditHM;
     $('payWhich').textContent = 'Trip Pay · ' + NAMES[r.win.code] + ' rig (' + r.win.code + ')';
-    $('rigSum').textContent = '· Trip Pay ' + r.win.creditHM + ' (' + NAMES[r.win.code] + ')';
-    if (r.est.length) {
+    var tag = r.schedOnly ? ' · Scheduled' : (r.est.length ? ' · Estimated' : '');
+    $('rigSum').textContent = '· Trip Pay ' + r.win.creditHM + ' (' + NAMES[r.win.code] + ')' + tag;
+    $('rigSched').checked = !!r.schedOnly;
+    if (r.est.length && !r.schedOnly) {
       $('estWarn').hidden = false;
-      $('estWarn').innerHTML = '<strong>Provisional:</strong> eCrew showed estimated times on ' + r.est.length + ' leg' + (r.est.length > 1 ? 's' : '') + ' (' +
-        r.est.map(function (e) { return esc(e.flt + ' ' + e.route + ' ' + e.what); }).join('; ') + '). They are used as actuals. Run it again after actuals post.';
+      $('estWarn').innerHTML = '<strong>Estimated:</strong> eCrew shows estimated times on ' + r.est.length + ' leg' + (r.est.length > 1 ? 's' : '') + ' (' +
+        r.est.map(function (e) { return esc(e.flt + ' ' + e.route + ' ' + e.what); }).join('; ') + '). The rig uses them as actuals until actuals post; they are not sent to LogTen. Run it again after actuals post, or check <strong>Scheduled times only</strong> to see the rig as scheduled.';
     } else $('estWarn').hidden = true;
-    if (r.moved && r.moved.length) {
+    if (r.moved && r.moved.length && !r.schedOnly) {
       $('movedWarn').hidden = false;
       $('movedWarn').innerHTML = '<strong>Check this one:</strong> ' + r.moved.map(function (m) {
         return esc(m.flt + ' ' + m.route + ' was scheduled ' + m.sched + ' but departed ' + (m.act || 'on another day'));
@@ -2042,6 +2050,7 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
   // Mac Safari dims a web archive eCrew has just saved (macOS hasn't typed the new file yet), so it takes a second
   // pick. No type filter on the Mac: the page already rejects a file with no pairing data. iPad keeps the filter.
   if (!touch) $('file').removeAttribute('accept');
+  var RIGTEXT = '';
   function loadFile(f) {
     if (!f) return;
     $('msg').className = 'msg'; $('msg').textContent = 'Reading ' + f.name + '…'; $('out').hidden = true;
@@ -2051,6 +2060,7 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
         var text = new TextDecoder('utf-8').decode(new Uint8Array(rd.result));
         var r = FloggyRig.calculate(text, window.FLOGGY_DUTY_CODES);
         if (!r.ok) { $('msg').className = 'msg err'; $('msg').textContent = r.error; return; }
+        RIGTEXT = text;
         $('msg').textContent = f.name; show(r);
         IM.text = text; impParse(); impInitOff(); impRender();
       } catch (err) { $('msg').className = 'msg err'; $('msg').textContent = 'Could not read that file (' + err.message + '). Choose a .webarchive, .html, .htm or .flog file saved from eCrew\'s Pairing Details page.'; }
@@ -2059,6 +2069,12 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
     rd.readAsArrayBuffer(f);
   }
   $('file').addEventListener('change', function (e) { loadFile(e.target.files[0]); e.target.value = ''; });
+  // Rig: Scheduled times only re-works the rig from STD/STA, ignoring actual and estimated times (rig only; LogTen is unchanged)
+  $('rigSched').addEventListener('change', function () {
+    if (!RIGTEXT) return;
+    var r = FloggyRig.calculate(RIGTEXT, window.FLOGGY_DUTY_CODES, { schedOnly: this.checked });
+    if (r.ok) show(r);
+  });
   // drag and drop: a file dropped anywhere on the page loads like a picked one (instead of Safari opening it)
   var dragN = 0;
   document.addEventListener('dragenter', function (e) { if (e.dataTransfer && Array.prototype.indexOf.call(e.dataTransfer.types, 'Files') >= 0) { dragN++; document.body.classList.add('dropping'); } });
