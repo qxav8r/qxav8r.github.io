@@ -24,6 +24,20 @@
   z('America/Vancouver', 'YVR YLW YYJ');
   z('America/Edmonton', 'YYC YEG');
   z('Pacific/Honolulu', 'HNL OGG KOA LIH');
+  // more stations from Floggy's airportdata v2.7 (11/10/26; checked against its offsets and DST dates 2007-2030)
+  z('America/Los_Angeles', 'BFI HIO MMH PDT VCV');
+  z('America/Denver', 'HDN');
+  z('America/Chicago', 'AMA BNA DAL DTN FAR GCK MDW ODX OSH RFD SAT');
+  z('America/New_York', 'CVG HVN MCN MIA PHL RDU');
+  z('America/Detroit', 'DTW CIU PLN');
+  z('America/Indiana/Indianapolis', 'IND');
+  z('America/Toronto', 'YAM YCE YOW YTZ YUL YXU YYB YYZ');
+  z('America/Anchorage', 'ADQ AKN BET BRW CDV DLG ENA OME OTZ SCC YAK');
+  z('America/Puerto_Rico', 'SJU');
+  z('America/Manaus', 'MAO');
+  z('Europe/Amsterdam', 'AMS');
+  z('Europe/Warsaw', 'WAW');
+  z('Europe/Lisbon', 'LIS');
   // BC and Alberta stay on daylight time from 11/01/2026 (Floggy airportdata); fixed here in case the browser's tables are older
   var PERM = { 'America/Vancouver': { from: Date.UTC(2026, 10, 1, 9), off: -420 }, 'America/Edmonton': { from: Date.UTC(2026, 10, 1, 8), off: -360 } };
   var fmts = {};
