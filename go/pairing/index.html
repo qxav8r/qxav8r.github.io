@@ -1352,6 +1352,16 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
     return { name: trim(m[1]), id: trim(m[2]), seat: role[0] === 'Captain' ? 'CA' : (role[0] === 'First Officer' ? 'FO' : ''), base: trim(role[1] || ''), ac: trim(role[2] || '') };
   }
 
+  // no header label (Chrome/Firefox saves keep only the frames, 11/11/26): the pairing frame's own "Flt1Input":{"CrewId":8570,
+  // with the name and base taken from that ID's entry in DutyDetails or the crew list
+  function idFallback(text) {
+    var m = text.match(/"Flt1Input":\{"CrewId":"?(\d+)/); if (!m) return null;
+    var id = m[1], name = '', base = '', seat = '', c;
+    if ((c = text.match(new RegExp('"ID":"' + id + '","Name":"([^"]*)"[^}]*?"PosQual":"([^"]*)"[^}]*?"BaseQual":"([^"]*)"')))) { name = trim(c[1]); seat = trim(c[2]); base = trim(c[3]); }
+    else if ((c = text.match(new RegExp('"value2":"([^"]*)","value3":"?' + id + '"?,"value4":"([^"]*)"')))) { name = trim(c[1]); seat = trim(c[2]); }
+    return { name: stripName(name), id: id, seat: seat, base: base, ac: '' };
+  }
+
   // crew list tree (CrewSchedule frame): {"id":9,"value":"10/08/2026&emsp;2109&emsp;SEA  - BOI ","data":[{value2:name,value3:id,value4:seat}]}
   function crewTree(text) {
     var out = {}, re = /\{"id":\d+,"value":"(\d\d\/\d\d\/\d{4})&emsp;([^&]+)&emsp;(\w+)\s*-\s*(\w+)\s*"/g, m;
@@ -1364,13 +1374,20 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
     return out;
   }
   // DutyDetails frame: only the duty that was selected when saved. Contact details are ignored.
+  // A Chrome/Firefox folder (11/11/26) can hold several DutyDetails frames, some left over from other pairings, so all
+  // are read and each leg also carries its tail: a match must agree on the tail when both have one.
   function dutyDetailsCrew(text) {
-    var i = text.indexOf('var DutyDetails='); if (i < 0) return [];
-    var arr = jsonAt(text, i + 16); if (!Array.isArray(arr)) return [];
-    return arr.map(function (l) {
-      return { flt: fltDigits(trim(l.FlightNumber)), dep: trim(l.DepStation), arr: trim(l.ArrStation),
+    var out = [], i = text.indexOf('var DutyDetails=');
+    while (i >= 0) {
+      var arr = jsonAt(text, i + 16);
+      if (Array.isArray(arr)) out = out.concat(arr.map(ddLeg));
+      i = text.indexOf('var DutyDetails=', i + 16);
+    }
+    return out;
+  }
+  function ddLeg(l) {
+      return { flt: fltDigits(trim(l.FlightNumber)), dep: trim(l.DepStation), arr: trim(l.ArrStation), reg: trim(l.Registration),
         crew: (l.CrewOnFlight || []).map(function (c) { return { name: trim(c.Name), id: trim(c.ID), seat: trim(c.PosQual) + (c.DutyType && /DH/i.test(String(c.DutyType)) ? ' - DH' : '') }; }) };
-    });
   }
 
   // Floggy-Go Schedule's rules (parseCrewBlock)
@@ -1429,7 +1446,7 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
     var dc = opts.dutyCodes || {};
     var i = text.indexOf('"Sectors":['); if (i < 0) return { ok: false, error: 'No pairing data found. Choose a .webarchive, .html, .htm or .flog file saved from eCrew\'s Pairing Details page.' };
     var sectors = jsonAt(text, i + 10); if (!sectors) return { ok: false, error: 'Could not read the pairing data.' };
-    var me = identity(text) || { name: '', id: '', base: '' };
+    var me = identity(text) || idFallback(text) || { name: '', id: '', base: '' };
     var tree = crewTree(text), dd = dutyDetailsCrew(text);
     // no crew list at all (home-page pairing view): one top-line warning instead of one per leg (as Floggy, 11/8/26)
     var noList = !Object.keys(tree).length;
@@ -1496,7 +1513,7 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
     if (L.ftype !== '0') return;
     var fd = fltDigits(L.flt), list = tree[L.date + '|' + fd + '|' + L.dep + '|' + L.arv], src = 'crew list';
     if (!list && dd) {
-      var hits = dd.filter(function (x) { return x.flt === fd && x.dep === L.dep && x.arr === L.arv; });
+      var hits = dd.filter(function (x) { return x.flt === fd && x.dep === L.dep && x.arr === L.arv && (!x.reg || !L.tail || x.reg === L.tail); });
       if (hits.length === 1) { list = hits[0].crew; src = 'duty details'; }
     }
     if (list && list.length) {
