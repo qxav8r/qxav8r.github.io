@@ -1253,7 +1253,7 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
         var t = tline.slice(0, 11);
         t[1] = '!' + t[1].slice(1); t[0] = prevcalday(t[0]);
         t[4] = '----'; t[6] = '----'; t[7] = '2359'; t[8] = '0';
-        t[9] = String(getblocktime(tline[5], '2359')); t[10] = t[9];
+        t[9] = String(getblocktime(tline[5], '2359') + 1); t[10] = t[9];   // +1: the day runs to 24:00, not 23:59
         out.push(t);
         tline[5] = '2400';
         tline[9] = String(getblocktime(tline[5], tline[7]));
@@ -1266,16 +1266,18 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
       // scheduled midnight crossing
       if (ge(hh(tline[6]), '24') && le(hh(tline[4]), '24') && tline[6] !== '') {
         next = next || ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''];
-        tline[8] = String(getblocktime(tline[4], '2359'));
-        next[0] = nextcalday(tline[0]); next[8] = String(getblocktime('2359', tline[6]));
+        // 23:59 split +1 (11/11/26): the earlier day runs to 24:00 and the later day starts at 00:00, so a 23:30-00:15
+        // leg is 30 + 15, not 29 + 16
+        tline[8] = String(getblocktime(tline[4], '2359') + 1);
+        next[0] = nextcalday(tline[0]); next[8] = String(getblocktime('2359', tline[6]) - 1);
         next[1] = '!' + tline[1]; next[2] = tline[2]; next[3] = tline[3]; next[6] = tline[6];
         tline[6] = '2359'; next[4] = '0000';
       }
       // actual midnight crossing
       if (ge(hh(tline[7]), '24') && le(hh(tline[5]), '24') && tline[7] !== '') {
         next = next || ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''];
-        tline[9] = String(getblocktime(tline[5], '2359'));
-        next[0] = nextcalday(tline[0]); next[9] = String(getblocktime('2359', tline[7]));
+        tline[9] = String(getblocktime(tline[5], '2359') + 1);
+        next[0] = nextcalday(tline[0]); next[9] = String(getblocktime('2359', tline[7]) - 1);
         next[1] = '!' + tline[1]; next[2] = tline[2]; next[3] = tline[3]; next[7] = tline[7];
         tline[7] = '2359'; tline[10] = String(Math.max(num(tline[8]), num(tline[9])));
         next[5] = '0000';
