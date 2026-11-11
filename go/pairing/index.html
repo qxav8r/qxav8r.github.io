@@ -529,7 +529,7 @@ details.fx-fold { margin:0; }
   // el: container. o: { legs, url(partLegs), max, noun, disabledText, msg(el) }
   function send(el, o) {
     var max = o.max || 100, legs = o.legs, noun = o.noun || 'flight';
-    var plural = function (n) { return n + ' ' + noun + (n === 1 ? '' : 's'); };
+    var plural = function (n) { return n + ' ' + (n === 1 ? noun : /[^aeiou]y$/.test(noun) ? noun.slice(0, -1) + 'ies' : noun + 's'); };
     el.innerHTML = '';
     var msg = o.msgEl;
     if (o.disabledText || !legs.length) {
@@ -1505,6 +1505,7 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
     finish(legs, opts.prefix);
     // the rest of the month from the Dashboard (aux data: the pairing wins), then training codes on both
     var dash = dashboard(text, opts, dc, tree, me, noList);
+    seatFill(legs.concat(dash.legs), me);
     finish(dash.legs, opts.prefix);
     var rest = mergeDash(legs, dash.legs);
     var notes = dash.notes.concat(applyTraining(legs.concat(rest), trainingEvents(text, me.id)));
@@ -1523,17 +1524,33 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
     if (list && list.length) {
       var r = crewRoles(list, me.id);
       L.pic = r.capt; L.sic = r.first; L.fa1 = r.fa1; L.fa2 = r.fa2; L.crewSrc = src;
+      if (r.selfSeat && !r.selfDH) L.selfSeat = r.selfSeat;
       L.p1 = r.selfSeat === 'CA' && !r.selfDH && !r.doubled;
       L.p2 = r.selfSeat === 'FO' && !r.selfDH && !r.doubled;
       if (r.doubled) L.warnings.push('Two ' + r.selfSeat + 's listed: P1/P2 left to the logbook; check the ' + (r.selfSeat === 'CA' ? 'PIC' : 'SIC') + ' name.');
       if (r.warn.length) L.warnings.push('Crew list: ' + r.warn.join('; ') + ' (seat left blank).');
       if (r.selfDH) { L.ftype = '1'; L.remarks = 'Dead Head'; L.pic = L.sic = L.fa1 = L.fa2 = ''; L.p1 = L.p2 = false; }
     } else {
-      // no crew list for this leg: you still flew it in your own seat (from the file header), so P1/P2 and your name go in
-      if (me && me.name && me.seat === 'CA') { L.pic = me.name; L.p1 = true; }
-      else if (me && me.name && me.seat === 'FO') { L.sic = me.name; L.p2 = true; }
-      if (noCrewMsg) L.warnings.push(noCrewMsg + (L.p1 || L.p2 ? ' ' + (L.p1 ? 'P1' : 'P2') + ' and your name are set from your seat (' + me.seat + ').' : ''));
+      L.needSeat = true;   // seatFill() sets your name and P1/P2 if this file confirms your seat
+      if (noCrewMsg) L.warnings.push(noCrewMsg);
     }
+  }
+
+  // legs with no crew list: your name and P1/P2 from the seat this file's own crew lists show you in. Not the page
+  // header: it shows today's seat and aircraft (a 2020 pairing says E75 CA), so an upgraded pilot's old FO legs would
+  // read as P1. No confirmed seat, or two different ones in the file: P1/P2 left to the logbook.
+  function seatFill(all, me) {
+    var seats = [];
+    all.forEach(function (L) { if (L.selfSeat && seats.indexOf(L.selfSeat) < 0) seats.push(L.selfSeat); });
+    var seat = seats.length === 1 ? seats[0] : '';
+    all.forEach(function (L) {
+      if (!L.needSeat || L.crewSrc || L.ftype !== '0') return;
+      var tail;
+      if (seat === 'CA' && me.name) { L.pic = me.name; L.p1 = true; tail = ' P1 and your name are set from your seat on this file\'s other legs (CA).'; }
+      else if (seat === 'FO' && me.name) { L.sic = me.name; L.p2 = true; tail = ' P2 and your name are set from your seat on this file\'s other legs (FO).'; }
+      else tail = ' P1/P2 left to the logbook: this file doesn\'t confirm your seat.';
+      L.warnings = L.warnings.map(function (w) { return /^No crew/.test(w) ? w + tail : w; });
+    });
   }
 
   // Floggy's addCrewToFlts / flipcrew: eCrew's crew list has one entry per flight number per day, so the return leg
@@ -1923,7 +1940,7 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
       var MON = ['January','February','March','April','May','June','July','August','September','October','November','December'], mons = [];
       nc.forEach(function (L) { var m = MON[Number(L.date.slice(0, 2)) - 1]; if (m && mons.indexOf(m) < 0) mons.push(m); });
       var mt = mons.join(' and ');
-      $('crewNote').innerHTML = '<strong>' + nc.length + ' leg' + (nc.length > 1 ? 's' : '') + (mt ? ' (' + esc(mt) + ')' : '') + (nc.length > 1 ? ' have' : ' has') + ' no crew list in this file:</strong> eCrew keeps crew only for the current month. Your name and P1/P2 are set from your seat. To fill in the other names, run <a href="../schedule/">Floggy-Go Schedule</a> for ' + (mt ? esc(mt) : 'that month') + ' and send it to LogTen; it updates these same flights.';
+      $('crewNote').innerHTML = '<strong>' + nc.length + ' leg' + (nc.length > 1 ? 's' : '') + (mt ? ' (' + esc(mt) + ')' : '') + (nc.length > 1 ? ' have' : ' has') + ' no crew list in this file:</strong> eCrew keeps crew only for the current month. ' + (nc.some(function (L) { return L.p1 || L.p2; }) ? 'Your name and P1/P2 are set from your seat on the legs that have a crew list.' : 'P1/P2 are left to the logbook: this file doesn\u2019t confirm your seat.') + ' To fill in the other names, run <a href="../schedule/">Floggy-Go Schedule</a> for ' + (mt ? esc(mt) : 'that month') + ' and send it to LogTen; it updates these same flights.';
       $('crewNote').hidden = false;
     } else $('crewNote').hidden = true;
     var shown = r.legs.filter(function (L) { return IM.o.sh === 'all' || L.warnings.length; });

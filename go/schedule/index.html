@@ -482,7 +482,7 @@ details.fx-fold { margin:0; }
   // el: container. o: { legs, url(partLegs), max, noun, disabledText, msg(el) }
   function send(el, o) {
     var max = o.max || 100, legs = o.legs, noun = o.noun || 'flight';
-    var plural = function (n) { return n + ' ' + noun + (n === 1 ? '' : 's'); };
+    var plural = function (n) { return n + ' ' + (n === 1 ? noun : /[^aeiou]y$/.test(noun) ? noun.slice(0, -1) + 'ies' : noun + 's'); };
     el.innerHTML = '';
     var msg = o.msgEl;
     if (o.disabledText || !legs.length) {
@@ -1169,7 +1169,7 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
     if (selfSeat === 'FO' && !selfDH) first = selfName;
     // doubled: another non-DH crew member listed in the pilot's own seat
     const doubled = !selfDH && ((selfSeat === 'CA' && CA.length > 0) || (selfSeat === 'FO' && FO.length > 0));
-    return { capt, first, fa1, fa2, selfSeat, selfDH, warn, doubled };
+    return { capt, first, fa1, fa2, selfSeat, selfDH, warn, doubled, FO };
   }
 
   const toMin = t => { const m = /^(\d{1,2}):(\d{2})$/.exec(t || ''); return m ? (+m[1]) * 60 + (+m[2]) : null; };
@@ -1323,7 +1323,12 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
         if (crew.doubled && !isDHLeg && ftype === '0') L0.warnings.push('Two ' + crew.selfSeat + 's listed for this duty: P1/P2 left to the logbook; check the ' + (crew.selfSeat === 'CA' ? 'PIC' : 'SIC') + ' name.');
         L0.pt121 = ftype === '0' || ftype === '1';
         L0.flt = flt; L0.ftype = ftype;
-        if (crew.warn.length && !isDHLeg && ftype === '0') L0.warnings.push('Crew list: ' + crew.warn.join('; ') + ' (seat left blank).');
+        // crew-list problems are noted once per day (dayCrewNotes below), not on every leg
+        if (!isDHLeg && ftype === '0') {
+          L0.crewWarn = crew.warn; L0.crewFO = crew.FO;
+          if (crew.selfSeat && !crew.selfDH) L0.selfSeat = crew.selfSeat;
+          if (!trim(r[8] || '')) L0.noCrew = true;
+        }
         dutyLegs.push(L0);
       }
       // duty times belong to the duty (row); placed on first/last checked leg later
@@ -1364,9 +1369,11 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
       const tm = /^(\d{2}):?(\d{2})/.exec(trim(t[1])); const tStart = tm ? tm[1] + ':' + tm[2] : '';
       const tDuty = trim(t[3]);
       const cm = /\(([A-Za-z])\)[^(]*$/.exec(tDuty); let code = cm ? cm[1] : '';
-      let role = '';
-      for (const mem of (t[5] || '').split('|')) if (mem.indexOf(h.name) >= 0) {
-        if (mem.indexOf('Instructor') >= 0) role = 'I'; if (mem.indexOf('Trainee') >= 0) role = 'T';
+      let role = '', trainee = '';
+      for (const mem of (t[5] || '').split('|')) {
+        if (mem.indexOf(h.name) >= 0) {
+          if (mem.indexOf('Instructor') >= 0) role = 'I'; if (mem.indexOf('Trainee') >= 0) role = 'T';
+        } else if (mem.indexOf('Trainee') >= 0) trainee = stripCrewSuffix(trim(mem.split(' -- ')[1] || ''));
       }
       if (role === 'I') code = code.toUpperCase(); if (role === 'T') code = code.toLowerCase();
       const fn = /^\d+$/.test(tDuty.split(/\s+/)[0]) ? tDuty.split(/\s+/)[0] : '';
@@ -1375,7 +1382,36 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
       let hits = tStart ? legs.filter(L => L.date === tDate && (L.atd === tStart || L.std === tStart) && (!fn || digits(L.flt) === fn)) : [];
       if (!hits.length && fn) hits = legs.filter(L => L.date === tDate && digits(L.flt) === fn);
       if (!hits.length) { notes.push('Training row not matched (no leg at ' + tDate + ' ' + tStart + '): ' + tDuty); continue; }
-      hits.forEach(L => { L.trg = code; });
+      hits.forEach(L => {
+        L.trg = code;
+        // two FOs on the day's crew list: the trainee on this leg is the FO (11/11/26)
+        if (role === 'I' && trainee && L.selfSeat === 'CA' && L.crewFO && L.crewFO.length > 1 && L.crewFO.includes(trainee)) { L.sic = trainee; L.foFromTrg = true; }
+      });
+    }
+
+    // crew notes, one per day (11/11/26): a day's crew list with too many names in a seat leaves that seat blank on
+    // every leg; say so once on the day's first flight. Days with no crew list (a trip past the report's month) get your
+    // name and P1/P2 from the seat this report's own crew lists show you in, never the header (it shows today's seat).
+    {
+      const seats = [...new Set(legs.filter(L => L.selfSeat).map(L => L.selfSeat))];
+      const seat = seats.length === 1 ? seats[0] : '';
+      const byDuty = {};
+      legs.forEach(L => { if (L.crewWarn) (byDuty[L.duty] = byDuty[L.duty] || []).push(L); });
+      for (const k in byDuty) {
+        const g = byDuty[k], first = g[0];
+        if (g.every(L => L.noCrew)) {
+          let tail;
+          if (seat === 'CA') { g.forEach(L => { L.pic = h.name; L.p1 = true; }); tail = 'P1 and your name are set from your seat on this report\'s other days (CA).'; }
+          else if (seat === 'FO') { g.forEach(L => { L.sic = h.name; L.p2 = true; }); tail = 'P2 and your name are set from your seat on this report\'s other days (FO).'; }
+          else tail = 'P1/P2 left to the logbook: this report doesn\'t confirm your seat.';
+          first.warnings.push('No crew list for this day (' + g.length + ' leg' + (g.length > 1 ? 's' : '') + '). ' + tail);
+          continue;
+        }
+        const foDone = g.every(L => L.foFromTrg);
+        const issues = first.crewWarn.filter(w => !(foDone && /^FO:/.test(w)));
+        if (issues.length) first.warnings.push('Crew list for this day: ' + issues.join('; ') + '. Those seats are left blank on all ' + g.length + ' leg' + (g.length > 1 ? 's' : '') + (g.some(L => L.foFromTrg) ? '; FO set from Training Details where the trainee is named' : '') + '.');
+        else if (foDone) first.warnings.push('Two FOs on this day\'s crew list: each leg\'s FO set from Training Details (the trainee).');
+      }
     }
 
     // BC times (11/11/26): after training codes are matched (eCrew's training rows carry the same

@@ -205,7 +205,7 @@
   // el: container. o: { legs, url(partLegs), max, noun, disabledText, msg(el) }
   function send(el, o) {
     var max = o.max || 100, legs = o.legs, noun = o.noun || 'flight';
-    var plural = function (n) { return n + ' ' + noun + (n === 1 ? '' : 's'); };
+    var plural = function (n) { return n + ' ' + (n === 1 ? noun : /[^aeiou]y$/.test(noun) ? noun.slice(0, -1) + 'ies' : noun + 's'); };
     el.innerHTML = '';
     var msg = o.msgEl;
     if (o.disabledText || !legs.length) {
