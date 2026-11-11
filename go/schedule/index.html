@@ -1190,6 +1190,26 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
     return raw;
   }
 
+  // eCrew shows BC stations (YVR YLW YYJ) at UTC-7 on every date, also before BC's permanent daylight
+  // time (from 11/01/2026), so on standard-time dates their local times are an hour late (found 11/11/26).
+  const BC = { YVR: 1, YLW: 1, YYJ: 1 };
+  const BC_PERM = Date.UTC(2026, 10, 1, 9);
+  let bcFmt = null;
+  function bcOffset(utc) {
+    if (utc >= BC_PERM) return -420;
+    bcFmt = bcFmt || new Intl.DateTimeFormat('en-US', { timeZone: 'America/Vancouver', hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+    const p = {}; bcFmt.formatToParts(new Date(utc)).forEach(x => { p[x.type] = x.value; });
+    return Math.round((Date.UTC(+p.year, +p.month - 1, +p.day, (+p.hour) % 24, +p.minute) - utc) / 60000);
+  }
+  // minutes to add to an eCrew BC station time (HH:MM on date MM/DD/YYYY): -60 on standard-time dates, else 0
+  function bcDelta(date, t) {
+    const dm = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(date || ''), tm = /^(\d{2}):(\d{2})/.exec(t || '');
+    if (!dm || !tm) return 0;
+    const utc = Date.UTC(+dm[3], +dm[1] - 1, +dm[2], +tm[1], +tm[2]) + 420 * 60000;
+    return bcOffset(utc) + 420;
+  }
+  function shiftTime(t, d) { const m = ((toMin(t) + d) % 1440 + 1440) % 1440; return pad(Math.floor(m / 60)) + ':' + pad(m % 60); }
+
   function readHeader(text) {
     const lines = text.replace(/\r\n?/g, '\n').split('\n');
     const h = { ok: false, errors: [] };
@@ -1205,6 +1225,14 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
     const bp = words[hi].split('-'); h.base = bp[0]; h.seat = bp[1] || ''; h.equip = bp[2] || '';
     const g = text.match(/Generated on\s+([A-Za-z]{3})[A-Za-z]*\.?\s+(\d{1,2}),?\s+(\d{4})\s+(\d{1,2}):(\d{2})/);
     h.generated = g ? g[1] + ' ' + g[2] + ', ' + g[3] + ' ' + g[4] + ':' + g[5] : null;
+    // eCrew time setting (11/11/26): only Local Station is accepted; UTC and Local Base stop here
+    const vm = (lines[1] || '').match(/All times in ([A-Za-z ]+?)\s*\)/);
+    h.view = vm ? vm[1] : '';
+    if (h.view && h.view !== 'Local Station') {
+      h.viewStop = true;
+      h.errors.push('This schedule was saved in ' + h.view + ' time. Floggy-Go needs Local Station times. In eCrew, switch the time setting to Local Station, export the schedule again, and open the new file.');
+      return h;
+    }
     h.ok = true;
     return h;
   }
@@ -1352,6 +1380,28 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
       hits.forEach(L => { L.trg = code; });
     }
 
+    // BC times (11/11/26): after training codes are matched (eCrew's training rows carry the same
+    // shifted times), correct BC station times that eCrew shows an hour late
+    let bcFixed = 0;
+    const fix = (L, f, date) => { if (!L[f]) return; const d = bcDelta(date, L[f]); if (!d) return; if ((f === 'std' || f === 'atd') && toMin(L[f]) + d < 0) L.warnings.push('BC time corrected across midnight: check the date.'); L[f] = shiftTime(L[f], d); bcFixed++; };
+    for (const L of legs) {
+      if (BC[L.dep]) { fix(L, 'std', L.date); fix(L, 'atd', L.date); }
+      if (BC[L.arv]) { fix(L, 'sta', L.date); fix(L, 'ata', L.date); }
+      if (BC[L.dep] || BC[L.arv]) L.bcFixed = true;
+    }
+    const duties = {};
+    legs.forEach(L => (duties[L.duty] = duties[L.duty] || []).push(L));
+    for (const k in duties) {
+      const g = duties[k], first = g[0], last = g[g.length - 1];
+      const dR = BC[first.dep] && first.report ? bcDelta(first.date, first.report) : 0;
+      const dD = BC[last.arv] && last.debrief ? bcDelta(last.date, last.debrief) : 0;
+      if (dR) { const v = shiftTime(first.report, dR); g.forEach(x => { x.report = v; }); bcFixed++; }
+      if (dD) { const v = shiftTime(last.debrief, dD); g.forEach(x => { x.debrief = v; }); bcFixed++; }
+    }
+    legs.forEach(L => { if (!L.bcFixed) delete L.bcFixed; });
+    const info = [];
+    if (bcFixed) info.push(bcFixed + ' BC station time' + (bcFixed > 1 ? 's' : '') + ' corrected: eCrew shows YVR, YLW and YYJ an hour late on standard-time dates before November 2026.');
+
     // A/B/C/D suffix: sort date desc, STD desc, ATD desc; letter adjacent runs
     const dn = L => { const [m, d, y] = L.date.split('/').map(Number); return y * 10000 + m * 100 + d; };
     const order = legs.slice();
@@ -1389,7 +1439,7 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
         if (arr != null && dep != null && arr < dep) { prevDep = arr; dayOff++; }
       }
     }
-    return { header: h, legs, notes };
+    return { header: h, legs, notes, info };
   }
 
   // Duty times: report on the first CHECKED leg of each duty, debrief on the last.
@@ -1481,14 +1531,29 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
     $('fname').textContent = st.name;
     if (!h.ok) {
       $('baseNote').className = 'banner error';
-      $('baseText').innerHTML = '<strong>Can’t read this file.</strong> ' + esc((r.notes || []).join(' ')) + ' In eCrew, run the Personal Crew Schedule Report and save it as CSV.';
-      $('strip').innerHTML = ''; $('legs').innerHTML = ''; $('pkg').textContent = '';
+      $('baseText').innerHTML = h.viewStop ? '<strong>Wrong time setting.</strong> ' + esc((r.notes || []).join(' '))
+        : '<strong>Can’t read this file.</strong> ' + esc((r.notes || []).join(' ')) + ' In eCrew, run the Personal Crew Schedule Report and save it as CSV.';
+      $('strip').innerHTML = ''; $('legs').innerHTML = ''; $('pkg').textContent = ''; $('notesBox').hidden = true;
       FGO.send($('sendBox'), { legs: [], disabledText: 'Nothing to send' });
+      return;
+    }
+    // no "All times in ..." line (11/11/26): Stop by default, Continue reads it as Local Station
+    if (!h.view && !st.viewOK) {
+      $('baseNote').className = 'banner error';
+      $('baseText').innerHTML = '<strong>Time setting not found.</strong> Floggy-Go can’t tell which time setting this schedule was saved with. Export it again from eCrew in Safari with the time setting on Local Station, and open that file without editing it.'
+        + '<br><button type="button" class="btn" id="viewStop">Stop</button> <button type="button" class="btn ghost" id="viewGo">Continue as Local Station</button>';
+      $('strip').innerHTML = ''; $('legs').innerHTML = ''; $('pkg').textContent = ''; $('notesBox').hidden = true;
+      FGO.send($('sendBox'), { legs: [], disabledText: 'Nothing to send' });
+      $('viewGo').onclick = () => { st.viewOK = true; render(); };
+      $('viewStop').onclick = () => { st.text = SAMPLE; st.name = ''; st.example = true; run(false); };
       return;
     }
     $('baseNote').className = 'banner';
     const per = h.period ? h.period.start + ' – ' + h.period.end : 'period not found';
-    $('baseText').innerHTML = 'Schedule for <strong>' + esc(per) + '</strong>. Times are station local, as eCrew shows them, and LogTen places each one in its airport’s time zone. Days off and excluded duties (vacation, sick and similar) are left out.';
+    $('baseText').innerHTML = 'Schedule for <strong>' + esc(per) + '</strong>. Times are station local, as eCrew shows them, and LogTen places each one in its airport’s time zone. Days off and excluded duties (vacation, sick and similar) are left out.'
+      + (!h.view ? ' <strong>Time setting not confirmed:</strong> read as Local Station.' : '')
+      + ((r.info || []).length ? ' ' + esc(r.info.join(' ')) : '');
+    if (!h.view) $('baseNote').className = 'banner error';
     const legs = r.legs;
     S.placeDuty(legs, i => !st.off.has(i));
     const n = f => legs.filter(f).length;
@@ -1564,7 +1629,7 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
   $('file').addEventListener('change', e => {
     const f = e.target.files[0]; if (!f) return;
     const rd = new FileReader();
-    rd.onload = () => { st.text = String(rd.result); st.name = f.name; st.example = false; run(false); };
+    rd.onload = () => { st.text = String(rd.result); st.name = f.name; st.example = false; st.viewOK = false; run(false); };
     rd.readAsText(f, 'windows-1252');
   });
   $('copy').addEventListener('click', () => {
