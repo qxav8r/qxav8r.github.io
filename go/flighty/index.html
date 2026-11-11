@@ -216,8 +216,8 @@ details.fx-fold { margin:0; }
       <h2>Send to LogTen</h2>
       <label class="opt"><input type="checkbox" id="sched"> Include scheduled times (STD/STA)</label>
       <p class="opt-note">Leave STD/STA off: eCrew has your IBT contract times, and Flighty shows the airline's public ORA times. <a href="../help/#flifo">Why?</a></p>
-      <label class="opt"><input type="checkbox" id="dh"> Include other airlines' flights, as deadheads</label>
-      <p class="opt-note">United, Delta, SkyWest and other non-Horizon, non-Alaska flights go to LogTen as deadheads.</p>
+      <label class="opt"><input type="checkbox" id="dh"> Include other airlines' and Alaska mainline flights, as deadheads</label>
+      <p class="opt-note">United, Delta, SkyWest and other airlines, plus Alaska flights outside 2000–2999 (Alaska mainline), go to LogTen as deadheads. Horizon flights and Alaska 2000–2999 are always sent as your own flights.</p>
       <details class="fl-opts" id="opts" style="margin-top:10px"><summary>Options <span class="fl-os" id="optSum"></span></summary>
       <div class="bar">
         <div class="grp"><span class="lbl">Flight number</span><div class="seg" data-k="px"><button data-v="" aria-pressed="true">No code</button><button data-v="QX">QX</button><button data-v="AS">AS</button></div></div>
@@ -901,7 +901,6 @@ details.fx-fold { margin:0; }
 (function (root) {
   'use strict';
   var HEAD = 'Date,Airline,Flight,From,To,Dep Terminal,Dep Gate,Arr Terminal';
-  var HOME = { QXE: 1, ASA: 1 };                        // Horizon, Alaska (ICAO codes in the export)
 
   function parseCSV(text) {
     var rows = [], row = [], f = '', q = false;
@@ -954,7 +953,8 @@ details.fx-fold { margin:0; }
         sta: hm(sa), staDate: mdy(sa), ata: hm(aa), ataDate: mdy(aa),
         tail: r['Tail Number'], acName: r['Aircraft Type Name'], reason: r['Flight Reason'], warnings: [], remarks: '' };
       L.typeCode = typeCode(L.acName); L.type = typeMode === 'none' ? '' : typeMode === 'raw' ? L.typeCode : ({ E75: 'E170', DH4: 'DH8D' }[L.typeCode] || L.typeCode);
-      L.home = !!HOME[L.airline];
+      // own flights (as Floggy's Parse Flighty): Horizon, plus Alaska 2000-2999 (Horizon flying); other Alaska = deadhead
+      L.home = L.airline === 'QXE' || (L.airline === 'ASA' && +L.flt >= 2000 && +L.flt <= 2999);
       if (r['Diverted To']) { L.remarks = 'Diverted'; L.warnings.push('Diverted to ' + r['Diverted To'] + ': check the arrival airport and times.'); }
       if (L.atd && !L.ata) L.warnings.push('No actual In time in Flighty.');
       L.ftype = L.home ? '0' : '1';
@@ -982,7 +982,7 @@ details.fx-fold { margin:0; }
     }
     legs.forEach(function (L) {
       L.fltOut = L.flt + L.suffix;
-      // flight number code: QX/AS as chosen on Horizon/Alaska flights; other airlines get their own code
+      // flight number code: QX/AS as chosen on own flights (Horizon, Alaska 2000-2999); other airlines get their own code
       L.fltSend = !prefix ? L.fltOut : L.home ? prefix + L.fltOut : (IATA[L.airline] || L.airline) + L.fltOut;
       L.key = L.date.replace(/\//g, '') + L.fltOut + L.dep + L.arv;
       if (L.suffix) L.warnings.push('Same date, flight and route as another leg: sent as ' + L.fltOut + '.');
@@ -1000,7 +1000,7 @@ details.fx-fold { margin:0; }
     put('flight_selectedAircraftType', L.type);
     put('flight_remarks', L.remarks);
     put('flight_key', L.key);
-    if (L.ftype === '1') put('flight_type', '00000001');   // Horizon/Alaska legs leave LogTen's type alone (eCrew may have them as deadheads)
+    if (L.ftype === '1') put('flight_type', '00000001');   // own flights leave LogTen's type alone (eCrew may have them as deadheads)
     return e;
   }
   function buildPackage(legs, o) {
@@ -1055,9 +1055,9 @@ details.fx-fold { margin:0; }
     });
   }
   var LIMITS = {
-    foreflight: 'No crew names or P1/P2 (PIC and SIC time left blank), no duty times. Horizon and Alaska flights count as flown flights even if eCrew had them as deadheads. Scheduled times are the airline’s public times.',
-    logbookpro: 'No crew names or P1/P2 (PIC and SIC time left blank), no duty times. Horizon and Alaska flights count as flown flights even if eCrew had them as deadheads.',
-    myflightbook: 'No crew names or P1/P2 (PIC and SIC time left blank), no duty times. Horizon and Alaska flights count as flown flights even if eCrew had them as deadheads. Scheduled times are the airline’s public times.',
+    foreflight: 'No crew names or P1/P2 (PIC and SIC time left blank), no duty times. Horizon flights and Alaska 2000–2999 count as flown flights even if eCrew had them as deadheads. Scheduled times are the airline’s public times.',
+    logbookpro: 'No crew names or P1/P2 (PIC and SIC time left blank), no duty times. Horizon flights and Alaska 2000–2999 count as flown flights even if eCrew had them as deadheads.',
+    myflightbook: 'No crew names or P1/P2 (PIC and SIC time left blank), no duty times. Horizon flights and Alaska 2000–2999 count as flown flights even if eCrew had them as deadheads. Scheduled times are the airline’s public times.',
     sheet: 'No crew names, P1/P2 or duty times. Scheduled times are the airline’s public times, not IBT times.'
   };
   Array.prototype.forEach.call(document.querySelectorAll('.seg[data-k]'), function (seg) {
