@@ -1392,6 +1392,36 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
 
   function mapType(raw, mode) { if (mode === 'none') return ''; if (mode === 'raw') return raw; if (raw === 'E75') return 'E170'; if (raw === 'DH4') return 'DH8D'; return raw; }
 
+  // eCrew's LStationTimes show BC stations (YVR YLW YYJ) at UTC-7 on every date, also before BC's permanent
+  // daylight time (from 11/01/2026), so on standard-time dates they're an hour late (found 11/11/26). At BC
+  // stations the times are rebuilt from UtcTimes, which are right; every other station keeps eCrew's times.
+  var BC = { YVR: 1, YLW: 1, YYJ: 1 }, BC_PERM = Date.UTC(2026, 10, 1, 9), EP = Date.UTC(1980, 0, 1), bcFmt = null;
+  function bcOffset(utc) {
+    if (utc >= BC_PERM) return -420;
+    bcFmt = bcFmt || new Intl.DateTimeFormat('en-US', { timeZone: 'America/Vancouver', hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+    var p = {}; bcFmt.formatToParts(new Date(utc)).forEach(function (x) { p[x.type] = x.value; });
+    return Math.round((Date.UTC(+p.year, +p.month - 1, +p.day, (+p.hour) % 24, +p.minute) - utc) / 60000);
+  }
+  // AIMS minutes since 1980 (UTC) -> BC local { date: MM/DD/YYYY, time: HH:MM }
+  function bcLocal(mins) {
+    var u = EP + mins * 60000, d = new Date(u + bcOffset(u) * 60000);
+    return { date: pad2(d.getUTCMonth() + 1) + '/' + pad2(d.getUTCDate()) + '/' + d.getUTCFullYear(), time: pad2(d.getUTCHours()) + ':' + pad2(d.getUTCMinutes()) };
+  }
+  function bcFix(L, U) {
+    var n = 0, set = function (f, df, mins) { var v = bcLocal(mins); if (L[f] !== v.time || (df && L[df] !== v.date)) n++; L[f] = v.time; if (df) L[df] = v.date; };
+    if (BC[L.dep]) {
+      if (L.std && num(U.aDepDay) > 0) { set('std', 'depDate', num(U.aDepDay) * 1440 + num(U.aStd)); L.date = L.depDate; }
+      if (L.atd && num(U.aFormat2_DepDay) > 0) set('atd', 'actDepDate', num(U.aFormat2_DepDay) * 1440 + num(U.aFormat2_Atd));
+      if (L.dutyS && num(U.aDutybeg) > 0) set('dutyS', 'dutySDate', num(U.aDutybeg));
+    }
+    if (BC[L.arv]) {
+      if (L.sta && num(U.aArrDay) > 0) set('sta', 'arrDate', num(U.aArrDay) * 1440 + num(U.aSta));
+      if (L.ata && num(U.aActArrDay) > 0) set('ata', 'actArrDate', num(U.aActArrDay) * 1440 + num(U.aFormat2_Ata));
+      if (L.dutyE && num(U.aDutyend) > 0) set('dutyE', 'dutyEDate', num(U.aDutyend));
+    }
+    return n;
+  }
+
   function parse(text, opts) {
     opts = opts || {};
     var dc = opts.dutyCodes || {};
@@ -1402,7 +1432,7 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
     // no crew list at all (home-page pairing view): one top-line warning instead of one per leg (as Floggy, 11/8/26)
     var noList = !Object.keys(tree).length;
     var routeM = text.match(/"RouteName":"([^"]*)"/), route = routeM ? word1(routeM[1]) : '';
-    var legs = [];
+    var legs = [], bcFixed = 0;
     sectors.forEach(function (it) {
       if (JSON.stringify(it).indexOf('Duty Period Totals') >= 0) return;
       var flt = word1(it.Flight);
@@ -1427,6 +1457,9 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
       L.uDutyE = num(U.aDutyend) > 0 ? EP + num(U.aDutyend) * 60000 : 0;
       L.dutyS = hhmm(S.Dutybeg); L.dutySDate = aimsmins(S.aDutybeg);
       L.dutyE = hhmm(S.Dutyend); L.dutyEDate = aimsmins(S.aDutyend);
+      // eCrew's own station times, kept for training-code matching (the training rows carry the same times)
+      L.ecStd = L.std; L.ecAtd = L.atd;
+      if (BC[L.dep] || BC[L.arv]) bcFixed += bcFix(L, U);
       if (L.actDepDate !== L.depDate && L.atd) L.warnings.push('Departed ' + L.actDepDate + ', a different day than scheduled (delay or IRROPS).');
       // flight type (Floggy-Go Schedule rules)
       L.ftype = '0'; L.dh = !!L.dhd; L.remarks = '';
@@ -1452,7 +1485,7 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
     finish(dash.legs, opts.prefix);
     var rest = mergeDash(legs, dash.legs);
     var notes = dash.notes.concat(applyTraining(legs.concat(rest), trainingEvents(text, me.id)));
-    return { ok: true, me: me, route: route, legs: legs.concat(rest), pairN: legs.length, dashN: rest.length, dashNotes: notes, crewLegs: Object.keys(tree).length, noCrewList: noList };
+    return { ok: true, me: me, route: route, legs: legs.concat(rest), pairN: legs.length, dashN: rest.length, dashNotes: notes, crewLegs: Object.keys(tree).length, noCrewList: noList, bcFixed: bcFixed };
   }
 
   // crew from the crew list (or the DutyDetails frame) onto a flight leg (Floggy-Go Schedule's parseCrewBlock rules)
@@ -1661,7 +1694,7 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
     var notes = [];
     events.forEach(function (t) {
       if (!t.code || !t.date) { notes.push('Training row not read: ' + t.duty); return; }
-      var hits = legs.filter(function (L) { return L.date === t.date && (L.std === t.start || L.atd === t.start) && (!t.fn || fltDigits(L.flt) === t.fn); });
+      var hits = legs.filter(function (L) { return L.date === t.date && (L.std === t.start || L.atd === t.start || (L.ecStd && L.ecStd === t.start) || (L.ecAtd && L.ecAtd === t.start)) && (!t.fn || fltDigits(L.flt) === t.fn); });
       if (!hits.length && t.fn) hits = legs.filter(function (L) { return L.date === t.date && fltDigits(L.flt) === t.fn; });
       if (!hits.length) { notes.push('Training ' + t.date + ' ' + t.start + ' (' + t.duty + ') matched no leg.'); return; }
       hits.forEach(function (L) { L.trg = t.code; });
@@ -1851,7 +1884,8 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
     $('imp').hidden = $('impSend').hidden = false;
     var pl = r.legs.filter(function (L) { return L.src !== 'dash'; }), withCrew = pl.filter(function (L) { return L.crewSrc; }).length;
     $('impInfo').textContent = (r.me.name ? r.me.name + ' · ' + r.me.id + ' · ' : '') + 'Pairing ' + r.route + ': ' + pl.length + ' legs, crew found for ' + withCrew + '.' +
-      (r.dashN ? ' Dashboard: ' + r.dashN + ' more legs this month, below.' : '');
+      (r.dashN ? ' Dashboard: ' + r.dashN + ' more legs this month, below.' : '') +
+      (r.bcFixed ? ' ' + r.bcFixed + ' BC station time' + (r.bcFixed > 1 ? 's' : '') + ' corrected: eCrew shows YVR, YLW and YYJ an hour late on standard-time dates before November 2026.' : '');
     $('crewWarn').hidden = !r.noCrewList;
     var shown = r.legs.filter(function (L) { return IM.o.sh === 'all' || L.warnings.length; });
     var items = shown.map(function (L) {
