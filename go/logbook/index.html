@@ -1158,8 +1158,8 @@ details.fx-fold { margin:0; }
       if (L.actual) { put('flight_actualDepartureTime', L.utcOut); put('flight_actualArrivalTime', L.utcIn); }
       else {
         put('flight_scheduledDepartureTime', L.utcOut); put('flight_scheduledArrivalTime', L.utcIn);
-        // cleanfltdata backfills a deadhead's or sim's actual times from scheduled
-        if (L.ftype === 1 || L.ftype === 3) { put('flight_actualDepartureTime', L.utcOut); put('flight_actualArrivalTime', L.utcIn); }
+        // sims get their scheduled times as actuals; deadheads behave as live flights (actuals only once flown, 11/10/26)
+        if (L.ftype === 3) { put('flight_actualDepartureTime', L.utcOut); put('flight_actualArrivalTime', L.utcIn); }
       }
     }
     put('flight_selectedAircraftType', L.type);
