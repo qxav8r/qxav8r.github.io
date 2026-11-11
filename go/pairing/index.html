@@ -210,7 +210,7 @@ details.fx-fold { margin:0; }
       <label class="btn" for="file">Choose pairing file</label>
       <input id="file" type="file" accept=".webarchive,.html,.htm,.flog,application/x-webarchive,text/html">
     </div>
-    <p class="msg" id="msg">In eCrew, open the pairing's <strong>Pairing Details</strong>, then <strong>Share → Options → Web Archive → Save to Files</strong>. Pick that file here (or drop it on the page on a Mac) to see the trip rig and send the legs to LogTen. It stays on your device.</p>
+    <p class="msg" id="msg">In eCrew, open <strong>My Schedule → Pairing Details</strong> for the pairing (the home-page pairing view has no crew list), then <strong>Share → Options → Web Archive → Save to Files</strong>. Pick that file here (or drop it on the page on a Mac) to see the trip rig and send the legs to LogTen. It stays on your device.</p>
   </section>
 
   <div id="out" hidden>
@@ -223,6 +223,7 @@ details.fx-fold { margin:0; }
 
     <details class="pg-fold" id="imp" data-fold><summary><span class="pg-t">Pairing legs</span> <span class="fl-os" id="legSum"></span></summary><div class="pg-b">
       <p class="sub" id="impInfo"></p>
+      <div id="crewWarn" class="warn" hidden><strong>No crew list in this file.</strong> In eCrew, save <strong>My Schedule → Pairing Details</strong>; the pairing view on the eCrew home page doesn’t include the crew. The legs below go to LogTen without crew names.</div>
         <details class="fl-opts" id="opts"><summary>Options <span class="fl-os" id="optSum"></span></summary>
         <div class="bar">
           <div class="grp"><span class="lbl">Flight number</span><div class="seg" data-k="px"><button data-v="" aria-pressed="true">No code</button><button data-v="QX">QX</button><button data-v="AS">AS</button></div></div>
@@ -1384,6 +1385,8 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
     var sectors = jsonAt(text, i + 10); if (!sectors) return { ok: false, error: 'Could not read the pairing data.' };
     var me = identity(text) || { name: '', id: '', base: '' };
     var tree = crewTree(text), dd = dutyDetailsCrew(text);
+    // no crew list at all (home-page pairing view): one top-line warning instead of one per leg (as Floggy, 11/8/26)
+    var noList = !Object.keys(tree).length;
     var routeM = text.match(/"RouteName":"([^"]*)"/), route = routeM ? word1(routeM[1]) : '';
     var legs = [];
     sectors.forEach(function (it) {
@@ -1423,7 +1426,7 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
       if (L.dh) { L.ftype = '1'; L.remarks = 'Dead Head'; }
       L.type = mapType(L.ac, opts.typeMode || 'none');
       // crew
-      addCrew(L, tree, dd, me, 'No crew in this file for this leg: eCrew only keeps crew lists for the current schedule period (this month). Crew can come from Floggy-Go Schedule.');
+      addCrew(L, tree, dd, me, noList ? '' : 'No crew in this file for this leg: eCrew only keeps crew lists for the current schedule period (this month). Crew can come from Floggy-Go Schedule.');
       L.nonFlying = L.ftype !== '0';
       L.src = 'pairing';
       legs.push(L);
@@ -1431,11 +1434,11 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
     turnCrew(legs);
     finish(legs, opts.prefix);
     // the rest of the month from the Dashboard (aux data: the pairing wins), then training codes on both
-    var dash = dashboard(text, opts, dc, tree, me);
+    var dash = dashboard(text, opts, dc, tree, me, noList);
     finish(dash.legs, opts.prefix);
     var rest = mergeDash(legs, dash.legs);
     var notes = dash.notes.concat(applyTraining(legs.concat(rest), trainingEvents(text, me.id)));
-    return { ok: true, me: me, route: route, legs: legs.concat(rest), pairN: legs.length, dashN: rest.length, dashNotes: notes, crewLegs: Object.keys(tree).length };
+    return { ok: true, me: me, route: route, legs: legs.concat(rest), pairN: legs.length, dashN: rest.length, dashNotes: notes, crewLegs: Object.keys(tree).length, noCrewList: noList };
   }
 
   // crew from the crew list (or the DutyDetails frame) onto a flight leg (Floggy-Go Schedule's parseCrewBlock rules)
@@ -1455,7 +1458,7 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
       if (r.doubled) L.warnings.push('Two ' + r.selfSeat + 's listed: P1/P2 left to the logbook; check the ' + (r.selfSeat === 'CA' ? 'PIC' : 'SIC') + ' name.');
       if (r.warn.length) L.warnings.push('Crew list: ' + r.warn.join('; ') + ' (seat left blank).');
       if (r.selfDH) { L.ftype = '1'; L.remarks = 'Dead Head'; L.pic = L.sic = L.fa1 = L.fa2 = ''; L.p1 = L.p2 = false; }
-    } else L.warnings.push(noCrewMsg);
+    } else if (noCrewMsg) L.warnings.push(noCrewMsg);
   }
 
   // Floggy's addCrewToFlts / flipcrew: eCrew's crew list has one entry per flight number per day, so the return leg
@@ -1529,7 +1532,7 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
     return out;
   }
   function utcOf(d, t, stn) { return (t && d && typeof FGOCSV !== 'undefined') ? (FGOCSV.utc({ date: d, time: t, stn: stn }, false) || 0) : 0; }
-  function dashboard(text, opts, dc, tree, me) {
+  function dashboard(text, opts, dc, tree, me, noList) {
     var legs = [], notes = [];
     dashEvents(text).forEach(function (ev) {
       var type = String(ev.type || '').toLowerCase();
@@ -1589,7 +1592,7 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
       duty.forEach(function (L) {
         L.dutyS = L.dutyS || ''; L.dutySDate = L.dutySDate || ''; L.dutyE = L.dutyE || ''; L.dutyEDate = L.dutyEDate || '';
         L.type = mapType(L.ac, opts.typeMode || 'none');
-        addCrew(L, tree, null, me, 'No crew for this leg in the file.');
+        addCrew(L, tree, null, me, noList ? '' : 'No crew for this leg in the file.');
         L.nonFlying = L.ftype !== '0';
         L.uStd = utcOf(L.depDate, L.std, L.dep); L.uSta = utcOf(L.arrDate, L.sta, L.arv);
         L.uDutyS = utcOf(L.dutySDate, L.dutyS, L.dep); L.uDutyE = utcOf(L.dutyEDate, L.dutyE, L.arv);
@@ -1835,6 +1838,7 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
     var pl = r.legs.filter(function (L) { return L.src !== 'dash'; }), withCrew = pl.filter(function (L) { return L.crewSrc; }).length;
     $('impInfo').textContent = (r.me.name ? r.me.name + ' · ' + r.me.id + ' · ' : '') + 'Pairing ' + r.route + ': ' + pl.length + ' legs, crew found for ' + withCrew + '.' +
       (r.dashN ? ' Dashboard: ' + r.dashN + ' more legs this month, below.' : '');
+    $('crewWarn').hidden = !r.noCrewList;
     var shown = r.legs.filter(function (L) { return IM.o.sh === 'all' || L.warnings.length; });
     var items = shown.map(function (L) {
       var i = r.legs.indexOf(L);
