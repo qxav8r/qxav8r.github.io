@@ -225,6 +225,7 @@ details.fx-fold { margin:0; }
 
     <details class="pg-fold" id="imp" data-fold><summary><span class="pg-t">Pairing legs</span> <span class="fl-os" id="legSum"></span></summary><div class="pg-b">
       <p class="sub" id="impInfo"></p>
+      <div id="crewNote" class="warn" hidden></div>
       <div id="crewWarn" class="warn" hidden><strong>No crew list in this file.</strong> In eCrew, save <strong>My Schedule → Pairing Details</strong>; the pairing view on the eCrew home page doesn’t include the crew. The legs below go to LogTen without crew names.</div>
         <details class="fl-opts" id="opts"><summary>Options <span class="fl-os" id="optSum"></span></summary>
         <div class="bar">
@@ -1495,7 +1496,7 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
       if (L.dh) { L.ftype = '1'; L.remarks = 'Dead Head'; }
       L.type = mapType(L.ac, opts.typeMode || 'none');
       // crew
-      addCrew(L, tree, dd, me, noList ? '' : 'No crew in this file for this leg: eCrew only keeps crew lists for the current schedule period (this month). Crew can come from Floggy-Go Schedule.');
+      addCrew(L, tree, dd, me, noList ? '' : 'No crew list for this leg.');
       L.nonFlying = L.ftype !== '0';
       L.src = 'pairing';
       legs.push(L);
@@ -1916,6 +1917,15 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
       (r.dashN ? ' Dashboard: ' + r.dashN + ' more legs this month, below.' : '') +
       (r.bcFixed ? ' ' + r.bcFixed + ' BC station time' + (r.bcFixed > 1 ? 's' : '') + ' corrected: eCrew shows YVR, YLW and YYJ an hour late on standard-time dates before November 2026.' : '');
     $('crewWarn').hidden = !r.noCrewList;
+    // one note for all the legs with no crew list (eCrew keeps crew only for the current month)
+    var nc = pl.filter(function (L) { return L.warnings.some(function (w) { return /^No crew list/.test(w); }); });
+    if (nc.length && !r.noCrewList) {
+      var MON = ['January','February','March','April','May','June','July','August','September','October','November','December'], mons = [];
+      nc.forEach(function (L) { var m = MON[Number(L.date.slice(0, 2)) - 1]; if (m && mons.indexOf(m) < 0) mons.push(m); });
+      var mt = mons.join(' and ');
+      $('crewNote').innerHTML = '<strong>' + nc.length + ' leg' + (nc.length > 1 ? 's' : '') + (mt ? ' (' + esc(mt) + ')' : '') + (nc.length > 1 ? ' have' : ' has') + ' no crew list in this file:</strong> eCrew keeps crew only for the current month. Your name and P1/P2 are set from your seat. To fill in the other names, run <a href="../schedule/">Floggy-Go Schedule</a> for ' + (mt ? esc(mt) : 'that month') + ' and send it to LogTen; it updates these same flights.';
+      $('crewNote').hidden = false;
+    } else $('crewNote').hidden = true;
     var shown = r.legs.filter(function (L) { return IM.o.sh === 'all' || L.warnings.length; });
     var items = shown.map(function (L) {
       var i = r.legs.indexOf(L);
