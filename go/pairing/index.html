@@ -1023,7 +1023,7 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
     m = round(num(m)); var hh = Math.trunc(m / 60), mm = m - hh * 60;
     return pad2(hh) + ':' + pad2(mm);
   }
-  function hourstomins(hm) { hm = String(hm); return 60 * num(hm.slice(0, 2)) + num(hm.slice(3, 5)); }
+  function hourstomins(hm) { var p = String(hm).split(':'); return 60 * num(p[0]) + num(p[1]); }   // 11/12/26: 100+ hours (5-day reserve trips)
 
   function getblocktime(s, e) {
     s = String(s); e = String(e);
