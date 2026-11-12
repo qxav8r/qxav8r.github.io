@@ -263,7 +263,7 @@ details.fx-fold { margin:0; }
         <details><summary>How trip pay works</summary>
           <p class="sub">From the IBT contract, credit hours (CBA 5.C.2.a). Plain-language summary; the contract governs.</p>
           <ul>
-            <li><strong>Each calendar day</strong> (00:00–23:59 LBase) earns the greater of the block flown in that day, including deadheads, or the <strong>4:12</strong> Minimum Daily Guarantee.</li>
+            <li><strong>Each calendar day</strong> (00:00–23:59 LBase) earns the greater of the block flown in that day, including deadheads, or the <strong>4:12</strong> Minimum Daily Guarantee. That includes a day with no block, such as a release after midnight.</li>
             <li><strong>The trip</strong> pays the greatest of: all its calendar days added up (<strong>MDCR</strong>), <strong>25% of TAFB</strong>, or <strong>50% of duty</strong>. That winner is <em>Trip Pay</em>.</li>
             <li><strong>CBLK</strong> (total block) is shown for reference. It is not one of the contract's three methods and cannot beat MDCR.</li>
             <li><strong>The 4:12 daily minimum does not apply</strong> to functional flights, training, company business, or trips split by the pilot (trades or drops). On those, this result can run high.</li>
@@ -278,10 +278,10 @@ details.fx-fold { margin:0; }
           <details><summary>Definitions</summary>
             <p><strong>LBase:</strong> the pilot's base time zone. Block, TAFB, Duty and MDCR are all worked in LBase.</p>
             <p><strong>Calendar day:</strong> 00:00 to 23:59 in LBase.</p>
-            <p><strong>CBLK:</strong> sum of every flight's MBK. <strong>Duty:</strong> sum of all duty periods × 0.50. <strong>TAFB:</strong> first duty start to last duty end × 0.25. <strong>MDCR:</strong> sum of each calendar day's block, at least 4:12 a day.</p>
-            <p><strong>Trip Pay:</strong> the highest of the four rigs.</p>
+            <p><strong>CBLK:</strong> sum of every flight's MBK. <strong>Duty:</strong> sum of all duty periods × 0.50. <strong>TAFB:</strong> first duty start to last duty end × 0.25, to the nearest minute (an exact half rounds down). <strong>MDCR:</strong> sum of each calendar day's block, at least 4:12 a day.</p>
+            <p><strong>Trip Pay:</strong> the highest rig. CBLK is listed but can never win.</p>
             <p><strong>REG bucket:</strong> the daily credit RainMaker should show. TAFB trips are averaged across the trip's days, with any rounding remainder on the last day.</p>
-            <p><strong>Flights crossing midnight:</strong> each calendar day compares the scheduled block that falls in that day with the actual block that falls in that day, and takes the larger. A leg delayed past midnight can therefore count a little more across the two days than its own MBK.</p>
+            <p><strong>Flights crossing midnight:</strong> split at LBase midnight. The earlier day counts through 23:59 and the extra minute goes to the later day, so a 23:30–00:15 leg is 0:29 + 0:16. Each day takes the larger of the scheduled and actual block in it, so a leg delayed past midnight can count a little more than its MBK.</p>
             <p><strong>Legs flown on a different day than scheduled</strong> (delay or IRROPS): the scheduled block stays on the scheduled day and the actual block goes on the day it was flown; each day still gets at least 4:12.</p>
             <p><strong>TAFB</strong> runs from the first duty's report to the last duty's release, using eCrew's own duty dates, so a release after midnight is handled.</p>
             <p><strong>! / ?</strong> on a flight number: the leg was split or moved because it crosses LBase midnight. <strong>----</strong>: no scheduled or actual time on that piece.</p>
@@ -1165,6 +1165,7 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
   }
 
   // ---------- TAFB (0.25) ----------
+  function tafbRig(m) { return Math.floor((m + 1) / 4); }   // .25 down, .5 down, .75 up (matches Jeppesen)
   function tafb(rows) {
     // TAFB fix (10/31/26): trip start/end use the duty's OWN dates (SDUTYDATE item 15 /
     // EDUTYDATE item 16, from eCrew's aDutybeg/aDutyend) instead of the flight's date.
@@ -1181,10 +1182,12 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
       e = dayNum(last[0]) * 1440 + eh * 60 + num(last[12].slice(2, 4));
     }
     var mm = e - s;
-    var days = getTripDays(rows), n = days.length, per = Math.trunc((mm / n) / 4);
+    // TAFB rig rounding = Jeppesen (11/12/26): nearest minute, an exact half minute rounds DOWN
+    var credit = tafbRig(mm);
+    var days = getTripDays(rows), n = days.length, per = Math.trunc(credit / n);
     var bucket = days.map(function (d) { return [d, per]; });
-    if (mm > per * 4) bucket[n - 1][1] = round((mm / 4) - per * n + per);
-    return { mins: mm, start: s, end: e, bucket: bucket.map(function (b) { return [b[0], minstohours(b[1])]; }) };
+    bucket[n - 1][1] = credit - per * (n - 1);   // any remainder on the last day
+    return { mins: mm, credit: credit, start: s, end: e, bucket: bucket.map(function (b) { return [b[0], minstohours(b[1])]; }) };
   }
 
   // ---------- Duty (0.50) ----------
@@ -1253,10 +1256,11 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
         var t = tline.slice(0, 11);
         t[1] = '!' + t[1].slice(1); t[0] = prevcalday(t[0]);
         t[4] = '----'; t[6] = '----'; t[7] = '2359'; t[8] = '0';
-        t[9] = String(getblocktime(tline[5], '2359') + 1); t[10] = t[9];   // +1: the day runs to 24:00, not 23:59
+        // midnight split (Jeppesen model, 11/12/26): earlier day counts through 23:59, the minute goes after midnight
+        t[9] = String(getblocktime(tline[5], '2359')); t[10] = t[9];
         out.push(t);
         tline[5] = '2400';
-        tline[9] = String(getblocktime(tline[5], tline[7]));
+        tline[9] = String(getblocktime(tline[5], tline[7]) + 1);
         if (tline[5].slice(0, 2) === '24') tline[5] = '00' + tline[5].slice(2);
         if (String(tline[7]).slice(0, 2) === '24') tline[7] = '00' + String(tline[7]).slice(2);
         tline[10] = String(Math.max(num(tline[8]), num(tline[9])));
@@ -1266,18 +1270,18 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
       // scheduled midnight crossing
       if (ge(hh(tline[6]), '24') && le(hh(tline[4]), '24') && tline[6] !== '') {
         next = next || ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''];
-        // 23:59 split +1 (11/11/26): the earlier day runs to 24:00 and the later day starts at 00:00, so a 23:30-00:15
-        // leg is 30 + 15, not 29 + 16
-        tline[8] = String(getblocktime(tline[4], '2359') + 1);
-        next[0] = nextcalday(tline[0]); next[8] = String(getblocktime('2359', tline[6]) - 1);
+        // midnight split (Jeppesen model, 11/12/26 — replaces the 11/11 exact split): the earlier day counts through
+        // 23:59 and the minute goes to the later day, so a 23:30-00:15 leg is 29 + 16 (total unchanged)
+        tline[8] = String(getblocktime(tline[4], '2359'));
+        next[0] = nextcalday(tline[0]); next[8] = String(getblocktime('2359', tline[6]));
         next[1] = '!' + tline[1]; next[2] = tline[2]; next[3] = tline[3]; next[6] = tline[6];
         tline[6] = '2359'; next[4] = '0000';
       }
       // actual midnight crossing
       if (ge(hh(tline[7]), '24') && le(hh(tline[5]), '24') && tline[7] !== '') {
         next = next || ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''];
-        tline[9] = String(getblocktime(tline[5], '2359') + 1);
-        next[0] = nextcalday(tline[0]); next[9] = String(getblocktime('2359', tline[7]) - 1);
+        tline[9] = String(getblocktime(tline[5], '2359'));
+        next[0] = nextcalday(tline[0]); next[9] = String(getblocktime('2359', tline[7]));
         next[1] = '!' + tline[1]; next[2] = tline[2]; next[3] = tline[3]; next[7] = tline[7];
         tline[7] = '2359'; tline[10] = String(Math.max(num(tline[8]), num(tline[9])));
         next[5] = '0000';
@@ -1316,7 +1320,7 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
     function line(name, code, mins, x, credit) { return { rig: name, code: code, hm: minstohours(mins), mm: hourstomins(minstohours(mins)), x: x, creditHM: minstohours(credit), credit: round(credit) }; }
     var tm = hourstomins(minstohours(T.mins)), dm = hourstomins(minstohours(D.mins));
     var finals = [
-      line('TAFB', 'T', T.mins, '0.25', tm / 4),
+      line('TAFB', 'T', T.mins, '0.25', tafbRig(tm)),
       line('Duty', 'D', D.mins, '0.50', dm / 2),
       line('CBLK', 'B', B.mins, '1.00', hourstomins(minstohours(B.mins))),
       line('MDCR', 'M', M.mins, '1.00', hourstomins(minstohours(M.mins)))
@@ -1923,7 +1927,7 @@ window.FLOGGY_DUTY_CODES = {"A":["F","Return to Field or Gate"],"B":["F","Return
     table('bucket', ['Date', 'REG'], r.bucket, [1]);
     table('flts', ['Date', 'FLT', 'DEP', 'ARV', 'STD', 'ATD', 'STA', 'ATA', 'SBK', 'ABK', 'MBK', 'Duty on', 'Duty off', 'Day'],
       r.rows.map(function (x) { return x.slice(0, 14); }), [4, 5, 6, 7, 8, 9, 10, 11, 12, 13]);
-    $('tafb').innerHTML = '<p class="m">Trip start ' + dt(r.tafb.start) + ' → trip end ' + dt(r.tafb.end) + ' = <strong>' + hm(r.tafb.mins) + '</strong> TAFB → rig ' + hm(Math.round(r.tafb.mins / 4)) + '</p>';
+    $('tafb').innerHTML = '<p class="m">Trip start ' + dt(r.tafb.start) + ' → trip end ' + dt(r.tafb.end) + ' = <strong>' + hm(r.tafb.mins) + '</strong> TAFB → rig ' + hm(r.tafb.credit) + '</p>';
     $('duty').innerHTML = r.duty.list.map(function (d) { return '<p class="m">Duty ' + d.n + ': ' + dt(d.start) + ' → ' + dt(d.end) + ' = ' + hm(d.mins) + '</p>'; }).join('') +
       '<p class="m">Total <strong>' + hm(r.duty.mins) + '</strong> → rig ' + hm(Math.round(r.duty.mins / 2)) + '</p>';
     table('mdcr', ['Date', 'MDBK', 'Block min', 'Credit min'], r.mdcr.table.map(function (t) { return [t.date, t.mdbk, t.cblk, t.mblk]; }), [1, 2, 3]);
