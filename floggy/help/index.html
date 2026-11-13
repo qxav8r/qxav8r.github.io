@@ -469,6 +469,7 @@
   </div>
   <div id="toc">
     <div class="toc-section">Contents</div>
+    <a class="toc-item" href="#floggy-go">Floggy-Go &mdash; Web Companion</a>
     <a class="toc-item" href="#quickstart">Quick Start</a>
     <a class="toc-item" href="#s1">1 &mdash; Overview</a>
     <a class="toc-item" href="#s2">2 &mdash; Data Collection</a>
@@ -491,7 +492,7 @@
     <a class="toc-item sub" href="#s8-edge">Known Edge Cases</a>
     <a class="toc-item sub" href="#s8-bc">BC Winter Times</a>
     <a class="toc-item" href="#s9">9 &mdash; Flt Data Workspace</a>
-    <a class="toc-item sub" href="#s9-flifo">Flifo &mdash; Flight Status Update</a>
+    <a class="toc-item sub" href="#s9-flifo">Flight Status &mdash; Floggy-Go Flifo</a>
     <a class="toc-item" href="#s10">10 &mdash; Calendar</a>
     <a class="toc-item sub" href="#s10-compare">ICS vs APS</a>
     <a class="toc-item sub" href="#s10-ics">Cal &ndash; ICS</a>
@@ -517,6 +518,15 @@
     <h1>Floggy User Guide</h1>
     <div class="byline">Developed by Bill Bowling &nbsp;·&nbsp; Portland, Oregon (PDX) &nbsp;·&nbsp; Version 2.6</div>
   </div>
+
+  <!-- ─── Floggy-Go ─── -->
+  <h2 id="floggy-go">Floggy-Go &mdash; Companion Web App</h2>
+
+  <p><strong>Floggy-Go</strong> is Floggy's free companion for the iPad, iPhone and Mac. It runs in Safari, with nothing to install and no account, and brings Floggy's eCrew imports on the road: <strong>Schedule</strong>, <strong>Pairing</strong>, <strong>Logbook</strong> and <strong>Flighty</strong> send flights straight to LogTen Pro, and <strong>Flifo</strong> picks up actual times and tails from Alaska's flight status.</p>
+  <p>Open it at <a href="https://qxav8r.github.io/">qxav8r.github.io</a>.</p>
+  <div class="tip">Floggy and Floggy-Go use the same flight key, so they update the same LogTen entries instead of creating duplicates. Use Floggy-Go on the road for the current trip, and Floggy on the Mac for whole months, your full history and calendars.</div>
+
+  <hr class="section-divider">
 
   <!-- ─── Quick Start ─── -->
   <h2 id="quickstart">Quick Start &mdash; Your First Month</h2>
@@ -652,7 +662,7 @@ WILCO_Flighty_2026-01-01_to_2026-12-31.csv</pre>
   <h3 id="s2-flifo">Secondary Source &mdash; Alaska Flight Status (Flifo)</h3>
 
   <p>Flight status lookups have moved to <strong>Floggy-Go Flifo</strong>, on the Floggy-Go tools page at <code>qxav8r.github.io</code>. It runs in Safari on your iPad, iPhone or Mac, looks up a flight on Alaska Airlines' public flight status, and sends actual out/in times and the tail number straight to LogTen Pro &mdash; handy for keeping the current trip up to date on the road, between eCrew captures.</p>
-  <p>The <strong>Flifo</strong> button in Floggy's Flt Data workspace (Section 9) now just points you there.</p>
+  <p>Floggy no longer has its own Flifo button; use Floggy-Go Flifo instead (see Section 9).</p>
   <ul>
     <li><strong>Limited look-back, limited look-ahead.</strong> Alaska's flight status only reaches a few days either side of today.</li>
     <li><strong>Not a replacement for eCrew.</strong> Your eCrew schedule, Pairing Details, and Pilot Logbook remain the primary sources for complete records.</li>
@@ -1250,7 +1260,7 @@ ScheduleReport-2.csv
   <p>The Flt column holds either an actual flight number, or a short code (DT, DH, LB, etc.) marking a non-flight duty entry such as Duty Time, Deadhead, or Line Building. The full list of known duty codes, with plain-language descriptions, is maintained in the Data workspace &mdash; see Section 11, Duty Codes.</p>
   <div class="tip">Many buttons operate only on selected rows. Click to select a single row, Shift-Click for a range. Always confirm your selection before pressing an action button.</div>
 
-  <p>The buttons are arranged by task: <strong>Row 1</strong> works with the flight data itself (Copy Crew Names, Sort Flights, Delete Flights, Unlock Flights, Help); <strong>Row 2</strong> gets data out or brings updates in (LogTen Export, HTML Export, CSV Export, Display Flts, Flifo).</p>
+  <p>The buttons are arranged by task: <strong>Row 1</strong> works with the flight data itself (Copy Crew Names, Sort Flights, Delete Flights, Unlock Flights, Help); <strong>Row 2</strong> gets data out (LogTen Export, HTML Export, CSV Export, Display Flts).</p>
 
   <h3>Buttons &mdash; Row 1</h3>
 
@@ -1342,8 +1352,8 @@ ScheduleReport-2.csv
 
   <div class="note">Display Flts is also on the Workspaces palette (Section 7), so you can open this window from any workspace &mdash; including Collect while you parse.</div>
 
-  <h4 id="s9-flifo">Flifo</h4>
-  <p>Flight status lookups now live in <strong>Floggy-Go Flifo</strong> on the Floggy-Go tools page (<code>qxav8r.github.io</code>), which works on the iPad and sends actual times and tails straight to LogTen Pro. Pressing Flifo in Floggy shows a short notice pointing you there; it no longer changes your Flt Data. See Section 2, Secondary Source &mdash; Flifo.</p>
+  <h4 id="s9-flifo">Flight Status &mdash; Floggy-Go Flifo</h4>
+  <p>Flight status lookups now live in <strong>Floggy-Go Flifo</strong> on the Floggy-Go tools page (<code>qxav8r.github.io</code>), which works on the iPad and sends actual times and tails straight to LogTen Pro. Floggy no longer has a Flifo button. See Section 2, Secondary Source &mdash; Flifo.</p>
   <div class="tip">Whatever Floggy-Go Flifo sends to LogTen uses the same flight key as Floggy's LogTen Export, so the two update the same LogTen entries rather than creating duplicates.</div>
 
   <div class="nav-note"><strong>Navigation:</strong> Click the Work Space indicator in the lower-right corner to open the workspace popup menu and jump to any other workspace, or select Nav Tool to open the Workspaces palette.</div>
@@ -1861,7 +1871,10 @@ Description Full event detail including report time, crew info, flight details.<
   <p>LogTen Export now opens a palette with Floggy-Go's options (flight-number code, aircraft type, tail, non-flying duties, duty times, P1/P2), a live summary of the selection, and Save People File&hellip; / Cancel / Send. Each time is sent on its own calendar date, so arrivals and releases after midnight land on the right day. CSV Export now opens a palette that shapes the file for ForeFlight, Logbook Pro, MyFlightbook, a plain spreadsheet, or Floggy's full 31-field layout, with column, row and format choices and a check list before you save. Both follow your Flt Data selection live and remember your choices. See Section 9.</p>
 
   <h4>Flifo Moved to Floggy-Go</h4>
-  <p>Flight status lookups now live in Floggy-Go Flifo on the tools page (<code>qxav8r.github.io</code>), which works on the iPad and sends straight to LogTen. The Flifo button in Flt Data now points you there. See Section 2 and Section 9.</p>
+  <p>Flight status lookups now live in Floggy-Go Flifo on the tools page (<code>qxav8r.github.io</code>), which works on the iPad and sends straight to LogTen. The Flifo button has been removed from Flt Data. See Section 2 and Section 9.</p>
+
+  <h4>New App Icon</h4>
+  <p>Floggy has a new icon: the Floggy jet climbing on a gray background, easier to spot in the Dock and in Finder.</p>
 
   <h4>Parse LogBook &mdash; Times Converted from Base Time</h4>
   <p>Parse LogBook now imports out/in times. The logbook report lists times in your base time, so Floggy converts each leg to local station time (daylight saving time included), and uses the report's "Generated on" time to decide which legs are flown (actual times) and which are still scheduled. A <strong>Logbook Times</strong> notice shows the base and date range before every parse, with a reminder to pull separate reports after a base change. See Section 8, Parse LogBook.</p>
